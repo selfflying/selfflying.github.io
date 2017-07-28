@@ -6,15 +6,20 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>secondblog | Hexo</title>
+  <title>Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="article">
-<meta property="og:title" content="secondblog">
-<meta property="og:url" content="http://yoursite.com/2017/07/26/secondblog/index.html">
+  <meta name="description" content="22017/7/27 13:10:03 CA根证书一、PXE介绍 PXE： Preboot Excution Environment，由Intel公司研发，可以使没有任何操作系统的主机能够基于网络完成系统的安装工作，实现服务器的自动化安装系统">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://yoursite.com/2017/07/27/test/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:updated_time" content="2017-07-26T11:18:12.634Z">
+<meta property="og:description" content="22017/7/27 13:10:03 CA根证书一、PXE介绍 PXE： Preboot Excution Environment，由Intel公司研发，可以使没有任何操作系统的主机能够基于网络完成系统的安装工作，实现服务器的自动化安装系统">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/6308387-8998818fdd0ccd45.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2017-07-27T05:52:53.835Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="secondblog">
+<meta name="twitter:title" content="Hexo">
+<meta name="twitter:description" content="22017/7/27 13:10:03 CA根证书一、PXE介绍 PXE： Preboot Excution Environment，由Intel公司研发，可以使没有任何操作系统的主机能够基于网络完成系统的安装工作，实现服务器的自动化安装系统">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/6308387-8998818fdd0ccd45.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
   
     <link rel="alternative" href="/atom.xml" title="Hexo" type="application/atom+xml">
   
@@ -46,7 +51,7 @@
 			<img src="null" class="js-avatar">
 		</a>
 		<hgroup>
-		  <h1 class="header-author"><a href="/">John Doe</a></h1>
+		  <h1 class="header-author"><a href="/">Feixiang Fu</a></h1>
 		</hgroup>
 		
 
@@ -104,7 +109,7 @@
 				<img src="null" class="js-avatar">
 			</div>
 			<hgroup>
-			  <h1 class="header-author js-header-author">John Doe</h1>
+			  <h1 class="header-author js-header-author">Feixiang Fu</h1>
 			</hgroup>
 			
 			
@@ -150,27 +155,28 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-secondblog" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-test" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 class="article-title" itemprop="name">
-      secondblog
-    </h1>
-  
-
-        
-        <a href="/2017/07/26/secondblog/" class="archive-article-date">
-  	<time datetime="2017-07-26T11:18:12.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-07-26</time>
-</a>
-        
-      </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <p>22017/7/27 13:10:03</p>
+<h2 id="CA根证书"><a href="#CA根证书" class="headerlink" title="CA根证书"></a>CA根证书</h2><p>一、PXE介绍</p>
+<p>PXE： Preboot Excution Environment，由Intel公司研发，可以使没有任何操作系统的主机能够基于网络完成系统的安装工作，实现服务器的自动化安装系统<br><a id="more"></a><br>二、PXE工作原理</p>
+<ul>
+<li>Client向PXE Server上的DHCP发送IP地址请求消息，DHCP检测Client是否合法（主要是检测Client的网卡MAC地址），如果合法则返回Client的IP地址，同时将启动文件pxelinux.0的位置信息一并传送给Client</li>
+<li>Client向PXE Server上的TFTP发送获取pxelinux.0请求消息， TFTP接收到消息之后再向Client发送pxelinux.0大小信息，试探Client是否满意，当TFTP收到Client发回的同意大小信息之后，正式向Client发送pxelinux.0</li>
+<li>Client执行接收到的pxelinux.0文件</li>
+<li>Client向TFTP Server发送针对本机的配置信息文件（在TFTP 服务的pxelinux.cfg目录下）， TFTP将配置文件发回Client，继而Client根据配置文件执行后续操作</li>
+<li>Client向TFTP发送Linux内核请求信息， TFTP接收到消息之后将内核文件发送给Client</li>
+<li>Client向TFTP发送根文件请求信息， TFTP接收到消息之后返回Linux根文件系统</li>
+<li>Client启动Linux内核</li>
+<li>Client下载安装源文件，读取自动化安装脚本</li>
+</ul>
+<p>三、PXE Server 的配置</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/6308387-8998818fdd0ccd45.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="CA证书"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">[root@centos7 ~]$cp /usr/share/doc/dhcp*/dhcpd.conf.example /etc/dhcp/dhcpd.conf  --&gt; 使用模本配置文件</div><div class="line">[root@centos7 ~]#vi /etc/dhcp/dhcpd.conf</div><div class="line"></div><div class="line">subnet 192.168.196.0 netmask 255.255.255.0 &#123;                --&gt; 定义网段</div><div class="line">  range 192.168.196.10 192.168.196.40;                      --&gt; 定义分配IP范围</div><div class="line">  option routers 192.168.196.1;                             --&gt; 配置路由</div><div class="line">  filename &quot;pxelinux.0&quot;;                                    --&gt; 启动文件名称</div><div class="line">  next-server 192.168.196.188;                              --&gt; dhcp服务器地址                           </div><div class="line">&#125;</div><div class="line">[root@centos7 ~]#systemctl start dhcpd</div><div class="line">[root@centos7 ~]#systemctl enable dhcpd</div></pre></td></tr></table></figure>
+
       
 
       
@@ -249,7 +255,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="http://s.jiathis.com/qrcode.php?url=http://yoursite.com/2017/07/26/secondblog/" alt="微信分享二维码">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://yoursite.com/2017/07/27/test/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -262,15 +268,6 @@
 
   
 <nav id="article-nav">
-  
-    <a href="/2017/07/26/firstblog/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          firstblog
-        
-      </div>
-    </a>
   
   
     <a href="/2017/07/26/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
@@ -315,7 +312,7 @@
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2017 John Doe
+    		&copy; 2017 Feixiang Fu
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
