@@ -6,19 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Hexo</title>
+  <title>CA根证书 | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="22017/7/27 13:10:03 CA根证书一、PXE介绍 PXE： Preboot Excution Environment，由Intel公司研发，可以使没有任何操作系统的主机能够基于网络完成系统的安装工作，实现服务器的自动化安装系统">
+  <meta name="description" content="一、PXE介绍 PXE： Preboot Excution Environment，由Intel公司研发，可以使没有任何操作系统的主机能够基于网络完成系统的安装工作，实现服务器的自动化安装系统">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hexo">
+<meta property="og:title" content="CA根证书">
 <meta property="og:url" content="http://yoursite.com/2017/07/27/test/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="22017/7/27 13:10:03 CA根证书一、PXE介绍 PXE： Preboot Excution Environment，由Intel公司研发，可以使没有任何操作系统的主机能够基于网络完成系统的安装工作，实现服务器的自动化安装系统">
+<meta property="og:description" content="一、PXE介绍 PXE： Preboot Excution Environment，由Intel公司研发，可以使没有任何操作系统的主机能够基于网络完成系统的安装工作，实现服务器的自动化安装系统">
 <meta property="og:image" content="http://upload-images.jianshu.io/upload_images/6308387-8998818fdd0ccd45.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
-<meta property="og:updated_time" content="2017-07-27T05:52:53.835Z">
+<meta property="og:updated_time" content="2017-07-28T00:26:46.361Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hexo">
-<meta name="twitter:description" content="22017/7/27 13:10:03 CA根证书一、PXE介绍 PXE： Preboot Excution Environment，由Intel公司研发，可以使没有任何操作系统的主机能够基于网络完成系统的安装工作，实现服务器的自动化安装系统">
+<meta name="twitter:title" content="CA根证书">
+<meta name="twitter:description" content="一、PXE介绍 PXE： Preboot Excution Environment，由Intel公司研发，可以使没有任何操作系统的主机能够基于网络完成系统的安装工作，实现服务器的自动化安装系统">
 <meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/6308387-8998818fdd0ccd45.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
   
     <link rel="alternative" href="/atom.xml" title="Hexo" type="application/atom+xml">
@@ -158,10 +158,24 @@
             <article id="post-test" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      CA根证书
+    </h1>
+  
+
+        
+        <a href="/2017/07/27/test/" class="archive-article-date">
+  	<time datetime="2017-07-27T05:04:45.441Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-07-27</time>
+</a>
+        
+      </header>
+    
     <div class="article-entry" itemprop="articleBody">
       
-        <p>22017/7/27 13:10:03</p>
-<h2 id="CA根证书"><a href="#CA根证书" class="headerlink" title="CA根证书"></a>CA根证书</h2><p>一、PXE介绍</p>
+        <p>一、PXE介绍</p>
 <p>PXE： Preboot Excution Environment，由Intel公司研发，可以使没有任何操作系统的主机能够基于网络完成系统的安装工作，实现服务器的自动化安装系统<br><a id="more"></a><br>二、PXE工作原理</p>
 <ul>
 <li>Client向PXE Server上的DHCP发送IP地址请求消息，DHCP检测Client是否合法（主要是检测Client的网卡MAC地址），如果合法则返回Client的IP地址，同时将启动文件pxelinux.0的位置信息一并传送给Client</li>
