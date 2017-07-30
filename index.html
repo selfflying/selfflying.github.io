@@ -76,6 +76,8 @@
 				
 					<a class="github" target="_blank" href="https://github.com/selfflying/" title="github"><i class="icon-github"></i></a>
 		        
+					<a class="mail" target="_blank" href="mailto:self_flying@outlook.com" title="mail"><i class="icon-mail"></i></a>
+		        
 			</div>
 		</nav>
 	</header>		
@@ -111,6 +113,8 @@
 					
 						<a class="github" target="_blank" href="https://github.com/selfflying/" title="github"><i class="icon-github"></i></a>
 			        
+						<a class="mail" target="_blank" href="mailto:self_flying@outlook.com" title="mail"><i class="icon-mail"></i></a>
+			        
 				</div>
 			</nav>
 
@@ -137,30 +141,51 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-test" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-Maradb二进制安装" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/blogs/test/">CA根证书</a>
+      <a class="article-title" href="/blogs/Maradb二进制安装/">CentOS6 mariadb二进制安装</a>
     </h1>
   
 
         
-        <a href="/blogs/test/" class="archive-article-date">
-  	<time datetime="2017-07-27T05:04:45.441Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-07-27</time>
+        <a href="/blogs/Maradb二进制安装/" class="archive-article-date">
+  	<time datetime="2017-07-30T08:21:01.628Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-07-30</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>一、PXE介绍<br>PXE： Preboot Excution Environment，由Intel公司研发，可以使没有任何操作系统的主机能够基于网络完成系统的安装工作，实现服务器的自动化安装系统
-        
-          <a class="article-more-a" href="/blogs/test/#more">more >></a>
-        
+        <p>MariaDB 是一个采用Maria 存储引擎的MySQL分支版本，是由原来 MySQL 的作者Michael Widenius创办的公司所开发的免费开源的数据库服务器。MariaDB是目前最受关注的MySQL数据库衍生版，也被视为开源数据库MySQL的替代品。除了使用Linux 各发行版供应商的程序包安装，也可以选择基于二进制格式的程序包进行安装。具体安装步骤如下：</p>
+<h4 id="1-下载二进制源码"><a href="#1-下载二进制源码" class="headerlink" title="1.下载二进制源码"></a>1.下载二进制源码</h4><p>官网下载地址<a href="http://downloads.mariadb.org" target="_blank" rel="external">http://downloads.mariadb.org</a></p>
+<h4 id="2-创建系统用户"><a href="#2-创建系统用户" class="headerlink" title="2.创建系统用户"></a>2.创建系统用户</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[root@Centos6 ~]# groupadd -r -g 36 mysql</div><div class="line">[root@Centos6 ~]# useradd -r -u 36 -g 36 mysql</div></pre></td></tr></table></figure>
+<h4 id="3-准备二进制程序"><a href="#3-准备二进制程序" class="headerlink" title="3.准备二进制程序"></a>3.准备二进制程序</h4><blockquote>
+<p>解压缩包到/usr/local</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[root@Centos6 ~]# tar xf /root/mariadb-5.5.57-linux-x86_64.tar.gz -C /usr/local/</div></pre></td></tr></table></figure>
+<blockquote>
+<p>创建软链接并修改目录属组为mysql</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[root@Centos6 local]#cd /usr/local</div><div class="line">[root@Centos6 local]#ln -sv  mariadb-5.5.57-linux-x86_64/ mysql</div><div class="line">	`mysql&apos; -&gt; `mariadb-5.5.57-linux-x86_64/&apos;</div><div class="line">[root@Centos6 local]# chown -R root:mysql /usr/local/mysql/</div></pre></td></tr></table></figure>
+<h4 id="4-准备mysql数据存储目录"><a href="#4-准备mysql数据存储目录" class="headerlink" title="4.准备mysql数据存储目录"></a>4.准备mysql数据存储目录</h4><blockquote>
+<p>建议把mysql数据存在基于逻辑卷的单独分区</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[root@Centos6 local]#lvcreate -L 20G -n mydata vg_centos6</div><div class="line">[root@Centos6 local]#mkfs.ext4 /dev/vg_centos6/mydata</div></pre></td></tr></table></figure>
+<blockquote>
+<p>设置开机自动挂载逻辑卷mydata到/mydata</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[root@Centos6 local]mkdir /mydata</div><div class="line">[root@Centos6 local]vim /etc/fstab</div><div class="line">	/dev/vg_centos6/mydata /mydata                  ext4    defaults        0 0</div><div class="line">[root@Centos6 local]mount -a</div></pre></td></tr></table></figure>
+<blockquote>
+<p>创建存储目录/mydata/data并修改属主属组为mysql</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[root@Centos6 local]chown mysql:mysql /mydata/data</div></pre></td></tr></table></figure>
+<h4 id="5-创建数据库文件"><a href="#5-创建数据库文件" class="headerlink" title="5.创建数据库文件"></a>5.创建数据库文件</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"></div></pre></td></tr></table></figure>
+
       
 
       
@@ -183,7 +208,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/test/">展开全文 >></a>
+          <a class="article-more-a" href="/blogs/Maradb二进制安装/">展开全文 >></a>
         </p>
       
 
