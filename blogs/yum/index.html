@@ -6,14 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://fufeixiang.com">
-  <title>Archives: 2017/8 | ffu&#39;s Blogs</title>
+  <title>yum客户端的配置及yum命令用法 | ffu&#39;s Blogs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="ffu&#39;s Blogs">
-<meta property="og:url" content="http://fufeixiang.com/archives/2017/08/index.html">
+  <meta name="description" content="###什么是yum我们在Linux系统上安装处理软件，一般是使用RPM，它是通过预先编译完成并且把软件打包为RPM文件格式后，再加以安装的一种方式，使用者只要拿到这个打包好的软件，然后将里头的文件放置到应该摆放的目录，这样就完成了安装。但是，由于有些软件是有依赖于其他软件的，当你要安装某个RPM类型的软件时，RPM会检验RPM软件数据库，它所依赖的相关软件包是否都已存在，如果没有检索到，那么这个R">
+<meta name="keywords" content="Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="yum客户端的配置及yum命令用法">
+<meta property="og:url" content="http://fufeixiang.com/blogs/yum/index.html">
 <meta property="og:site_name" content="ffu&#39;s Blogs">
+<meta property="og:description" content="###什么是yum我们在Linux系统上安装处理软件，一般是使用RPM，它是通过预先编译完成并且把软件打包为RPM文件格式后，再加以安装的一种方式，使用者只要拿到这个打包好的软件，然后将里头的文件放置到应该摆放的目录，这样就完成了安装。但是，由于有些软件是有依赖于其他软件的，当你要安装某个RPM类型的软件时，RPM会检验RPM软件数据库，它所依赖的相关软件包是否都已存在，如果没有检索到，那么这个R">
+<meta property="og:updated_time" content="2017-08-01T13:22:58.408Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="ffu&#39;s Blogs">
+<meta name="twitter:title" content="yum客户端的配置及yum命令用法">
+<meta name="twitter:description" content="###什么是yum我们在Linux系统上安装处理软件，一般是使用RPM，它是通过预先编译完成并且把软件打包为RPM文件格式后，再加以安装的一种方式，使用者只要拿到这个打包好的软件，然后将里头的文件放置到应该摆放的目录，这样就完成了安装。但是，由于有些软件是有依赖于其他软件的，当你要安装某个RPM类型的软件时，RPM会检验RPM软件数据库，它所依赖的相关软件包是否都已存在，如果没有检索到，那么这个R">
   
     <link rel="alternative" href="/atom.xml" title="ffu&#39;s Blogs" type="application/atom+xml">
   
@@ -139,36 +144,169 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
+            <article id="post-yum" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
   
+    <h1 class="article-title" itemprop="name">
+      yum客户端的配置及yum命令用法
+    </h1>
   
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2017" class="archive-year">2017</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/yum/" class="archive-article-date">
+
+        
+        <a href="/blogs/yum/" class="archive-article-date">
   	<time datetime="2017-08-01T13:19:27.723Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-01</time>
 </a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/yum/">yum客户端的配置及yum命令用法</a>
-    </h1>
-  
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>###什么是yum<br>我们在Linux系统上安装处理软件，一般是使用RPM，它是通过预先编译完成并且把软件打包为RPM文件格式后，再加以安装的一种方式，使用者只要拿到这个打包好的软件，然后将里头的文件放置到应该摆放的目录，这样就完成了安装。但是，由于有些软件是有依赖于其他软件的，当你要安装某个RPM类型的软件时，RPM会检验RPM软件数据库，它所依赖的相关软件包是否都已存在，如果没有检索到，那么这个RPM文件默认就不能安装。甚至是有些包之间还会存在循环依赖，这时RPM就不能快速有效的进行软件安装了。<a id="more"></a><br>对于RPM的上述局限性，yum的出现就解决了包之间的依赖性的问题。文章前面提到了，RPM把软件依赖关系储存在本地数据库里，那我们在安装软件的时候，如果先到数据库里找到所有依赖包的列表，再检索哪些已经安装到本地，然后把剩下没安装的一起安装，这样就可以解决包依赖性的问题了，这就是yum机制的由来</p>
+<p>###yum的运作流程<br>各版本发行商都会释放出软件并放置于yum服务器上，所以yum服务器储存有我们各种所需的软件。参考下图，yum服务器不仅存储了各种RPM包，还有包的相关的元数据文件（放置于特定目录repodata下），前面提到的包的依赖性关系就储存在元数据文件中。這些文件与RPM软件包所在的本地或网络位置就被称为yum仓库(yum repo)。当用户端有软件安装或升级的需求时，用户端会访问yum服务器下载或更新RPM软件列表并存在本机缓存列表中，然后通过缓存列表与本地RPM数据库相比对，筛选出缺少哪些RPM软件包并根据yum仓库储存的路径下载（可以是本地，也可以是网络），最后通过RPM机制一并进行安装。</p>
+<p>###如何配置yum客户端</p>
+<blockquote>
+<p>yum本身的配置文件，主要指向仓库的位置以及相关的各种配置信息。</p>
+</blockquote>
+<h5 id="主配置文件"><a href="#主配置文件" class="headerlink" title="主配置文件"></a>主配置文件</h5><blockquote>
+<p><code>/etc/yum.conf</code>：为所有仓库提供公共配置</p>
+</blockquote>
+<h5 id="各仓库指向的定义"><a href="#各仓库指向的定义" class="headerlink" title="各仓库指向的定义"></a>各仓库指向的定义</h5><blockquote>
+<p><code>/etc/yum.repos.d/*.repo</code>：为仓库的指向提供配置</p>
+</blockquote>
+<pre><code>* [repositoryID]
+  #仓库的名字，具有唯一性，标识repo的指向
+* name=Some name for this repository
+  #仓库描述信息
+* baseurl=url://path/to/repository/
+  #指明repo的访问路径，通常为一个文件服务器上输出的某repo
+  #文件服务器类型
+          http://SEVER/PATH/TO/REPOSITORY
+          https://SEVER/PATH/TO/REPOSITORY
+          ftp://SEVER/PATH/TO/REPOSITORY
+          file:///PATH/TO/REPOSITORY
+* enabled={1|0}
+  #此仓库是否可被使用
+* gpgcheck={1|0}
+  #是否对RPM包做检验
+* gpgkey=url://path/to/keyfile/
+  #指明gpgkey文件路径
+* enablegroups={1|0}
+  #是否启用包组
+* failovermethod={roundrobin|priority}
+  #设置baseurl有多个时的优先级
+            roundrobin：随机挑选，默认值
+             priority:按顺序访问
+* cost= 
+  #指明仓库的访问开销，默认为1000
+</code></pre><h5 id="创建新的配置文件"><a href="#创建新的配置文件" class="headerlink" title="创建新的配置文件"></a>创建新的配置文件</h5><blockquote>
+<p>按照以上方式，我们就在<code>/etc/yum.repos.d/</code>目录下创建newbase.repo的配置文件（这里要注意目录下的配置文件只要有一个有问题就会影响yum的使用）</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">[root@centos7 ~]#vi /etc/yum.repos.d/newbase.repo</div><div class="line">[NewBase]</div><div class="line">name=NewBase</div><div class="line">baseurl=https://mirrors.aliyun.com/centos/7/os/x86_64/    #使用阿里云CentOS系统yum源</div><div class="line">        file:///misc/cd/                                  #使用本地光盘作为yum源</div><div class="line">enable=1</div><div class="line">gpgcheck=1</div><div class="line">gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7       #使用本地文件，也可以使用文件服务器上的，https://mirrors.aliyun.com/centos/7/os/x86_64/RPM-GPG-KEY-CentOS-7</div><div class="line">failovermethod=&#123;priority&#125; #按顺序访问baseurl路径</div></pre></td></tr></table></figure>
+<blockquote>
+<p>对于CentOS来说，也支持由Fedora基金会发展的外加软件计划(Extra Packages for Enterprise Linux, EPEL)，包含了很多第三方软件。我们可以使用阿里云的Epel的yum源：<code>https://mirrors.aliyun.com/epel/7/x86_64</code>，只需在newbase.repo配置文件中创建另一个yum仓库：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[NewEpel]</div><div class="line">name=NewEpel</div><div class="line">baseurl=https://mirrors.aliyun.com/epel/7/x86_64/</div><div class="line">enabled=1</div><div class="line">gpgcheck=1</div><div class="line">gpgkey=file:///etc/pki/rpm-gpg/rpm-gpg-key-epel-7</div></pre></td></tr></table></figure></p>
+</blockquote>
+<p>#####yum仓库的测试</p>
+<blockquote>
+<p>yum repolist: 列出已经配置的所有yum仓库</p>
+<p>用法：yum repolist [all|enabled|disabled]</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">[root@centos7 ~]#yum repolist all</div><div class="line">Loaded plugins: fastestmirror, langpacks</div><div class="line">Loading mirror speeds from cached hostfile</div><div class="line"></div><div class="line"> * NewBase: </div><div class="line">     repo id                                                    repo name                                                 status</div><div class="line">       !Centos7                                                   Centos7                                                   disabled</div><div class="line">       NewBase                                                    NewBase                                                   enabled:  9,363</div><div class="line">       NewEpel                                                    NewEpel                                                   enabled: 11,787</div><div class="line">       !epel7                                                     epel7                                                     disabled</div><div class="line">       repolist: 21,150</div><div class="line"># NewBase和NewEpel两个yum仓库的status都为enabled，说明已经成功激活</div></pre></td></tr></table></figure>
+<h3 id="yum命令的用法"><a href="#yum命令的用法" class="headerlink" title="yum命令的用法"></a>yum命令的用法</h3><blockquote>
+<p><code>yum [options][command] [package …]</code><br>Command:</p>
+<h6 id="显示服务器提供的程序包："><a href="#显示服务器提供的程序包：" class="headerlink" title="显示服务器提供的程序包："></a>显示服务器提供的程序包：</h6><p>yum list </p>
+<p>yum list [all | glob_exp1][glob_exp2] […] #默认为all,显示全部RPM包，也支持glob通配符</p>
+<p>yum list {available|installed|updates} [glob_exp1][…]</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">[root@centos7 ~]#yum list|less</div><div class="line">Installed Packages                                                               #已安装软件</div><div class="line">GConf2.x86_64                           3.2.6-8.el7                    @anaconda #随安装向导安装的</div><div class="line">apr.x86_64                              1.4.8-3.el7                    @Centos7  #通过Centos7yum仓库安装</div><div class="line">.....中间省略.......</div><div class="line">Available Packages                                                               #还可以安装的软件</div><div class="line">0ad.x86_64                              0.0.21-1.el7                   NewEpel   #位置</div><div class="line">389-ds-base.x86_64                      1.3.5.10-11.el7                NewBase   #位置</div><div class="line">.....(底下省略).....</div></pre></td></tr></table></figure>
+<blockquote>
+<p>yum list updates 目前服务器上可供本机进行升级的软件有哪些，与yum check-update 类似</p>
+<h6 id="安装程序包："><a href="#安装程序包：" class="headerlink" title="安装程序包："></a>安装程序包：</h6><p>yum install package1 [package2][…]   (包名)<br>​    如果一个包在不同仓库中有多个版本，默认会安装最新版本<br>​    如果要安装制定版本：install PACKAGE-VERSION…<br>yum reinstall package1 [package2][…] (重新安装)</p>
+</blockquote>
+<h6 id="升级程序包："><a href="#升级程序包：" class="headerlink" title="升级程序包："></a>升级程序包：</h6><blockquote>
+<p>yum update [package1][package2] […]</p>
+<p>yum downgrade package1 [package2][…] (降级)</p>
+</blockquote>
+<h6 id="卸载程序包："><a href="#卸载程序包：" class="headerlink" title="卸载程序包："></a>卸载程序包：</h6><blockquote>
+<p>yum remove | erase package1 [package2][…]</p>
+<p>此命令默认是不会卸载所依赖的包,但是依赖于正卸载的程序包的程序包会被一并卸载</p>
+</blockquote>
+<h6 id="查看程序包information："><a href="#查看程序包information：" class="headerlink" title="查看程序包information："></a>查看程序包information：</h6><blockquote>
+<p>yum info […]</p>
+</blockquote>
+<h6 id="查看指定的特性-可以是某文件-是由哪个程序包所提供"><a href="#查看指定的特性-可以是某文件-是由哪个程序包所提供" class="headerlink" title="查看指定的特性(可以是某文件)是由哪个程序包所提供"></a>查看指定的特性(可以是某文件)是由哪个程序包所提供</h6><blockquote>
+<p>yum provides | whatprovides feature1 [feature2][…]<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">[root@centos7 ~]#yum provides /usr/bin/bash</div><div class="line">Loaded plugins: fastestmirror, langpacks</div><div class="line">Loading mirror speeds from cached hostfile</div><div class="line"> * NewBase: </div><div class="line">     bash-4.2.46-20.el7_2.x86_64 : The GNU Bourne Again shell</div><div class="line">       Repo        : NewBase</div><div class="line">       Matched from:</div><div class="line">       Filename    : /usr/bin/bash</div><div class="line">#bash的可执行程序文件是由bash-4.2.46-20.el7_2.x86_64这个RPM包提供的</div></pre></td></tr></table></figure></p>
+</blockquote>
+<h6 id="缓存管理"><a href="#缓存管理" class="headerlink" title="缓存管理"></a>缓存管理</h6><blockquote>
+<p>清理本地缓存：<br>在yum运作流程中我们提到了客户端存有缓存列表，这些文件默认是存在/var/cache/yum/目录下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">[root@centos7 ~]#ls /var/cache/yum/x86_64/7/    #本机yum的缓存位置</div><div class="line">base  Centos7  epel7  extras  NewBase  NewEpel  timedhosts  timedhosts.txt  updates</div></pre></td></tr></table></figure></p>
+<p>yum clean [ packages | metadata | expire-cache | rpmdb | plugins | all ]<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[root@centos7 ~]#yum clean all</div><div class="line">Loaded plugins: fastestmirror, langpacks</div><div class="line">Cleaning repos: NewBase NewEpel</div><div class="line">Cleaning up everything</div><div class="line">Cleaning up list of fastest mirrors</div></pre></td></tr></table></figure></p>
+<p>构建缓存：<br>yum makecache #自动连接至每一个可用仓库，下载数据，创建为缓存<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">[root@centos7 ~]#yum makecache</div><div class="line">Loaded plugins: fastestmirror, langpacks</div><div class="line">NewBase                                                                                                      | 3.6 kB  00:00:00     </div><div class="line">NewEpel                                                                                                      | 4.3 kB  00:00:00     </div><div class="line">(1/4): NewBase/other_db                                                                                      | 2.4 MB  00:00:00     </div><div class="line">(2/4): NewBase/filelists_db                                                                                  | 6.6 MB  00:00:00     </div><div class="line">(3/4): NewEpel/other_db                                                                                      | 2.2 MB  00:00:02     </div><div class="line">(4/4): NewEpel/filelists_db                                                                                  | 8.0 MB  00:00:23     </div><div class="line">Loading mirror speeds from cached hostfile</div><div class="line"> * NewBase: </div><div class="line">     Metadata Cache Created</div></pre></td></tr></table></figure></p>
+</blockquote>
+<p>######搜索</p>
+<blockquote>
+<p>yum search string1 [string2][…]<br>搜索与以指定的关键字程序包名有关的软件列表</p>
+</blockquote>
+<h6 id="查看yum事务历史："><a href="#查看yum事务历史：" class="headerlink" title="查看yum事务历史："></a>查看yum事务历史：</h6><blockquote>
+<p>yum history [info|list|packages- list|packages- info|summary|addon- info|redo|undo|rollback|new|sync|stats]<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">#yum history列出yum的详细操作历史</div><div class="line">[root@centos7 ~]#yum history</div><div class="line">Loaded plugins: fastestmirror, langpacks</div><div class="line">ID     | Login user               | Date and time    | Action(s)      | Altered</div><div class="line">-------------------------------------------------------------------------------</div><div class="line">     6 | root &lt;root&gt;              | 2017-06-11 19:39 | Install        |    1 P&lt;</div><div class="line">     5 | root &lt;root&gt;              | 2017-06-11 18:10 | Install        |    1 &gt;&lt;</div><div class="line">     4 | root &lt;root&gt;              | 2017-06-11 17:40 | Install        |    1 &gt;&lt;</div><div class="line">     3 | root &lt;root&gt;              | 2017-06-10 09:28 | Install        |   53 &gt;&lt;</div><div class="line">     2 | System &lt;unset&gt;           | 2017-05-19 14:53 | Install        |    1 &gt; </div><div class="line">     1 | System &lt;unset&gt;           | 2017-05-17 12:55 | Install        | 1319   </div><div class="line">history list</div></pre></td></tr></table></figure></p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">#yum history info 6 查看第6条历史的详细操作，从Conmand Lind可以看出是安装了tree软件包</div><div class="line">[root@centos7 ~]#yum history info 6   </div><div class="line">Loaded plugins: fastestmirror, langpacks</div><div class="line">Transaction ID : 6</div><div class="line">Begin time     : Sun Jun 11 19:39:02 2017</div><div class="line">Begin rpmdb    : 1376:18487d64bcef03c85f0f14dca43701acce15328a</div><div class="line">End time       :                           (0 seconds)</div><div class="line">End rpmdb      : 1377:8e94811fa592da9c619827c4eb3a265af705bb45</div><div class="line">User           : root &lt;root&gt;</div><div class="line">Return-Code    : Success</div><div class="line">Command Line   : install tree  </div><div class="line">Transaction performed with:</div><div class="line">    Installed     rpm-4.11.3-21.el7.x86_64                      @anaconda</div><div class="line">    Installed     yum-3.4.3-150.el7.centos.noarch               @anaconda</div><div class="line">    Installed     yum-plugin-fastestmirror-1.1.31-40.el7.noarch @anaconda</div><div class="line">Packages Altered:</div><div class="line">    Install tree-1.6.0-10.el7.x86_64 @NewBase</div><div class="line">Rpmdb Problems:</div><div class="line">    conflicts: ipa-client-4.4.0-12.el7.centos.x86_64 has installed conflicts freeipa-client: ipa-client-4.4.0-12.el7.centos.x86_64</div><div class="line">        Installed     ipa-client-4.4.0-12.el7.centos.x86_64 @anaconda</div><div class="line">    conflicts: ipa-client-common-4.4.0-12.el7.centos.noarch has installed conflicts freeipa-client-common:</div><div class="line">             : ipa-client-common-4.4.0-12.el7.centos.noarch</div><div class="line">        Installed     ipa-client-common-4.4.0-12.el7.centos.noarch @anaconda</div><div class="line">    conflicts: ipa-common-4.4.0-12.el7.centos.noarch has installed conflicts freeipa-common: ipa-common-4.4.0-12.el7.centos.noarch</div><div class="line">        Installed     ipa-common-4.4.0-12.el7.centos.noarch @anaconda</div><div class="line">history info</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line">yum history undo 6 撤消第6条的操作，即卸载tree包</div><div class="line">[root@centos7 ~]#yum history undo 6</div><div class="line">Loaded plugins: fastestmirror, langpacks</div><div class="line">Undoing transaction 6, from Sun Jun 11 19:39:02 2017</div><div class="line">    Install tree-1.6.0-10.el7.x86_64 @NewBase</div><div class="line">Resolving Dependencies</div><div class="line">--&gt; Running transaction check</div><div class="line">---&gt; Package tree.x86_64 0:1.6.0-10.el7 will be erased</div><div class="line">--&gt; Finished Dependency Resolution</div><div class="line"></div><div class="line">Dependencies Resolved</div><div class="line"></div><div class="line">====================================================================================================================================</div><div class="line">Package                    Arch                         Version                               Repository                      Size</div><div class="line">====================================================================================================================================</div><div class="line">Removing:</div><div class="line"> tree                       x86_64                       1.6.0-10.el7                          @NewBase                        87 k</div><div class="line"></div><div class="line">Transaction Summary</div><div class="line">====================================================================================================================================</div><div class="line">Remove  1 Package</div><div class="line"></div><div class="line">Installed size: 87 k</div><div class="line">Is this ok [y/N]: y</div><div class="line">Downloading packages:</div><div class="line">Running transaction check</div><div class="line">Running transaction test</div><div class="line">Transaction test succeeded</div><div class="line">Running transaction</div><div class="line">  Erasing    : tree-1.6.0-10.el7.x86_64                                                                                         1/1 </div><div class="line">  Verifying  : tree-1.6.0-10.el7.x86_64                                                                                         1/1 </div><div class="line"></div><div class="line">Removed:</div><div class="line">  tree.x86_64 0:1.6.0-10.el7                                                                                                        </div><div class="line"></div><div class="line">Complete!</div></pre></td></tr></table></figure>
+<blockquote>
+<p>这里要注意，在第四个卸载命令里提到了，remove命令是不会把其依赖的包卸载，而通过undo 命令是可以全部卸载的</p>
+<p>######包组管理的相关命令：<br>yum grouplist</p>
+</blockquote>
+<p>列出所有可使用的软件群组,主要分为以下四类：<br>Installed environment groups: 已经安装的系统环境包组<br>Available environment groups: 还可以安装的系统环境包组<br>Installed groups: 已经安装的包组<br>Available Groups: 还能额外安装的包组</p>
+<blockquote>
+<p><code>yum groupinstall group1 [group2][…]</code> 安装包组</p>
+<p><code>yum groupupdate group1 [group2][…]</code>升级包组</p>
+<p><code>yum groupremove group1 [group2][…]</code>卸载包组</p>
+<p><code>yum groupinfo group1 […]</code>显示指定包组信息</p>
+</blockquote>
+<h6 id="yum的命令行选项："><a href="#yum的命令行选项：" class="headerlink" title="yum的命令行选项："></a>yum的命令行选项：</h6><blockquote>
+<p>-y: 自动回答为“ yes”</p>
+<p>-q:静默模式</p>
+<p>–nogpgcheck：禁止进行gpg check</p>
+<p>–disablerepo=repoidglob：临时禁用此处指定的repo</p>
+<p>–enablerepo=repoidglob：临时启用此处指定的repo</p>
+<p>–noplugins：禁用所有插件</p>
+<p>yum命令的用法就简单介绍这么多，同时希望本文能让你对yum的使用有所帮助。</p>
+</blockquote>
 
-        <div class="article-info info-on-right">
-          
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>♪ 交个朋友吧  ♪<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/images/webchat.png">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -180,57 +318,117 @@
 		</ul>
 	</div>
 
-          
+      
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://fufeixiang.com/blogs/yum/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/boot/" class="archive-article-date">
-  	<time datetime="2017-08-01T12:04:52.636Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-01</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/blogs/boot/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">/etc/fstab及/boot分区文件恢复</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/boot/">/etc/fstab及/boot分区文件恢复</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-5"><a class="toc-link" href="#主配置文件"><span class="toc-number">1.</span> <span class="toc-text">主配置文件</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#各仓库指向的定义"><span class="toc-number">2.</span> <span class="toc-text">各仓库指向的定义</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#创建新的配置文件"><span class="toc-number">3.</span> <span class="toc-text">创建新的配置文件</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#yum命令的用法"><span class="toc-number"></span> <span class="toc-text">yum命令的用法</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#显示服务器提供的程序包："><span class="toc-number">0.1.</span> <span class="toc-text">显示服务器提供的程序包：</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#安装程序包："><span class="toc-number">0.2.</span> <span class="toc-text">安装程序包：</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#升级程序包："><span class="toc-number">0.3.</span> <span class="toc-text">升级程序包：</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#卸载程序包："><span class="toc-number">0.4.</span> <span class="toc-text">卸载程序包：</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#查看程序包information："><span class="toc-number">0.5.</span> <span class="toc-text">查看程序包information：</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#查看指定的特性-可以是某文件-是由哪个程序包所提供"><span class="toc-number">0.6.</span> <span class="toc-text">查看指定的特性(可以是某文件)是由哪个程序包所提供</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#缓存管理"><span class="toc-number">0.7.</span> <span class="toc-text">缓存管理</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#查看yum事务历史："><span class="toc-number">0.8.</span> <span class="toc-text">查看yum事务历史：</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#yum的命令行选项："><span class="toc-number">0.9.</span> <span class="toc-text">yum的命令行选项：</span></a></li></ol></li></ol>
+                    </div>
+                </span>
+            </div>
         </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
+        
+    </div>
+</aside>
+
+
+
   
   
-    </div></section>
   
 
-    
+  
+
+  
 
 
           </div>
@@ -253,8 +451,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
