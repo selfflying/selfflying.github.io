@@ -6,14 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://fufeixiang.com">
-  <title>Archives: 2017 | ffu&#39;s Blogs</title>
+  <title>DNS服务器据源地址解析的实现 | ffu&#39;s Blogs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="ffu&#39;s Blogs">
-<meta property="og:url" content="http://fufeixiang.com/archives/2017/index.html">
+  <meta name="description" content="“就近”解析的优点​          假设有一个面向全网络的web服务，并且服务器都集中在一个地方，而访问请求是来自全国各地的，网络传输线路的长短势必会影响访问响应质量和速度。因此，为了提高客户端访问速度、提供容错能力等，公司可能会按区域部署服务器，比如说在北京、杭州、广州等地，每台服务器刚好能优先响应离自己最近的访问请求，从而提高服务器响应速度。">
+<meta name="keywords" content="Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DNS服务器据源地址解析的实现">
+<meta property="og:url" content="http://fufeixiang.com/blogs/DNS acl/index.html">
 <meta property="og:site_name" content="ffu&#39;s Blogs">
+<meta property="og:description" content="“就近”解析的优点​          假设有一个面向全网络的web服务，并且服务器都集中在一个地方，而访问请求是来自全国各地的，网络传输线路的长短势必会影响访问响应质量和速度。因此，为了提高客户端访问速度、提供容错能力等，公司可能会按区域部署服务器，比如说在北京、杭州、广州等地，每台服务器刚好能优先响应离自己最近的访问请求，从而提高服务器响应速度。">
+<meta property="og:updated_time" content="2017-08-07T13:05:15.038Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="ffu&#39;s Blogs">
+<meta name="twitter:title" content="DNS服务器据源地址解析的实现">
+<meta name="twitter:description" content="“就近”解析的优点​          假设有一个面向全网络的web服务，并且服务器都集中在一个地方，而访问请求是来自全国各地的，网络传输线路的长短势必会影响访问响应质量和速度。因此，为了提高客户端访问速度、提供容错能力等，公司可能会按区域部署服务器，比如说在北京、杭州、广州等地，每台服务器刚好能优先响应离自己最近的访问请求，从而提高服务器响应速度。">
   
     <link rel="alternative" href="/atom.xml" title="ffu&#39;s Blogs" type="application/atom+xml">
   
@@ -139,36 +144,119 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
+            <article id="post-DNS acl" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
   
+    <h1 class="article-title" itemprop="name">
+      DNS服务器据源地址解析的实现
+    </h1>
   
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2017" class="archive-year">2017</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/DNS acl/" class="archive-article-date">
+
+        
+        <a href="/blogs/DNS acl/" class="archive-article-date">
   	<time datetime="2017-08-07T12:56:44.662Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-07</time>
 </a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/DNS acl/">DNS服务器据源地址解析的实现</a>
-    </h1>
-  
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="“就近”解析的优点"><a href="#“就近”解析的优点" class="headerlink" title="“就近”解析的优点"></a>“就近”解析的优点</h3><p>​          假设有一个面向全网络的web服务，并且服务器都集中在一个地方，而访问请求是来自全国各地的，网络传输线路的长短势必会影响访问响应质量和速度。因此，为了提高客户端访问速度、提供容错能力等，公司可能会按区域部署服务器，比如说在北京、杭州、广州等地，每台服务器刚好能优先响应离自己最近的访问请求，从而提高服务器响应速度。<a id="more"></a><br>​           实现”就近”解析的两种方法：</p>
+<ul>
+<li>web调度器<blockquote>
+<p>仅提供请求转发功能，转发给区域web服务器，把离请求主机”最近”的服务器IP返回给dns服务器，然后解析</p>
+</blockquote>
+</li>
+<li>dns服务器<blockquote>
+<p>由dns服务器根据源地址直接解析到离请求主机”最近”的web服务器,本文将详细介绍此方法的实现</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="dns服务器据源地址解析的实现"><a href="#dns服务器据源地址解析的实现" class="headerlink" title="dns服务器据源地址解析的实现"></a>dns服务器据源地址解析的实现</h3><h4 id="实验环境"><a href="#实验环境" class="headerlink" title="实验环境"></a>实验环境</h4><ul>
+<li>系统：CentOS 7</li>
+<li>dns服务程序：bind</li>
+<li>dns服务器IP: 192.168.196.168</li>
+</ul>
+<h4 id="定义acl和启用view"><a href="#定义acl和启用view" class="headerlink" title="定义acl和启用view"></a>定义acl和启用view</h4><blockquote>
+<p>acl: 把一个或多个地址归并为一个集合，并通过一个统一的名称调用<br><code>只能先定义，后使用</code>,一般定义在配置文件中， 处于options的前面</p>
+</blockquote>
+<p>​       格式：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">acl acl_name &#123;</div><div class="line">				ip;</div><div class="line">				PREFIX;</div><div class="line">				……</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p>view:视图，一个bind服务器可定义多个view，每个view中可定义一个或多个zone<br>每个view用来匹配一组客户端<br>客户端请求到达时，是自上而下检查每个view所服务的客户端列表</p>
+</blockquote>
+<p>​       格式：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">view shanghaiview&#123;</div><div class="line">        match-clients &#123; shanghai; &#125;;</div><div class="line">        include &quot;/etc/named.shanghaiview.zones&quot;;     &lt;--指定对应区域配置文件</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<blockquote>
+<p>修改配置文件<code>/etc/named.conf</code></p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">acl beijing &#123; 192.168.196.130 ;&#125;;        &lt;--假设beijing区域只有IP.130</div><div class="line">acl shanghai &#123; 192.168.196.128 ;&#125;;       &lt;--假设shanghai区域只有IP.128 </div><div class="line">acl other &#123; any;&#125;;                       &lt;--假设其它包含在other区域</div><div class="line"></div><div class="line">options&#123;</div><div class="line">listen-on port 53 &#123; localhost; &#125;;         &lt;--localhost为关键字，代表本机所有IP</div><div class="line">allow-query   &#123; any ; &#125;;                  &lt;--可提供外部服务，允许其它主机查询</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<h4 id="创建view对应的区域配置文件"><a href="#创建view对应的区域配置文件" class="headerlink" title="创建view对应的区域配置文件"></a>创建view对应的区域配置文件</h4><p>1)  zone “.”   </p>
+<p>把name.conf文件定义的根区移动到<code>/etc/named.rfc1912.zones</code>中                         </p>
+<blockquote>
+<p>一旦启用了 view，所有的zone都只能定义在view中</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">zone &quot;.&quot; IN &#123;</div><div class="line">type hint;</div><div class="line">file &quot;named.ca&quot;;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>2) 创建<code>/etc/named.beijingview.zones</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">zone &quot;ffu.com&quot; IN &#123;</div><div class="line">type master;</div><div class="line">file &quot;ffu.com.zone.bj&quot;;                          &lt;--对应各view的区域库文件名</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>3) 创建<code>/etc/named.shanghaiview.zones</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">zone &quot;ffu.com&quot; IN &#123;</div><div class="line">type master;</div><div class="line">file &quot;ffu.com.zone.sh&quot;;</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<h4 id="创建各view的区域库文件"><a href="#创建各view的区域库文件" class="headerlink" title="创建各view的区域库文件"></a>创建各view的区域库文件</h4><blockquote>
+<p>/var/named/ffu.com.zone.bj</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">$TTL 86400	; 1 day</div><div class="line">@			IN SOA	dns1.ffu.com. dns1admin.ffu.com. (</div><div class="line">				1          ; serial</div><div class="line">				86400      ; refresh (1 day)</div><div class="line">				3600       ; retry (1 hour)</div><div class="line">				604800     ; expire (1 week)</div><div class="line">				10800      ; minimum (3 hours)</div><div class="line">				)</div><div class="line">			    NS	dns1.ffu.com.</div><div class="line">			    A	1.1.1.1</div><div class="line">dns1			A	192.168.196.168</div><div class="line">test			A	8.8.8.8</div><div class="line">websrv			A	10.10.10.10</div><div class="line">www			CNAME	websrv</div></pre></td></tr></table></figure>
+<blockquote>
+<p>/var/named/ffu.com.zone.sh</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">$TTL 86400	; 1 day</div><div class="line">@			IN SOA	dns1.ffu.com. dns1admin.ffu.com. (</div><div class="line">				1          ; serial</div><div class="line">				86400      ; refresh (1 day)</div><div class="line">				3600       ; retry (1 hour)</div><div class="line">				604800     ; expire (1 week)</div><div class="line">				10800      ; minimum (3 hours)</div><div class="line">				)</div><div class="line">			    NS	dns1.ffu.com.</div><div class="line">			    A	2.2.2.2</div><div class="line">dns1			A	192.168.196.168</div><div class="line">test			A	9.9.9.9</div><div class="line">websrv			A	13.13.13.13</div><div class="line">www			CNAME	websrv</div></pre></td></tr></table></figure>
+<blockquote>
+<p>/var/named/ffu.com.zone</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">$ORIGIN .</div><div class="line">$TTL 86400	; 1 day</div><div class="line">ffu.com			IN SOA	dns1.ffu.com. dns1admin.ffu.com. (</div><div class="line">				2          ; serial</div><div class="line">				86400      ; refresh (1 day)</div><div class="line">				3600       ; retry (1 hour)</div><div class="line">				604800     ; expire (1 week)</div><div class="line">				10800      ; minimum (3 hours)</div><div class="line">				)</div><div class="line">		     	NS	dns1.ffu.com.</div><div class="line">			    A	1.1.1.1</div><div class="line">$ORIGIN ffu.com.</div><div class="line">dns1			A	192.168.196.168</div><div class="line">test			A	8.8.8.8</div><div class="line">websrv			A	1.1.1.1</div><div class="line">www			 CNAME	websrv</div></pre></td></tr></table></figure>
+<h4 id="访问测试"><a href="#访问测试" class="headerlink" title="访问测试"></a>访问测试</h4><blockquote>
+<p>192.168.196.130 主机</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">$ dig www.ffu.com @192.168.196.168      </div><div class="line">; &lt;&lt;&gt;&gt; DiG 9.9.4-RedHat-9.9.4-37.el7 &lt;&lt;&gt;&gt; www.ffu.com @192.168.196.168</div><div class="line">;; global options: +cmd</div><div class="line">;; Got answer:</div><div class="line">;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 60401</div><div class="line">;; flags: qr aa rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 1, ADDITIONAL: 2</div><div class="line">;; OPT PSEUDOSECTION:</div><div class="line">; EDNS: version: 0, flags:; udp: 4096</div><div class="line">;; QUESTION SECTION:</div><div class="line">;www.ffu.com.            IN    A</div><div class="line">;; ANSWER SECTION:</div><div class="line">www.ffu.com.           86400    IN    CNAME    websrv.ffu.com.</div><div class="line">websrv.ffu.com.        86400    IN    A    10.10.10.10             &lt;-- .130属于beijingview,解析到10.10.10.10服务器</div><div class="line">;; AUTHORITY SECTION:</div><div class="line">ffu.com.        86400    IN    NS    dns1.ffu.com.</div><div class="line">;; ADDITIONAL SECTION:</div><div class="line">dns1.ffu.com.        86400    IN    A    192.168.196.168</div><div class="line">;; Query time: 2 msec</div><div class="line">;; SERVER: 192.168.196.168#53(192.168.196.168)</div><div class="line">;; WHEN: Fri Jul 28 09:55:47 CST 2017</div><div class="line">;; MSG SIZE  rcvd: 112</div></pre></td></tr></table></figure>
+<blockquote>
+<p>192.168.196.128 主机</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">$ dig test.ffu.com @192.168.196.168                    </div><div class="line">; &lt;&lt;&gt;&gt; DiG 9.8.2rc1-RedHat-9.8.2-0.62.rc1.el6 &lt;&lt;&gt;&gt; test.ffu.com @192.168.196.168</div><div class="line">;; global options: +cmd</div><div class="line">;; Got answer:</div><div class="line">;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 57430</div><div class="line">;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 1</div><div class="line">;; QUESTION SECTION:</div><div class="line">;test.ffu.com.            IN    A</div><div class="line">;; ANSWER SECTION:</div><div class="line">test.ffu.com.        86400    IN    A    9.9.9.9             &lt;-- .128属于shanghaiview,解析到9.9.9.9服务器</div><div class="line">;; AUTHORITY SECTION:</div><div class="line">ffu.com.        86400    IN    NS    dns1.ffu.com.</div><div class="line">;; ADDITIONAL SECTION:</div><div class="line">dns1.ffu.com.        86400    IN    A    192.168.196.168</div><div class="line">;; Query time: 2 msec</div><div class="line">;; SERVER: 192.168.196.168#53(192.168.196.168)</div><div class="line">;; WHEN: Fri Jul 28 00:05:52 2017</div><div class="line">;; MSG SIZE  rcvd: 81</div></pre></td></tr></table></figure>
+<blockquote>
+<p>192.168.196.155  主机</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">$dig www.ffu.com @192.168.196.168                     </div><div class="line">; &lt;&lt;&gt;&gt; DiG 9.8.2rc1-RedHat-9.8.2-0.62.rc1.el6 &lt;&lt;&gt;&gt; www.ffu.com @192.168.196.168</div><div class="line">;; global options: +cmd</div><div class="line">;; Got answer:</div><div class="line">;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 62993</div><div class="line">;; flags: qr aa rd ra; QUERY: 1, ANSWER: 2, AUTHORITY: 1, ADDITIONAL: 2</div><div class="line">;; QUESTION SECTION:</div><div class="line">;www.ffu.com.            IN    A</div><div class="line">;; ANSWER SECTION:</div><div class="line">www.ffu.com.        86400    IN    CNAME    websrv.ffu.com.</div><div class="line">websrv.ffu.com.        86400    IN    A    1.1.1.1           &lt;-- .155属于otherview,解析到1.1.1.1服务器</div><div class="line">;; AUTHORITY SECTION:</div><div class="line">ffu.com.        86400    IN    NS    dns1.ffu.com.</div><div class="line">;; ADDITIONAL SECTION:</div><div class="line">dns1.ffu.com.        86400    IN    A    192.168.196.168</div><div class="line">;; Query time: 2 msec</div><div class="line">;; SERVER: 192.168.196.168#53(192.168.196.168)</div><div class="line">;; WHEN: Thu Jul 27 02:29:47 2017</div><div class="line">;; MSG SIZE  rcvd: 152</div></pre></td></tr></table></figure>
+      
 
-        <div class="article-info info-on-right">
-          
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>♪ 交个朋友吧  ♪<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/images/webchat.png">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -180,247 +268,117 @@
 		</ul>
 	</div>
 
-          
+      
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://fufeixiang.com/blogs/DNS acl/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/yum/" class="archive-article-date">
-  	<time datetime="2017-08-01T13:19:27.723Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-01</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/blogs/yum/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">yum客户端的配置及yum命令用法</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/yum/">yum客户端的配置及yum命令用法</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#“就近”解析的优点"><span class="toc-number">1.</span> <span class="toc-text">“就近”解析的优点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#dns服务器据源地址解析的实现"><span class="toc-number">2.</span> <span class="toc-text">dns服务器据源地址解析的实现</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#实验环境"><span class="toc-number">2.1.</span> <span class="toc-text">实验环境</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#定义acl和启用view"><span class="toc-number">2.2.</span> <span class="toc-text">定义acl和启用view</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#创建view对应的区域配置文件"><span class="toc-number">2.3.</span> <span class="toc-text">创建view对应的区域配置文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#创建各view的区域库文件"><span class="toc-number">2.4.</span> <span class="toc-text">创建各view的区域库文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#访问测试"><span class="toc-number">2.5.</span> <span class="toc-text">访问测试</span></a></li></ol></li></ol>
+                    </div>
+                </span>
+            </div>
         </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
+        
+    </div>
+</aside>
+
+
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/boot/" class="archive-article-date">
-  	<time datetime="2017-08-01T12:04:52.636Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-01</time>
-</a>
-        </div>
-    	 
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/boot/">/etc/fstab及/boot分区文件恢复</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/LVM/" class="archive-article-date">
-  	<time datetime="2017-07-31T05:51:30.738Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-07-31</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/LVM/">逻辑卷LVM的实现</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/how to create a private CA with openssl/" class="archive-article-date">
-  	<time datetime="2017-07-31T05:11:24.383Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-07-31</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/how to create a private CA with openssl/">如何使用openssl工具创建私有CA</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/PXE auto-installation CentOS7/" class="archive-article-date">
-  	<time datetime="2017-07-31T01:01:01.829Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-07-31</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/PXE auto-installation CentOS7/">PXE自动化安装CentOS7</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/CentOS6-mariadb-installation/" class="archive-article-date">
-  	<time datetime="2017-07-30T12:10:52.078Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-07-30</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/CentOS6-mariadb-installation/">CentOS6 mariadb二进制安装</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
-
-    
 
 
           </div>
@@ -443,8 +401,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
