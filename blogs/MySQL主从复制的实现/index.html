@@ -15,7 +15,7 @@
 <meta property="og:url" content="http://fufeixiang.com/blogs/MySQL主从复制的实现/index.html">
 <meta property="og:site_name" content="ffu&#39;s Blogs">
 <meta property="og:description" content="MySQL主从复制原理从节点的I/O线程向主节点请求binlog事件，主节点Dump线程读取binlog事件并发送事件至从节点I/O线程，从节点将事件写到relay log（中继日志） 文件中；之后从节点的SQL 线程，会读取relay log文件中的日志，重放事件来实现主从数据一致。 事实上，主节点是可以并行写的(mysql的并发)，而binlog是串行写(每次写一个事件) ，所以主从复制中，m">
-<meta property="og:updated_time" content="2017-09-19T11:28:44.381Z">
+<meta property="og:updated_time" content="2016-11-06T02:52:51.792Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySQL主从复制的实现">
 <meta name="twitter:description" content="MySQL主从复制原理从节点的I/O线程向主节点请求binlog事件，主节点Dump线程读取binlog事件并发送事件至从节点I/O线程，从节点将事件写到relay log（中继日志） 文件中；之后从节点的SQL 线程，会读取relay log文件中的日志，重放事件来实现主从数据一致。 事实上，主节点是可以并行写的(mysql的并发)，而binlog是串行写(每次写一个事件) ，所以主从复制中，m">
@@ -157,7 +157,7 @@
 
         
         <a href="/blogs/MySQL主从复制的实现/" class="archive-article-date">
-  	<time datetime="2017-09-16T08:54:12.796Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-09-16</time>
+  	<time datetime="2016-11-06T02:52:36.384Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-11-06</time>
 </a>
         
       </header>
@@ -304,9 +304,18 @@
   
 <nav id="article-nav">
   
+    <a href="/blogs/使用mysqldump工具实现MySQL数据备份/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          使用mysqldump工具实现MySQL数据备份
+        
+      </div>
+    </a>
   
-    <a href="/blogs/使用XtraBackup工具实现MySQL数据备份/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">使用XtraBackup工具实现MySQL数据备份及恢复</div>
+  
+    <a href="/blogs/Nginx+php-fpm分离部署搭建wordpress/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Nginx+php-fpm分离部署搭建wordpress</div>
       <i class="icon-circle-right"></i>
     </a>
   

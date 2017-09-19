@@ -141,29 +141,32 @@
           <div id="js-content" class="content-ll">
             
   
-    <article id="post-DNS acl" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-LVS-NAT-负载均衡的实现" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/blogs/DNS acl/">DNS服务器据源地址解析的实现</a>
+      <a class="article-title" href="/blogs/LVS-NAT-负载均衡的实现/">LVS NAT 负载均衡的实现</a>
     </h1>
   
 
         
-        <a href="/blogs/DNS acl/" class="archive-article-date">
-  	<time datetime="2017-08-07T12:56:44.662Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-07</time>
+        <a href="/blogs/LVS-NAT-负载均衡的实现/" class="archive-article-date">
+  	<time datetime="2016-05-16T05:13:23.410Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-05-16</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="“就近”解析的优点"><a href="#“就近”解析的优点" class="headerlink" title="“就近”解析的优点"></a>“就近”解析的优点</h3><p>​          假设有一个面向全网络的web服务，并且服务器都集中在一个地方，而访问请求是来自全国各地的，网络传输线路的长短势必会影响访问响应质量和速度。因此，为了提高客户端访问速度、提供容错能力等，公司可能会按区域部署服务器，比如说在北京、杭州、广州等地，每台服务器刚好能优先响应离自己最近的访问请求，从而提高服务器响应速度。
+        <h3 id="什么是LVS"><a href="#什么是LVS" class="headerlink" title="什么是LVS"></a>什么是LVS</h3><blockquote>
+<p>LVS: Linux Virtual Server，即Linux虚拟服务器，是一个虚拟的服务器集群系统</p>
+</blockquote>
+<p>LVS集群由VS(Virtual Server)负责调度,RS(Real Server)负责真正提供服务。VS根据请求报文的目标IP和目标协议及端口将其调度转发至某RS，根据调度算法来挑选RS，实现负载均衡，而且调度器自动屏蔽掉服务器的故障，从而将一组服务器构成一个高性能的、高可用的虚拟服务器。
         
-          <a class="article-more-a" href="/blogs/DNS acl/#more">more >></a>
+          <a class="article-more-a" href="/blogs/LVS-NAT-负载均衡的实现/#more">more >></a>
         
       
 
@@ -187,7 +190,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/DNS acl/">展开全文 >></a>
+          <a class="article-more-a" href="/blogs/LVS-NAT-负载均衡的实现/">展开全文 >></a>
         </p>
       
 
@@ -217,248 +220,20 @@
 
 
   
-    <article id="post-yum" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-如何使用openssl工具创建私有CA" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/blogs/yum/">yum客户端的配置及yum命令用法</a>
+      <a class="article-title" href="/blogs/如何使用openssl工具创建私有CA/">如何使用openssl工具创建私有CA</a>
     </h1>
   
 
         
-        <a href="/blogs/yum/" class="archive-article-date">
-  	<time datetime="2017-08-01T13:19:27.723Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-01</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="什么是yum"><a href="#什么是yum" class="headerlink" title="什么是yum"></a>什么是yum</h3><p>我们在Linux系统上安装处理软件，一般是使用RPM，它是通过预先编译完成并且把软件打包为RPM文件格式后，再加以安装的一种方式，使用者只要拿到这个打包好的软件，然后将里头的文件放置到应该摆放的目录，这样就完成了安装。但是，由于有些软件是有依赖于其他软件的，当你要安装某个RPM类型的软件时，RPM会检验RPM软件数据库，它所依赖的相关软件包是否都已存在，如果没有检索到，那么这个RPM文件默认就不能安装。甚至是有些包之间还会存在循环依赖，这时RPM就不能快速有效的进行软件安装了。
-        
-          <a class="article-more-a" href="/blogs/yum/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/yum/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-boot" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blogs/boot/">/etc/fstab及/boot分区文件恢复</a>
-    </h1>
-  
-
-        
-        <a href="/blogs/boot/" class="archive-article-date">
-  	<time datetime="2017-08-01T12:04:52.636Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-01</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>​    以centos6为例，/boot目录下有最为关键的开机启动所必须的内核文件、根文件系统驱动文件已经引导加载程序(bootloader)grub。当我们清空此文件夹之后关机，机器就不能正常启动了，这种情况下，可以借助光盘启动进入救援模式解决。具体步骤如下：
-        
-          <a class="article-more-a" href="/blogs/boot/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/boot/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-LVM" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blogs/LVM/">逻辑卷LVM的实现</a>
-    </h1>
-  
-
-        
-        <a href="/blogs/LVM/" class="archive-article-date">
-  	<time datetime="2017-07-31T05:51:30.738Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-07-31</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h5 id="什么是LVM"><a href="#什么是LVM" class="headerlink" title="什么是LVM"></a>什么是LVM</h5><p>LVM(Logical Volume Manager 逻辑卷管理)可以实现把多个实体硬盘分区整合在一起，当作一个硬盘来重新操作处理。最重要的是LVM不像传统分区一旦确定分区大小就不能再调整，它允许我们<code>弹性的调整分区及文件系统容量</code>！
-        
-          <a class="article-more-a" href="/blogs/LVM/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/LVM/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-how to create a private CA with openssl" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blogs/how to create a private CA with openssl/">如何使用openssl工具创建私有CA</a>
-    </h1>
-  
-
-        
-        <a href="/blogs/how to create a private CA with openssl/" class="archive-article-date">
-  	<time datetime="2017-07-31T05:11:24.383Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-07-31</time>
+        <a href="/blogs/如何使用openssl工具创建私有CA/" class="archive-article-date">
+  	<time datetime="2016-04-20T14:31:44.792Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-04-20</time>
 </a>
         
       </header>
@@ -467,7 +242,7 @@
       
         <h3 id="CA及证书"><a href="#CA及证书" class="headerlink" title="CA及证书"></a>CA及证书</h3><p>非对称加密是为了保证互联网中通讯信息安全使用的一种算法，密钥是成对出现(公钥和私钥），它的特点是发送方A使用接收方B的公钥加密数据，所有只有B拥有与之配对的私钥解密该数据，反之亦然。那么，A和B之间怎么交换得到对方的真实安全的公钥呢？此时就需要一个权威的机构来验证公钥的合法性，这个机构称之为CA(Certification Authority)。CA为每个使用公开密钥的客户发放数字证书，数字证书的作用是证明证书中列出的客户合法拥有证书中列出的公开密钥。
         
-          <a class="article-more-a" href="/blogs/how to create a private CA with openssl/#more">more >></a>
+          <a class="article-more-a" href="/blogs/如何使用openssl工具创建私有CA/#more">more >></a>
         
       
 
@@ -491,7 +266,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/how to create a private CA with openssl/">展开全文 >></a>
+          <a class="article-more-a" href="/blogs/如何使用openssl工具创建私有CA/">展开全文 >></a>
         </p>
       
 
@@ -521,20 +296,20 @@
 
 
   
-    <article id="post-PXE auto-installation CentOS7" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-PXE自动化安装CentOS7" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/blogs/PXE auto-installation CentOS7/">PXE自动化安装CentOS7</a>
+      <a class="article-title" href="/blogs/PXE自动化安装CentOS7/">PXE自动化安装CentOS7</a>
     </h1>
   
 
         
-        <a href="/blogs/PXE auto-installation CentOS7/" class="archive-article-date">
-  	<time datetime="2017-07-31T01:01:01.829Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-07-31</time>
+        <a href="/blogs/PXE自动化安装CentOS7/" class="archive-article-date">
+  	<time datetime="2016-03-29T13:22:50.341Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-03-29</time>
 </a>
         
       </header>
@@ -544,7 +319,7 @@
         <h4 id="PXE介绍"><a href="#PXE介绍" class="headerlink" title="PXE介绍"></a>PXE介绍</h4><blockquote>
 <p>PXE： Preboot Excution Environment，由Intel公司研发，可以使没有任何操作系统的主机能够基于网络完成系统的安装工作，实现服务器的自动化安装系统<br>
         
-          <a class="article-more-a" href="/blogs/PXE auto-installation CentOS7/#more">more >></a>
+          <a class="article-more-a" href="/blogs/PXE自动化安装CentOS7/#more">more >></a>
         
       
 
@@ -568,7 +343,7 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/PXE auto-installation CentOS7/">展开全文 >></a>
+          <a class="article-more-a" href="/blogs/PXE自动化安装CentOS7/">展开全文 >></a>
         </p>
       
 
@@ -598,29 +373,29 @@
 
 
   
-    <article id="post-CentOS6-mariadb-installation" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+    <article id="post-yum客户端的配置及yum命令用法" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/blogs/CentOS6-mariadb-installation/">CentOS6 mariadb二进制安装</a>
+      <a class="article-title" href="/blogs/yum客户端的配置及yum命令用法/">yum客户端的配置及yum命令用法</a>
     </h1>
   
 
         
-        <a href="/blogs/CentOS6-mariadb-installation/" class="archive-article-date">
-  	<time datetime="2017-07-30T12:10:52.078Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-07-30</time>
+        <a href="/blogs/yum客户端的配置及yum命令用法/" class="archive-article-date">
+  	<time datetime="2016-03-02T08:20:44.737Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-03-02</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>MariaDB 是一个采用Maria 存储引擎的MySQL分支版本，是由原来 MySQL 的作者Michael Widenius创办的公司所开发的免费开源的数据库服务器。MariaDB是目前最受关注的MySQL数据库衍生版，也被视为开源数据库MySQL的替代品。除了使用Linux 各发行版供应商的程序包安装，也可以选择基于二进制格式的程序包进行安装。具体安装步骤如下：
+        <h3 id="什么是yum"><a href="#什么是yum" class="headerlink" title="什么是yum"></a>什么是yum</h3><p>我们在Linux系统上安装处理软件，一般是使用RPM，它是通过预先编译完成并且把软件打包为RPM文件格式后，再加以安装的一种方式，使用者只要拿到这个打包好的软件，然后将里头的文件放置到应该摆放的目录，这样就完成了安装。但是，由于有些软件是有依赖于其他软件的，当你要安装某个RPM类型的软件时，RPM会检验RPM软件数据库，它所依赖的相关软件包是否都已存在，如果没有检索到，那么这个RPM文件默认就不能安装。甚至是有些包之间还会存在循环依赖，这时RPM就不能快速有效的进行软件安装了。
         
-          <a class="article-more-a" href="/blogs/CentOS6-mariadb-installation/#more">more >></a>
+          <a class="article-more-a" href="/blogs/yum客户端的配置及yum命令用法/#more">more >></a>
         
       
 
@@ -644,7 +419,239 @@
 
       
         <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/CentOS6-mariadb-installation/">展开全文 >></a>
+          <a class="article-more-a" href="/blogs/yum客户端的配置及yum命令用法/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-如何实现rsyslog的远程日志存储" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blogs/如何实现rsyslog的远程日志存储/">如何实现rsyslog的远程日志存储</a>
+    </h1>
+  
+
+        
+        <a href="/blogs/如何实现rsyslog的远程日志存储/" class="archive-article-date">
+  	<time datetime="2016-01-14T03:33:24.445Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-01-14</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="远程日志服务器的实现"><a href="#远程日志服务器的实现" class="headerlink" title="远程日志服务器的实现"></a>远程日志服务器的实现</h3><ul>
+<li>rsyslog客户端：CentOS 7 ; 192.168.196.168</li>
+<li>rsyslog服务端：CentOS 6 ; 192.168.196.155</li>
+</ul>
+<p>1) <code>/etc/rsyslog.conf</code> 客户端配置
+        
+          <a class="article-more-a" href="/blogs/如何实现rsyslog的远程日志存储/#more">more >></a>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/blogs/如何实现rsyslog的远程日志存储/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-逻辑卷LVM的实现" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blogs/逻辑卷LVM的实现/">逻辑卷LVM的实现</a>
+    </h1>
+  
+
+        
+        <a href="/blogs/逻辑卷LVM的实现/" class="archive-article-date">
+  	<time datetime="2015-11-14T13:31:23.529Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-11-14</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h5 id="什么是LVM"><a href="#什么是LVM" class="headerlink" title="什么是LVM"></a>什么是LVM</h5><p>LVM(Logical Volume Manager 逻辑卷管理)可以实现把多个实体硬盘分区整合在一起，当作一个硬盘来重新操作处理。最重要的是LVM不像传统分区一旦确定分区大小就不能再调整，它允许我们<code>弹性的调整分区及文件系统容量</code>！
+        
+          <a class="article-more-a" href="/blogs/逻辑卷LVM的实现/#more">more >></a>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/blogs/逻辑卷LVM的实现/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-boot分区文件恢复" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blogs/boot分区文件恢复/">/etc/fstab及/boot分区文件恢复</a>
+    </h1>
+  
+
+        
+        <a href="/blogs/boot分区文件恢复/" class="archive-article-date">
+  	<time datetime="2015-10-26T02:37:38.932Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-10-26</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>​    以centos6为例，/boot目录下有最为关键的开机启动所必须的内核文件、根文件系统驱动文件已经引导加载程序(bootloader)grub。当我们清空此文件夹之后关机，机器就不能正常启动了，这种情况下，可以借助光盘启动进入救援模式解决。具体步骤如下：
+        
+          <a class="article-more-a" href="/blogs/boot分区文件恢复/#more">more >></a>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/blogs/boot分区文件恢复/">展开全文 >></a>
         </p>
       
 

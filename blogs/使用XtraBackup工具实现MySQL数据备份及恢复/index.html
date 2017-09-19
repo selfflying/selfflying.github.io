@@ -6,14 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://fufeixiang.com">
-  <title>Archives: 2017/9 | ffu&#39;s Blogs</title>
+  <title>使用XtraBackup工具实现MySQL数据备份及恢复 | ffu&#39;s Blogs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="ffu&#39;s Blogs">
-<meta property="og:url" content="http://fufeixiang.com/archives/2017/09/index.html">
+  <meta name="description" content="Xtrabackup是由percona提供的mysql数据库备份工具，支持对Innodb存储引擎的数据库在线热备份（备份时不影响数据读写), 它有以下特点： (1)备份过程快速、可靠；(2)备份过程不会打断正在执行的事务；(3)能够基于压缩等功能节约磁盘空间和流量；(4)自动实现备份检验；(5)还原速度快；">
+<meta name="keywords" content="Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用XtraBackup工具实现MySQL数据备份及恢复">
+<meta property="og:url" content="http://fufeixiang.com/blogs/使用XtraBackup工具实现MySQL数据备份及恢复/index.html">
 <meta property="og:site_name" content="ffu&#39;s Blogs">
+<meta property="og:description" content="Xtrabackup是由percona提供的mysql数据库备份工具，支持对Innodb存储引擎的数据库在线热备份（备份时不影响数据读写), 它有以下特点： (1)备份过程快速、可靠；(2)备份过程不会打断正在执行的事务；(3)能够基于压缩等功能节约磁盘空间和流量；(4)自动实现备份检验；(5)还原速度快；">
+<meta property="og:updated_time" content="2016-12-08T15:10:18.845Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="ffu&#39;s Blogs">
+<meta name="twitter:title" content="使用XtraBackup工具实现MySQL数据备份及恢复">
+<meta name="twitter:description" content="Xtrabackup是由percona提供的mysql数据库备份工具，支持对Innodb存储引擎的数据库在线热备份（备份时不影响数据读写), 它有以下特点： (1)备份过程快速、可靠；(2)备份过程不会打断正在执行的事务；(3)能够基于压缩等功能节约磁盘空间和流量；(4)自动实现备份检验；(5)还原速度快；">
   
     <link rel="alternative" href="/atom.xml" title="ffu&#39;s Blogs" type="application/atom+xml">
   
@@ -139,36 +144,104 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-使用XtraBackup工具实现MySQL数据备份及恢复" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2017" class="archive-year">2017</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/session-server-cluster/" class="archive-article-date">
-  	<time datetime="2017-09-19T11:29:51.432Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-09-19</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/session-server-cluster/">nginx负载均衡apache+tomcat集群及session server cluster的实现</a>
+    <h1 class="article-title" itemprop="name">
+      使用XtraBackup工具实现MySQL数据备份及恢复
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
+        
+        <a href="/blogs/使用XtraBackup工具实现MySQL数据备份及恢复/" class="archive-article-date">
+  	<time datetime="2016-12-08T15:10:29.725Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-12-08</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Xtrabackup是由percona提供的mysql数据库备份工具，支持对Innodb存储引擎的数据库在线热备份（备份时不影响数据读写), 它有以下特点：</p>
+<p>(1)备份过程快速、可靠；<br>(2)备份过程不会打断正在执行的事务；<br>(3)能够基于压缩等功能节约磁盘空间和流量；<br>(4)自动实现备份检验；<br>(5)还原速度快；<a id="more"></a></p>
+<p>本文使用的软件包为 <code>percona-xtrabackup-24-2.4.7-2.el7.x86_64.rpm</code> ，最新版的软件可从 <a href="http://www.percona.com/software/percona-xtrabackup/" target="_blank" rel="external">http://www.percona.com/software/percona-xtrabackup/</a> 获得</p>
+<p>为解决依赖性关系使用yum源安装</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ yum install -y ./percona-xtrabackup-24-2.4.7-2.el7.x86_64.rpm</div></pre></td></tr></table></figure>
+<p>本文的备份策略： 全量备份+增量备份+binlog</p>
+<p>1) 使用root用户进行一次全量备份</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">$ cd /var/lib/mysql</div><div class="line">$ innobackupex --user=root --host=localhost --password=123456 /data/backup/</div><div class="line">...中间省略...</div><div class="line">xtrabackup: Transaction log of lsn (310138946) to (310138946) was copied.</div><div class="line">170915 20:31:03 completed OK!                                            &lt;-- 显示备份成功</div><div class="line"></div><div class="line">$ ls /data/backup</div><div class="line">2017-09-16_08-22-55                                                      &lt;-- 全量备份生成的文件夹</div><div class="line"></div><div class="line">$ cd 2017-09-16_08-22-55/</div><div class="line">$ ls</div><div class="line">backup-my.cnf  ibdata1  performance_schema  xtrabackup_checkpoints  xtrabackup_logfile</div><div class="line">database       mysql    testdb              xtrabackup_info</div><div class="line">$</div></pre></td></tr></table></figure>
+<p>2) testdb库中创建新表tb3并添加数据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line">$ mysql -uroot -p123456</div><div class="line">Welcome to the MariaDB monitor.  Commands end with ; or \g.</div><div class="line">Your MariaDB connection id is 11</div><div class="line">Server version: 5.5.52-MariaDB MariaDB Server</div><div class="line">Copyright (c) 2000, 2016, Oracle, MariaDB Corporation Ab and others.</div><div class="line">Type &apos;help;&apos; or &apos;\h&apos; for help. Type &apos;\c&apos; to clear the current input statement.</div><div class="line"></div><div class="line">MariaDB [(none)]&gt; use testdb;</div><div class="line">Reading table information for completion of table and column names</div><div class="line">You can turn off this feature to get a quicker startup with -A</div><div class="line"></div><div class="line">Database changed</div><div class="line">MariaDB [testdb]&gt; show tables;</div><div class="line">+------------------+</div><div class="line">| Tables_in_testdb |</div><div class="line">+------------------+</div><div class="line">| tb1              |</div><div class="line">| tb2              |</div><div class="line">+------------------+</div><div class="line">2 rows in set (0.00 sec)</div><div class="line"></div><div class="line">MariaDB [testdb]&gt; create table tb3 (stuid int unsigned primary key,name varchar(200),age tinyint);</div><div class="line">Query OK, 0 rows affected (0.07 sec)</div><div class="line"></div><div class="line">MariaDB [testdb]&gt; insert into tb3 values(1,&apos;stu1&apos;,22),(2,&apos;stu2&apos;,24),(3,&apos;stu3&apos;,28);</div><div class="line">Query OK, 3 rows affected (0.00 sec)</div><div class="line">Records: 3  Duplicates: 0  Warnings: 0</div><div class="line"></div><div class="line">MariaDB [testdb]&gt; select * from tb3;</div><div class="line">+-------+------+------+</div><div class="line">| stuid | name | age  |</div><div class="line">+-------+------+------+</div><div class="line">|     1 | stu1 |   22 |</div><div class="line">|     2 | stu2 |   24 |</div><div class="line">|     3 | stu3 |   28 |</div><div class="line">+-------+------+------+</div><div class="line">3 rows in set (0.00 sec)</div></pre></td></tr></table></figure>
+<p>3) 进行第一次增量备份</p>
+<blockquote>
+<p>每个InnoDB的页面都会包含一个LSN(日志序列号)信息，每当相关的数据发生改变，相关的页面的LSN就会自动增长。这正是InnoDB表可以进行增量备份的基础，即innobackupex通过备份上次完全备份之后发生改变的页面来实现。增量备份仅能应用于<code>InnoDB</code>或<code>XtraDB表</code>，对于<code>MyISAM表</code>而言，执行增量备份时其实进行的是完全备份。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">$ cd /var/lib/mysql</div><div class="line">$ innobackupex --user=root --host=localhost --password=123456 --incremental /data/backup --incremental-basedir=/data/backup/2017-09-16_08-22-55</div><div class="line"></div><div class="line">$ ls /data/backup</div><div class="line">2017-09-16_08-22-55  </div><div class="line">2017-09-16_08-27-37                                                    &lt;-- 增量备份生成的文件夹</div><div class="line"></div><div class="line">$ cat 2017-09-16_08-22-55/xtrabackup_checkpoints </div><div class="line">backup_type = full-backuped</div><div class="line">from_lsn = 0</div><div class="line">to_lsn = 310144589</div><div class="line">last_lsn = 310144589</div><div class="line">compact = 0</div><div class="line">recover_binlog_info = 0</div><div class="line"></div><div class="line">$ cat 2017-09-16_08-27-37/xtrabackup_checkpoints </div><div class="line">backup_type = incremental</div><div class="line">from_lsn = 310144589                                                  &lt;-- 日志序列号承接全量备份的</div><div class="line">to_lsn = 310148850</div><div class="line">last_lsn = 310148850</div><div class="line">compact = 0</div><div class="line">recover_binlog_info = 0</div></pre></td></tr></table></figure>
+<p>4)  删除testdb库中tb2</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">$ mysql -uroot -p123456</div><div class="line">Welcome to the MariaDB monitor.  Commands end with ; or \g.</div><div class="line">Your MariaDB connection id is 8</div><div class="line">Server version: 5.5.52-MariaDB MariaDB Server</div><div class="line">Copyright (c) 2000, 2016, Oracle, MariaDB Corporation Ab and others.</div><div class="line">Type &apos;help;&apos; or &apos;\h&apos; for help. Type &apos;\c&apos; to clear the current input statement</div><div class="line"></div><div class="line">MariaDB [(none)]&gt; use testdb</div><div class="line">Reading table information for completion of table and column names</div><div class="line">You can turn off this feature to get a quicker startup with -A</div><div class="line"></div><div class="line">Database changed</div><div class="line">MariaDB [testdb]&gt; drop table tb2;</div><div class="line">MariaDB [testdb]&gt; show tables;</div><div class="line">+------------------+</div><div class="line">| Tables_in_testdb |</div><div class="line">+------------------+</div><div class="line">| tb1              |</div><div class="line">| tb3              |</div><div class="line">+------------------+</div><div class="line">2 rows in set (0.00 sec)</div></pre></td></tr></table></figure>
+<p>5) 进行第二次增量备份</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">$ innobackupex --user=root --host=localhost --password=123456 --incremental /data/backup --incremental-basedir=/data/backup/2017-09-16_08-27-37</div><div class="line">...中间省略...</div><div class="line">xtrabackup: Transaction log of lsn (310149698) to (310149698) was copied.</div><div class="line">170916 08:42:46 completed OK!</div><div class="line"></div><div class="line">$ ls /data/backup</div><div class="line">2017-09-16_08-22-55  2017-09-16_08-27-37  2017-09-16_08-42-43</div><div class="line"></div><div class="line">$ cat 2017-09-16_08-42-43/xtrabackup_checkpoints </div><div class="line">backup_type = incremental</div><div class="line">from_lsn = 310148850                                            &lt;-- 日志序列号承接第一次增量备份的</div><div class="line">to_lsn = 310149698</div><div class="line">last_lsn = 310149698</div><div class="line">compact = 0</div><div class="line">recover_binlog_info = 0</div></pre></td></tr></table></figure>
+<p>6) 删除testdb库中tb1</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">$ mysql -uroot -p123456</div><div class="line">Welcome to the MariaDB monitor.  Commands end with ; or \g.</div><div class="line">Your MariaDB connection id is 11</div><div class="line">Server version: 5.5.52-MariaDB MariaDB Server</div><div class="line">Copyright (c) 2000, 2016, Oracle, MariaDB Corporation Ab and others.</div><div class="line">Type &apos;help;&apos; or &apos;\h&apos; for help. Type &apos;\c&apos; to clear the current input statement.</div><div class="line"></div><div class="line">MariaDB [(none)]&gt; use testdb</div><div class="line">Reading table information for completion of table and column names</div><div class="line">You can turn off this feature to get a quicker startup with -A</div><div class="line"></div><div class="line">Database changed</div><div class="line">MariaDB [testdb]&gt; drop table tb1;</div><div class="line">Query OK, 0 rows affected (0.03 sec)</div><div class="line">MariaDB [testdb]&gt; show tables;</div><div class="line">+------------------+</div><div class="line">| Tables_in_testdb |</div><div class="line">+------------------+</div><div class="line">| tb3              |</div><div class="line">+------------------+</div><div class="line">1 row in set (0.00 sec)</div></pre></td></tr></table></figure>
+<p>7) 备份最近一次增量备份之后的二进制日志</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">$ cat 2017-09-16_08-42-43/xtrabackup_info </div><div class="line">uuid = f5036e11-9a77-11e7-abfa-00505626a77f</div><div class="line">name = </div><div class="line">tool_name = innobackupex</div><div class="line">tool_command = --user=root --host=localhost --password=... --incremental /data/backup --incremental-basedir=/data/backup/2017-09-16_08-27-37</div><div class="line">tool_version = 2.4.7</div><div class="line">ibbackup_version = 2.4.7</div><div class="line">server_version = 5.5.52-MariaDB</div><div class="line">start_time = 2017-09-16 08:42:43</div><div class="line">end_time = 2017-09-16 08:42:46</div><div class="line">lock_time = 0</div><div class="line">binlog_pos = filename &apos;master-log.000001&apos;, position &apos;828&apos;           &lt;--最后一次增量备份对应二进制日志位置</div><div class="line">innodb_from_lsn = 310148850</div><div class="line">innodb_to_lsn = 310149698</div><div class="line">partial = N</div><div class="line">incremental = Y</div><div class="line">format = file</div><div class="line">compact = N</div><div class="line">compressed = N</div><div class="line">encrypted = N</div><div class="line"></div><div class="line">$ mysqlbinlog -j 828 /var/lib/mysql/master-log.000001 &gt; /data/backup/2017-09-16_08-42-43-binlog</div></pre></td></tr></table></figure>
+<p>8 )  模拟服务器故障并恢复</p>
+<ul>
+<li>模拟故障并删除数据</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ service mariadb stop</div><div class="line">$ rm -rf /var/lib/mysql/*</div></pre></td></tr></table></figure>
+<ul>
+<li>prepare增量备份</li>
+</ul>
+<blockquote>
+<p>需要在每个备份(包括完全和各个增量备份)上，将已经提交的事务进行“重放”。“重放”之后，所有的备份数据将合并到完全备份上。<br>基于所有的备份将未提交的事务进行“回滚”。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">$ cd 2017-09-16_08-22-55/</div><div class="line">$ innobackupex --apply-log --redo-only ./                  &lt;-- 合并完成之前只重放不回滚</div><div class="line">...中间省略...</div><div class="line">InnoDB: Shutdown completed; log sequence number 310150212</div><div class="line">170916 10:10:24 completed OK!</div><div class="line"></div><div class="line">$ innobackupex --apply-log --redo-only ./ --incremental-dir=/data/backup/2017-09-16_08-27-37</div><div class="line">$ cat 2017-09-16_08-22-55/xtrabackup_checkpoints </div><div class="line">backup_type = log-applied</div><div class="line">from_lsn = 0</div><div class="line">to_lsn = 310148850                                          &lt;-- 完全备份的lsn已经合并到第一次增量备份的lsn</div><div class="line">last_lsn = 310148850</div><div class="line">compact = 0</div><div class="line">recover_binlog_info = 0</div><div class="line"></div><div class="line">$ innobackupex --apply-log --redo-only ./ --incremental-dir=/data/backup/2017-09-16_08-42-43</div><div class="line"></div><div class="line">$ innobackupex --apply-log ./                                      &lt;-- 合并完成后进行回滚操作</div></pre></td></tr></table></figure>
+<ul>
+<li>从完全备份中恢复数据 </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">$ cd 2017-09-16_08-22-55/</div><div class="line">$ innobackupex --copy-back ./</div><div class="line"></div><div class="line">$ ls -l /var/lib/mysql</div><div class="line">total 40984</div><div class="line">drwxr-x--- 2 root root     4096 Sep 16 10:15 database</div><div class="line">-rw-r----- 1 root root 18874368 Sep 16 10:15 ibdata1</div><div class="line">-rw-r----- 1 root root  5242880 Sep 16 10:15 ib_logfile0</div><div class="line">-rw-r----- 1 root root  5242880 Sep 16 10:15 ib_logfile1</div><div class="line">-rw-r----- 1 root root 12582912 Sep 16 10:15 ibtmp1</div><div class="line">drwxr-x--- 2 root root     4096 Sep 16 10:15 mysql</div><div class="line">drwxr-x--- 2 root root     4096 Sep 16 10:15 performance_schema</div><div class="line">drwxr-x--- 2 root root     4096 Sep 16 10:15 testdb</div><div class="line">-rw-r----- 1 root root       24 Sep 16 10:15 xtrabackup_binlog_pos_innodb</div><div class="line">-rw-r----- 1 root root      569 Sep 16 10:15 xtrabackup_info</div><div class="line"></div><div class="line">$ chown -R mysql.mysql /var/lib/mysql/*                             &lt;-- 修改数据目录属主属组</div></pre></td></tr></table></figure>
+<ul>
+<li>二进制日志还原</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div></pre></td><td class="code"><pre><div class="line">$ service mariadb start</div><div class="line">$ mysql -uroot -p123456</div><div class="line">Welcome to the MariaDB monitor.  Commands end with ; or \g.</div><div class="line">Your MariaDB connection id is 3</div><div class="line">Server version: 5.5.52-MariaDB MariaDB Server</div><div class="line">Copyright (c) 2000, 2016, Oracle, MariaDB Corporation Ab and others.</div><div class="line">Type &apos;help;&apos; or &apos;\h&apos; for help. Type &apos;\c&apos; to clear the current input statement.</div><div class="line"></div><div class="line">MariaDB [(none)]&gt; show databases;</div><div class="line">+--------------------+</div><div class="line">| Database           |</div><div class="line">+--------------------+</div><div class="line">| information_schema |</div><div class="line">| database           |</div><div class="line">| mysql              |</div><div class="line">| performance_schema |</div><div class="line">| testdb             |</div><div class="line">+--------------------+</div><div class="line">5 rows in set (0.00 sec)</div><div class="line"></div><div class="line">MariaDB [(none)]&gt; use testdb;</div><div class="line">Reading table information for completion of table and column names</div><div class="line">You can turn off this feature to get a quicker startup with -A</div><div class="line"></div><div class="line">Database changed </div><div class="line">MariaDB [testdb]&gt; show tables;                                       &lt;-- 已经恢复到最后一次增量备份的状态</div><div class="line">+------------------+</div><div class="line">| Tables_in_testdb |</div><div class="line">+------------------+</div><div class="line">| tb1              |</div><div class="line">| tb3              |</div><div class="line">+------------------+</div><div class="line">2 rows in set (0.00 sec)</div><div class="line"></div><div class="line">MariaDB [testdb]&gt; set @@session.sql_log_bin=OFF;                     &lt;-- 二进制日志重放无需记录日志</div><div class="line">Query OK, 0 rows affected (0.01 sec)</div><div class="line"></div><div class="line">MariaDB [testdb]&gt; \. /data/backup/2017-09-16_08-42-43-binlog        &lt;-- 根据故障前备份的二进制日志重放</div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Database changed</div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Charset changed</div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.01 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">MariaDB [testdb]&gt; show tables;                                    &lt;-- 最后一次增量备份后的操作(drop tb2)已经重放</div><div class="line">+------------------+</div><div class="line">| Tables_in_testdb |</div><div class="line">+------------------+</div><div class="line">| tb3              |</div><div class="line">+------------------+</div><div class="line">1 row in set (0.00 sec)</div><div class="line"></div><div class="line">MariaDB [testdb]&gt; set @@session.sql_log_bin=ON;                     &lt;-- 二进制日志记录开启</div><div class="line">Query OK, 0 rows affected (0.00 sec)</div></pre></td></tr></table></figure>
+<p>至此，mysql服务已经实现数据恢复，可以上线；接下来应该立即更新备份即进行一次全量备份。</p>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>♪ 交个朋友吧  ♪<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/images/webchat.png">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -180,57 +253,126 @@
 		</ul>
 	</div>
 
-          
+      
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://fufeixiang.com/blogs/使用XtraBackup工具实现MySQL数据备份及恢复/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/varnish/" class="archive-article-date">
-  	<time datetime="2017-09-10T09:06:41.846Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-09-10</time>
-</a>
+<nav id="article-nav">
+  
+    <a href="/blogs/DNS acl/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          DNS服务器据源地址解析的实现
+        
+      </div>
+    </a>
+  
+  
+    <a href="/blogs/使用mysqldump工具实现MySQL数据备份/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">使用mysqldump工具实现MySQL数据备份</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/varnish/">varnish缓存服务器的配置</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    目录，不存在的…
+                    </div>
+                </span>
+            </div>
         </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
+        
+    </div>
+</aside>
+
+
+
   
   
-    </div></section>
   
 
-    
+  
+
+  
 
 
           </div>
@@ -253,8 +395,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
