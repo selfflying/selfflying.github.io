@@ -141,6 +141,236 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-MySQL主从复制的实现" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blogs/MySQL主从复制的实现/">MySQL主从复制的实现</a>
+    </h1>
+  
+
+        
+        <a href="/blogs/MySQL主从复制的实现/" class="archive-article-date">
+  	<time datetime="2017-09-16T08:54:12.796Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-09-16</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="MySQL主从复制原理"><a href="#MySQL主从复制原理" class="headerlink" title="MySQL主从复制原理"></a>MySQL主从复制原理</h4><p>从节点的I/O线程向主节点请求binlog事件，主节点Dump线程读取binlog事件并发送事件至从节点I/O线程，从节点将事件写到relay log（中继日志） 文件中；之后从节点的SQL 线程，会读取relay log文件中的日志，重放事件来实现主从数据一致。</p>
+<p>事实上，主节点是可以并行写的(mysql的并发)，而binlog是串行写(每次写一个事件) ，所以主从复制中，mysql是单线程复制，也就不可避免的造成了主从数据同步有延迟，所以主从复制也成为异步复制
+        
+          <a class="article-more-a" href="/blogs/MySQL主从复制的实现/#more">more >></a>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/blogs/MySQL主从复制的实现/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-使用XtraBackup工具实现MySQL数据备份" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blogs/使用XtraBackup工具实现MySQL数据备份/">使用XtraBackup工具实现MySQL数据备份及恢复</a>
+    </h1>
+  
+
+        
+        <a href="/blogs/使用XtraBackup工具实现MySQL数据备份/" class="archive-article-date">
+  	<time datetime="2017-09-14T13:57:27.681Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-09-14</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Xtrabackup是由percona提供的mysql数据库备份工具，支持对Innodb存储引擎的数据库在线热备份（备份时不影响数据读写), 它有以下特点：</p>
+<p>(1)备份过程快速、可靠；<br>(2)备份过程不会打断正在执行的事务；<br>(3)能够基于压缩等功能节约磁盘空间和流量；<br>(4)自动实现备份检验；<br>(5)还原速度快；
+        
+          <a class="article-more-a" href="/blogs/使用XtraBackup工具实现MySQL数据备份/#more">more >></a>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/blogs/使用XtraBackup工具实现MySQL数据备份/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-使用mysqldump工具实现MySQL数据备份" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blogs/使用mysqldump工具实现MySQL数据备份/">使用mysqldump工具实现MySQL数据备份</a>
+    </h1>
+  
+
+        
+        <a href="/blogs/使用mysqldump工具实现MySQL数据备份/" class="archive-article-date">
+  	<time datetime="2017-09-14T12:59:25.436Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-09-14</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p> mysqldump是一款mysql服务自带的功能强大的逻辑备份工具，通常使用mysqldump对 MySQL 数据库进行逻辑全量备份(所有数据集)。 mysqldump可以把要备份的数据库装载到一个单独的文本文件中，这个文件包含有所有重建该数据库所需要的SQL命令，这个文本文件可以用一个简单的批处理和一个合适SQL语句导回到MySQL中，完成恢复。
+        
+          <a class="article-more-a" href="/blogs/使用mysqldump工具实现MySQL数据备份/#more">more >></a>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/blogs/使用mysqldump工具实现MySQL数据备份/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-Nginx+php-fpm+wordpress" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -656,234 +886,6 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/blogs/rsyslogSRV/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-DNS acl" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blogs/DNS acl/">DNS服务器据源地址解析的实现</a>
-    </h1>
-  
-
-        
-        <a href="/blogs/DNS acl/" class="archive-article-date">
-  	<time datetime="2017-08-07T12:56:44.662Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-07</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="“就近”解析的优点"><a href="#“就近”解析的优点" class="headerlink" title="“就近”解析的优点"></a>“就近”解析的优点</h3><p>​          假设有一个面向全网络的web服务，并且服务器都集中在一个地方，而访问请求是来自全国各地的，网络传输线路的长短势必会影响访问响应质量和速度。因此，为了提高客户端访问速度、提供容错能力等，公司可能会按区域部署服务器，比如说在北京、杭州、广州等地，每台服务器刚好能优先响应离自己最近的访问请求，从而提高服务器响应速度。
-        
-          <a class="article-more-a" href="/blogs/DNS acl/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/DNS acl/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-yum" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blogs/yum/">yum客户端的配置及yum命令用法</a>
-    </h1>
-  
-
-        
-        <a href="/blogs/yum/" class="archive-article-date">
-  	<time datetime="2017-08-01T13:19:27.723Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-01</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="什么是yum"><a href="#什么是yum" class="headerlink" title="什么是yum"></a>什么是yum</h3><p>我们在Linux系统上安装处理软件，一般是使用RPM，它是通过预先编译完成并且把软件打包为RPM文件格式后，再加以安装的一种方式，使用者只要拿到这个打包好的软件，然后将里头的文件放置到应该摆放的目录，这样就完成了安装。但是，由于有些软件是有依赖于其他软件的，当你要安装某个RPM类型的软件时，RPM会检验RPM软件数据库，它所依赖的相关软件包是否都已存在，如果没有检索到，那么这个RPM文件默认就不能安装。甚至是有些包之间还会存在循环依赖，这时RPM就不能快速有效的进行软件安装了。
-        
-          <a class="article-more-a" href="/blogs/yum/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/yum/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-boot" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blogs/boot/">/etc/fstab及/boot分区文件恢复</a>
-    </h1>
-  
-
-        
-        <a href="/blogs/boot/" class="archive-article-date">
-  	<time datetime="2017-08-01T12:04:52.636Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-01</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>​    以centos6为例，/boot目录下有最为关键的开机启动所必须的内核文件、根文件系统驱动文件已经引导加载程序(bootloader)grub。当我们清空此文件夹之后关机，机器就不能正常启动了，这种情况下，可以借助光盘启动进入救援模式解决。具体步骤如下：
-        
-          <a class="article-more-a" href="/blogs/boot/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/boot/">展开全文 >></a>
         </p>
       
 

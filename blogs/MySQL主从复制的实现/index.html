@@ -6,14 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://fufeixiang.com">
-  <title>Tag: Linux | ffu&#39;s Blogs</title>
+  <title>MySQL主从复制的实现 | ffu&#39;s Blogs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="ffu&#39;s Blogs">
-<meta property="og:url" content="http://fufeixiang.com/tags/Linux/index.html">
+  <meta name="description" content="MySQL主从复制原理从节点的I/O线程向主节点请求binlog事件，主节点Dump线程读取binlog事件并发送事件至从节点I/O线程，从节点将事件写到relay log（中继日志） 文件中；之后从节点的SQL 线程，会读取relay log文件中的日志，重放事件来实现主从数据一致。 事实上，主节点是可以并行写的(mysql的并发)，而binlog是串行写(每次写一个事件) ，所以主从复制中，m">
+<meta name="keywords" content="Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL主从复制的实现">
+<meta property="og:url" content="http://fufeixiang.com/blogs/MySQL主从复制的实现/index.html">
 <meta property="og:site_name" content="ffu&#39;s Blogs">
+<meta property="og:description" content="MySQL主从复制原理从节点的I/O线程向主节点请求binlog事件，主节点Dump线程读取binlog事件并发送事件至从节点I/O线程，从节点将事件写到relay log（中继日志） 文件中；之后从节点的SQL 线程，会读取relay log文件中的日志，重放事件来实现主从数据一致。 事实上，主节点是可以并行写的(mysql的并发)，而binlog是串行写(每次写一个事件) ，所以主从复制中，m">
+<meta property="og:updated_time" content="2017-09-19T11:28:44.381Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="ffu&#39;s Blogs">
+<meta name="twitter:title" content="MySQL主从复制的实现">
+<meta name="twitter:description" content="MySQL主从复制原理从节点的I/O线程向主节点请求binlog事件，主节点Dump线程读取binlog事件并发送事件至从节点I/O线程，从节点将事件写到relay log（中继日志） 文件中；之后从节点的SQL 线程，会读取relay log文件中的日志，重放事件来实现主从数据一致。 事实上，主节点是可以并行写的(mysql的并发)，而binlog是串行写(每次写一个事件) ，所以主从复制中，m">
   
     <link rel="alternative" href="/atom.xml" title="ffu&#39;s Blogs" type="application/atom+xml">
   
@@ -139,36 +144,91 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
+            <article id="post-MySQL主从复制的实现" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
   
+    <h1 class="article-title" itemprop="name">
+      MySQL主从复制的实现
+    </h1>
   
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2017" class="archive-year">2017</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/MySQL主从复制的实现/" class="archive-article-date">
+
+        
+        <a href="/blogs/MySQL主从复制的实现/" class="archive-article-date">
   	<time datetime="2017-09-16T08:54:12.796Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-09-16</time>
 </a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/MySQL主从复制的实现/">MySQL主从复制的实现</a>
-    </h1>
-  
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="MySQL主从复制原理"><a href="#MySQL主从复制原理" class="headerlink" title="MySQL主从复制原理"></a>MySQL主从复制原理</h4><p>从节点的I/O线程向主节点请求binlog事件，主节点Dump线程读取binlog事件并发送事件至从节点I/O线程，从节点将事件写到relay log（中继日志） 文件中；之后从节点的SQL 线程，会读取relay log文件中的日志，重放事件来实现主从数据一致。</p>
+<p>事实上，主节点是可以并行写的(mysql的并发)，而binlog是串行写(每次写一个事件) ，所以主从复制中，mysql是单线程复制，也就不可避免的造成了主从数据同步有延迟，所以主从复制也成为异步复制<a id="more"></a></p>
+<h4 id="主从复制配置"><a href="#主从复制配置" class="headerlink" title="主从复制配置"></a>主从复制配置</h4><p>本文以一主一从为例。</p>
+<p>在配置之前确保时间同步，并且从节点的版本号与主节点相同或者高于主节点的版本号</p>
+<ul>
+<li>配置主服务器</li>
+</ul>
+<p>开启二进制日志记录binlog</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/my.cnf.d/server.cnf</div><div class="line">[mysqld]</div><div class="line">server_id = 1</div><div class="line">log_bin = master-log</div><div class="line">skip_name_resolve = ON                                            &lt;-- Centos6不支持</div><div class="line">innodb_file_per_table = ON</div></pre></td></tr></table></figure>
+<p>创建用于复制的账号并授权</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">$ systemctl start mariadb</div><div class="line">$ mysql -uroot -p123456</div><div class="line">Welcome to the MariaDB monitor.  Commands end with ; or \g.</div><div class="line">Your MariaDB connection id is 2</div><div class="line">Server version: 5.5.52-MariaDB MariaDB Server</div><div class="line">Copyright (c) 2000, 2016, Oracle, MariaDB Corporation Ab and others.</div><div class="line">Type &apos;help;&apos; or &apos;\h&apos; for help. Type &apos;\c&apos; to clear the current input statement.</div><div class="line"></div><div class="line">MariaDB [(none)]&gt; GRANT REPLICATION SLAVE,REPLICATION CLIENT ON *.* TO &apos;rpuser&apos;@&apos;192.168.196.%&apos; IDENTIFIED BY &apos;123456&apos;;</div><div class="line">Query OK, 0 rows affected (0.01 sec)</div><div class="line"></div><div class="line">MariaDB [(none)]&gt; FLUSH PRIVILEGES;</div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">MariaDB [(none)]&gt; SHOW MASTER STATUS;                                 &lt;-- 查看binlog日志position</div><div class="line">+-------------------+----------+--------------+------------------+</div><div class="line">| File              | Position | Binlog_Do_DB | Binlog_Ignore_DB |</div><div class="line">+-------------------+----------+--------------+------------------+</div><div class="line">| master-log.000001 |      495 |              |                  |</div><div class="line">+-------------------+----------+--------------+------------------+</div><div class="line">1 row in set (0.00 sec)</div></pre></td></tr></table></figure>
+<ul>
+<li>配置从服务器</li>
+</ul>
+<p>开启中继日志relay-log</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/my.cnf.d/server.cnf</div><div class="line">[mysqld]</div><div class="line">server_id = 2</div><div class="line">relay_log = relay-log</div><div class="line">skip_name_resolve = ON</div><div class="line">innodb_file_per_table = ON</div><div class="line">read_only = ON</div></pre></td></tr></table></figure>
+<p>配置slave连接至主节点</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div></pre></td><td class="code"><pre><div class="line">$ mysql -uroot -p123456</div><div class="line">Welcome to the MariaDB monitor.  Commands end with ; or \g.</div><div class="line">Your MariaDB connection id is 3</div><div class="line">Server version: 5.5.52-MariaDB MariaDB Server</div><div class="line">Copyright (c) 2000, 2016, Oracle, MariaDB Corporation Ab and others.</div><div class="line">Type &apos;help;&apos; or &apos;\h&apos; for help. Type &apos;\c&apos; to clear the current input statement.</div><div class="line"></div><div class="line">MariaDB [(none)]&gt; CHANGE MASTER TO MASTER_HOST=&apos;192.168.196.129&apos;,MASTER_USER=&apos;rpuser&apos;,MASTER_PASSWORD=&apos;123456&apos;,MASTER_LOG_FILE=&apos;master-log.000001&apos;,MASTER_LOG_POS=495;</div><div class="line">Query OK, 0 rows affected (0.09 sec)</div><div class="line"></div><div class="line">MariaDB [(none)]&gt; START SLAVE;</div><div class="line">Query OK, 0 rows affected (0.01 sec)</div><div class="line"></div><div class="line">MariaDB [(none)]&gt; SHOW SLAVE STATUS\G;</div><div class="line">*************************** 1. row ***************************</div><div class="line">               Slave_IO_State: Waiting for master to send event</div><div class="line">                  Master_Host: 192.168.196.129</div><div class="line">                  Master_User: rpuser</div><div class="line">                  Master_Port: 3306</div><div class="line">                Connect_Retry: 60</div><div class="line">              Master_Log_File: master-log.000001</div><div class="line">          Read_Master_Log_Pos: 495</div><div class="line">               Relay_Log_File: relay-log.000002</div><div class="line">                Relay_Log_Pos: 530</div><div class="line">        Relay_Master_Log_File: master-log.000001</div><div class="line">             Slave_IO_Running: Yes                                   &lt;-- I/O线程开启</div><div class="line">            Slave_SQL_Running: Yes                                   &lt;-- SQL线程开启</div><div class="line">              Replicate_Do_DB: </div><div class="line">          Replicate_Ignore_DB: </div><div class="line">           Replicate_Do_Table: </div><div class="line">       Replicate_Ignore_Table: </div><div class="line">      Replicate_Wild_Do_Table: </div><div class="line">  Replicate_Wild_Ignore_Table: </div><div class="line">                   Last_Errno: 0            </div><div class="line">                   Last_Error: </div><div class="line">                 Skip_Counter: 0</div><div class="line">          Exec_Master_Log_Pos: 495</div><div class="line">              Relay_Log_Space: 818</div><div class="line">              Until_Condition: None</div><div class="line">               Until_Log_File: </div><div class="line">                Until_Log_Pos: 0</div><div class="line">           Master_SSL_Allowed: No</div><div class="line">           Master_SSL_CA_File: </div><div class="line">           Master_SSL_CA_Path: </div><div class="line">              Master_SSL_Cert: </div><div class="line">            Master_SSL_Cipher: </div><div class="line">               Master_SSL_Key: </div><div class="line">        Seconds_Behind_Master: 0</div><div class="line">Master_SSL_Verify_Server_Cert: No</div><div class="line">                Last_IO_Errno: 0</div><div class="line">                Last_IO_Error: </div><div class="line">               Last_SQL_Errno: 0</div><div class="line">               Last_SQL_Error: </div><div class="line">  Replicate_Ignore_Server_Ids: </div><div class="line">             Master_Server_Id: 1</div><div class="line">1 row in set (0.00 sec)</div></pre></td></tr></table></figure>
+<p>查看从节点的两个文件<code>master.info</code> 、<code>relay-log.info</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">$ cat /var/lib/mysql/master.info                              &lt;-- 储存有master信息，重启也会生效  </div><div class="line">18</div><div class="line">master-log.000001</div><div class="line">495</div><div class="line">192.168.196.129</div><div class="line">rpuser</div><div class="line">123456</div><div class="line">3306</div><div class="line">60</div><div class="line">0</div><div class="line"></div><div class="line">0</div><div class="line">1800.000</div><div class="line">0</div><div class="line"></div><div class="line">$ cat  /var/lib/mysql/relay-log.info                          &lt;-- 记录有当前数据库对应日志位置</div><div class="line">./relay-log.000002</div><div class="line">530</div><div class="line">master-log.000001</div><div class="line">495</div></pre></td></tr></table></figure>
+<ul>
+<li>更新主节点服务器数据</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">$ mysql -uroot -p123456</div><div class="line">MariaDB [(none)]&gt; create database testdb;</div><div class="line">Query OK, 1 row affected (0.00 sec)</div><div class="line">MariaDB [(none)]&gt; use testdb</div><div class="line">Database changed</div><div class="line">MariaDB [testdb]&gt; create table tb1 (id int);</div><div class="line">Query OK, 0 rows affected (0.02 sec)</div><div class="line"></div><div class="line">MariaDB [testdb]&gt; insert into tb1 values(1),(2);</div><div class="line">Query OK, 2 rows affected (0.00 sec)</div><div class="line">Records: 2  Duplicates: 0  Warnings: 0</div><div class="line"></div><div class="line">MariaDB [testdb]&gt; SHOW MASTER STATUS;</div><div class="line">+-------------------+----------+--------------+------------------+</div><div class="line">| File              | Position | Binlog_Do_DB | Binlog_Ignore_DB |</div><div class="line">+-------------------+----------+--------------+------------------+</div><div class="line">| master-log.000003 |      863 |              |                  |</div><div class="line">+-------------------+----------+--------------+------------------+</div><div class="line">1 row in set (0.00 sec)</div></pre></td></tr></table></figure>
+<ul>
+<li>从节点查看数据已经同步</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div></pre></td><td class="code"><pre><div class="line">$ mysql -uroot -p123456</div><div class="line">MariaDB [(none)]&gt; show databases;</div><div class="line">+--------------------+</div><div class="line">| Database           |</div><div class="line">+--------------------+</div><div class="line">| information_schema |</div><div class="line">| mysql              |</div><div class="line">| performance_schema |</div><div class="line">| test               |</div><div class="line">| testdb             |</div><div class="line">+--------------------+</div><div class="line">5 rows in set (0.00 sec)</div><div class="line"></div><div class="line">MariaDB [(none)]&gt; use testdb;</div><div class="line">Reading table information for completion of table and column names</div><div class="line">You can turn off this feature to get a quicker startup with -A</div><div class="line"></div><div class="line">Database changed</div><div class="line">MariaDB [testdb]&gt; select * from tb1;</div><div class="line">+------+</div><div class="line">| id   |</div><div class="line">+------+</div><div class="line">|    1 |</div><div class="line">|    2 |</div><div class="line">+------+</div><div class="line">2 rows in set (0.00 sec)</div><div class="line">MariaDB [testdb]&gt; show slave status\G;</div><div class="line">*************************** 1. row ***************************</div><div class="line">               Slave_IO_State: Waiting for master to send event</div><div class="line">                  Master_Host: 192.168.196.129</div><div class="line">                  Master_User: rpuser</div><div class="line">                  Master_Port: 3306</div><div class="line">                Connect_Retry: 60</div><div class="line">              Master_Log_File: master-log.000003</div><div class="line">          Read_Master_Log_Pos: 863</div><div class="line">               Relay_Log_File: relay-log.000002</div><div class="line">                Relay_Log_Pos: 898</div><div class="line">        Relay_Master_Log_File: master-log.000003</div><div class="line">             Slave_IO_Running: Yes</div><div class="line">            Slave_SQL_Running: Yes</div><div class="line">              Replicate_Do_DB: </div><div class="line">          Replicate_Ignore_DB: </div><div class="line">           Replicate_Do_Table: </div><div class="line">       Replicate_Ignore_Table: </div><div class="line">      Replicate_Wild_Do_Table: </div><div class="line">  Replicate_Wild_Ignore_Table: </div><div class="line">                   Last_Errno: 0                                     &lt;-- 参考 1)</div><div class="line">                   Last_Error: </div><div class="line">                 Skip_Counter: 0</div><div class="line">          Exec_Master_Log_Pos: 863</div><div class="line">              Relay_Log_Space: 1186</div><div class="line">              Until_Condition: None</div><div class="line">               Until_Log_File: </div><div class="line">                Until_Log_Pos: 0</div><div class="line">           Master_SSL_Allowed: No</div><div class="line">           Master_SSL_CA_File: </div><div class="line">           Master_SSL_CA_Path: </div><div class="line">              Master_SSL_Cert: </div><div class="line">            Master_SSL_Cipher: </div><div class="line">               Master_SSL_Key: </div><div class="line">        Seconds_Behind_Master: 0</div><div class="line">Master_SSL_Verify_Server_Cert: No</div><div class="line">                Last_IO_Errno: 0</div><div class="line">                Last_IO_Error: </div><div class="line">               Last_SQL_Errno: 0</div><div class="line">               Last_SQL_Error: </div><div class="line">  Replicate_Ignore_Server_Ids: </div><div class="line">             Master_Server_Id: 1</div><div class="line">1 row in set (0.01 sec)</div></pre></td></tr></table></figure>
+<blockquote>
+<p>1)  如果出现error SQL线程会停止运行，执行set global sql_slave_skip_counter=# 语句后start slave 即可解决</p>
+</blockquote>
 
-        <div class="article-info info-on-right">
-          
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>♪ 交个朋友吧  ♪<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/images/webchat.png">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -180,364 +240,116 @@
 		</ul>
 	</div>
 
-          
+      
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://fufeixiang.com/blogs/MySQL主从复制的实现/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/使用XtraBackup工具实现MySQL数据备份/" class="archive-article-date">
-  	<time datetime="2017-09-14T13:57:27.681Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-09-14</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/blogs/使用XtraBackup工具实现MySQL数据备份/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">使用XtraBackup工具实现MySQL数据备份及恢复</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/使用XtraBackup工具实现MySQL数据备份/">使用XtraBackup工具实现MySQL数据备份及恢复</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#MySQL主从复制原理"><span class="toc-number">1.</span> <span class="toc-text">MySQL主从复制原理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#主从复制配置"><span class="toc-number">2.</span> <span class="toc-text">主从复制配置</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
         </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
+        
+    </div>
+</aside>
+
+
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/使用mysqldump工具实现MySQL数据备份/" class="archive-article-date">
-  	<time datetime="2017-09-14T12:59:25.436Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-09-14</time>
-</a>
-        </div>
-    	 
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/使用mysqldump工具实现MySQL数据备份/">使用mysqldump工具实现MySQL数据备份</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/Nginx+php-fpm+wordpress/" class="archive-article-date">
-  	<time datetime="2017-09-10T08:55:37.913Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-09-10</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/Nginx+php-fpm+wordpress/">Nginx+php-fpm分离部署搭建wordpress</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/varnish/" class="archive-article-date">
-  	<time datetime="2017-09-09T12:44:25.263Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-09-09</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/varnish/">varnish缓存服务器的配置</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/keepalived nginx LB/" class="archive-article-date">
-  	<time datetime="2017-09-05T14:31:27.078Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-09-05</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/keepalived nginx LB/">Keepalived+nginx LB高可用集群实现</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/session-server-cluster/" class="archive-article-date">
-  	<time datetime="2017-09-04T14:22:49.059Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-09-04</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/session-server-cluster/">nginx负载均衡apache+tomcat集群及session server cluster的实现</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/LVS-DR/" class="archive-article-date">
-  	<time datetime="2017-08-21T14:15:43.902Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-21</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/LVS-DR/">LVS DR 负载均衡实现</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/LVS-NAT/" class="archive-article-date">
-  	<time datetime="2017-08-20T06:38:50.989Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-20</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/LVS-NAT/">LVS NAT 负载均衡的实现</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/rsyslogSRV/" class="archive-article-date">
-  	<time datetime="2017-08-09T14:37:41.520Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-09</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/rsyslogSRV/">如何实现rsyslog的远程日志存储</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
-
-    
-    <nav id="page-nav">
-      <span class="page-number current">1</span><a class="page-number" href="/tags/Linux/page/2/">2</a><a class="extend next" rel="next" href="/tags/Linux/page/2/">Next &raquo;</a>
-    </nav>
   
 
 
@@ -561,9 +373,9 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
-		isTag: true,
+		isTag: false,
 		isCategory: false,
 		open_in_new: false,
 		toc_hide_index: true,
