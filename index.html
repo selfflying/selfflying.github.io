@@ -56,6 +56,8 @@
 	        
 				<li><a href="/tags/Linux/">Linux相关</a></li>
 	        
+				<li><a href="/tags/Docker">Docker相关</a></li>
+	        
 			</ul>
 		</nav>
 		<nav class="header-smart-menu">
@@ -106,6 +108,8 @@
 			
 				
 			
+				
+			
 			
 			
 			<nav class="header-nav">
@@ -119,12 +123,14 @@
 			</nav>
 
 			<nav class="header-menu js-header-menu">
-				<ul style="width: 50%">
+				<ul style="width: 70%">
 				
 				
-					<li style="width: 50%"><a href="/">主页</a></li>
+					<li style="width: 33.333333333333336%"><a href="/">主页</a></li>
 		        
-					<li style="width: 50%"><a href="/tags/Linux/">Linux相关</a></li>
+					<li style="width: 33.333333333333336%"><a href="/tags/Linux/">Linux相关</a></li>
+		        
+					<li style="width: 33.333333333333336%"><a href="/tags/Docker">Docker相关</a></li>
 		        
 				</ul>
 			</nav>
@@ -140,6 +146,83 @@
           </div>
           <div id="js-content" class="content-ll">
             
+  
+    <article id="post-批量自动构建镜像" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blogs/批量自动构建镜像/">批量自动构建docker镜像的shell脚本</a>
+    </h1>
+  
+
+        
+        <a href="/blogs/批量自动构建镜像/" class="archive-article-date">
+  	<time datetime="2018-01-06T05:50:42.185Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-06</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><blockquote>
+<p>目前，由于公司多个相互隔离环境并存，各个环境都部署有容器管理平台，当有docker image更新的时候，就需要在每个环境都修改Dockerfile并执行docker build &amp; docker push到公共镜像仓库的操作，为了减少重复性的工作，我就写了一个自动构建镜像的脚本，只需要在一个环境中准备好构建镜像的Dockerfile及依赖文件，执行脚本完成构建和推送，然后打包构建镜像的文件夹并传输到另一环境，执行脚本就可以自动完成
+        
+          <a class="article-more-a" href="/blogs/批量自动构建镜像/#more">more >></a>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/blogs/批量自动构建镜像/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
   
     <article id="post-session-server-cluster" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
@@ -829,85 +912,6 @@
 
 
   
-    <article id="post-LVS-DR-负载均衡实现" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blogs/LVS-DR-负载均衡实现/">LVS DR 负载均衡实现</a>
-    </h1>
-  
-
-        
-        <a href="/blogs/LVS-DR-负载均衡实现/" class="archive-article-date">
-  	<time datetime="2016-06-03T05:02:36.403Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-06-03</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<p>上篇关于<a href="http://fufeixiang.com/blogs/LVS-NAT-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%9A%84%E5%AE%9E%E7%8E%B0/">LVS-nat 模式的负载均衡实现</a>博客中已经简单介绍了有关LVS集群的概念、四种IP负载均衡技术以及十种调度算法，本文将详细介绍LVS-DR(直接路由)模式的实现</p>
-</blockquote>
-<p>​        LVS-DR：Direct Routing, LVS默认模式, 通过为请求报文重新封装一个MAC首部进行转发，源MAC是DIP所在的接口的MAC，目标MAC是某挑选出的RS的RIP所在接口的MAC地址；源IP/PORT，以及目标IP/PORT均保持不变。请求报文同样要经由 Director，但与nat不同的是DR模式下的响应报文不经由 Director，而由RS直接发往Client
-        
-          <a class="article-more-a" href="/blogs/LVS-DR-负载均衡实现/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/LVS-DR-负载均衡实现/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
@@ -922,7 +926,7 @@
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2017 Feixiang Fu
+    		&copy; 2018 Feixiang Fu
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
@@ -1002,6 +1006,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
               </li>
             
             <div class="clearfix"></div>
