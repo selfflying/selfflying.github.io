@@ -6,14 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://fufeixiang.com">
-  <title>Archives: 2016/3 | fufeixiang&#39;s Blogs</title>
+  <title>python脚本中调用shell的几种方法 | fufeixiang&#39;s Blogs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="fufeixiang&#39;s Blogs">
-<meta property="og:url" content="http://fufeixiang.com/archives/2016/03/index.html">
+  <meta name="description" content="方法一1. os.system(‘cmd’)方法  使用system方法可以返回运行cmd命令的状态返回值，同时会在终端输出运行结果，但无法将执行的结果保存起来 system方法比较适用于执行单个命令、通常没有输出结果的情况">
+<meta name="keywords" content="python">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python脚本中调用shell的几种方法">
+<meta property="og:url" content="http://fufeixiang.com/blogs/python脚本中调用shell的几种方法/index.html">
 <meta property="og:site_name" content="fufeixiang&#39;s Blogs">
+<meta property="og:description" content="方法一1. os.system(‘cmd’)方法  使用system方法可以返回运行cmd命令的状态返回值，同时会在终端输出运行结果，但无法将执行的结果保存起来 system方法比较适用于执行单个命令、通常没有输出结果的情况">
+<meta property="og:updated_time" content="2018-02-23T14:47:12.245Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="fufeixiang&#39;s Blogs">
+<meta name="twitter:title" content="python脚本中调用shell的几种方法">
+<meta name="twitter:description" content="方法一1. os.system(‘cmd’)方法  使用system方法可以返回运行cmd命令的状态返回值，同时会在终端输出运行结果，但无法将执行的结果保存起来 system方法比较适用于执行单个命令、通常没有输出结果的情况">
   
     <link rel="alternative" href="/atom.xml" title="fufeixiang&#39;s Blogs" type="application/atom+xml">
   
@@ -151,98 +156,309 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-python脚本中调用shell的几种方法" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2016" class="archive-year">2016</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/PXE自动化安装CentOS7/" class="archive-article-date">
-  	<time datetime="2016-03-29T13:22:50.341Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-03-29</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/PXE自动化安装CentOS7/">PXE自动化安装CentOS7</a>
+    <h1 class="article-title" itemprop="name">
+      python脚本中调用shell的几种方法
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
+        
+        <a href="/blogs/python脚本中调用shell的几种方法/" class="archive-article-date">
+  	<time datetime="2018-02-23T14:47:12.225Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-02-23</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h5 id="方法一"><a href="#方法一" class="headerlink" title="方法一"></a>方法一</h5><p><strong>1. os.system(‘cmd’)方法</strong></p>
+<blockquote>
+<p>使用system方法可以返回运行cmd命令的状态返回值，同时会在终端输出运行结果，但无法将执行的结果保存起来</p>
+<p>system方法比较适用于执行单个命令、通常没有输出结果的情况<a id="more"></a></p>
+</blockquote>
+<ul>
+<li>python交互模式下</li>
+</ul>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; os.system('tar cvf  /data/1.tar /data/docker')</div><div class="line">tar: Removing leading `/' from member names</div><div class="line">/data/docker/</div><div class="line">/data/docker/auth/</div><div class="line">/data/docker/auth/htpasswd</div><div class="line">/data/docker/a.sh</div><div class="line">0                                                                 &lt;-- 命令执行状态返回值</div></pre></td></tr></table></figure>
+<ul>
+<li>python脚本中</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$ cat sh-system.py</div><div class="line"><span class="comment">#!/usr/bin/python36</span></div><div class="line"><span class="keyword">import</span> os,sys</div><div class="line"><span class="keyword">if</span> len(sys.argv) &lt; <span class="number">3</span> :</div><div class="line">        <span class="keyword">print</span> (<span class="string">'2 arguments is needed'</span>)</div><div class="line">        sys.exit(<span class="number">1</span>)</div><div class="line">os.system(<span class="string">'./test.sh %s %s'</span>%(sys.argv[<span class="number">1</span>],sys.argv[<span class="number">2</span>]))            &lt;--自动打印cmd在linux上执行的信息，无需使用<span class="keyword">print</span></div><div class="line"><span class="comment">#os.system('./test.sh '+sys.argv[1]+' '+sys.argv[2])</span></div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ cat test.sh</div><div class="line"><span class="meta">#!/usr/bin/bash</span></div><div class="line"><span class="built_in">echo</span> -e <span class="string">"This is a shell script. \nNAME:<span class="variable">$1</span>\tAUTHOR:<span class="variable">$2</span>"</span></div></pre></td></tr></table></figure>
+<p>运行python脚本，终端结果如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">[root@master python_learning]# ./sh-system.py test tom</div><div class="line">This is a shell script. </div><div class="line">NAME:test       AUTHOR:tom</div></pre></td></tr></table></figure>
+<h5 id="方法二"><a href="#方法二" class="headerlink" title="方法二"></a>方法二</h5><p><strong>2. commands.getstatusoutput(‘cmd1;cmd2;…’)方法</strong></p>
+<blockquote>
+<p>commands.getstatusoutput方法可以取得命令的输出（包括标准和错误输出）和执行状态位</p>
+<p>python3已经使用subprocess取代</p>
+</blockquote>
+<ul>
+<li>python2交互式模式下</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">[root@master python_learning]<span class="comment"># python</span></div><div class="line">Python <span class="number">2.7</span><span class="number">.5</span> (default, Aug  <span class="number">4</span> <span class="number">2017</span>, <span class="number">00</span>:<span class="number">39</span>:<span class="number">18</span>) </div><div class="line">[GCC <span class="number">4.8</span><span class="number">.5</span> <span class="number">20150623</span> (Red Hat <span class="number">4.8</span><span class="number">.5</span><span class="number">-16</span>)] on linux2</div><div class="line">Type <span class="string">"help"</span>, <span class="string">"copyright"</span>, <span class="string">"credits"</span> <span class="keyword">or</span> <span class="string">"license"</span> <span class="keyword">for</span> more information.</div><div class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> os,commands</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>status,result=commands.getstatusoutput(<span class="string">'ls'</span>)</div><div class="line"><span class="meta">&gt;&gt;&gt; </span>status</div><div class="line"><span class="number">0</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>result</div><div class="line"><span class="string">'getIP.py\nsh-commands.py\nsh-popen.py\nsh-subprocess.py\nsh-system.py\ntest.sh\nzipdir\nzip.py'</span></div><div class="line"><span class="meta">&gt;&gt;&gt; </span>commands.getoutput(<span class="string">'ls'</span>)                                    &lt;--只返回命令执行结果</div><div class="line"><span class="string">'getIP.py\nsh-commands.py\nsh-popen.py\nsh-subprocess.py\nsh-system.py\ntest.sh\nzipdir\nzip.py'</span></div></pre></td></tr></table></figure>
+<ul>
+<li>python脚本中</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[root@master python_learning]<span class="comment"># cat ./sh-commands.py</span></div><div class="line"><span class="comment">#!/usr/bin/python</span></div><div class="line"><span class="keyword">import</span> os,commands</div><div class="line">status,result=commands.getstatusoutput(<span class="string">'ls;cat /data/1.txt'</span>)</div><div class="line"><span class="keyword">print</span> (status)</div><div class="line"><span class="keyword">print</span> (result)</div></pre></td></tr></table></figure>
+<p>运行python脚本，终端结果如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">[root@master python_learning]# ./sh-commands.py   </div><div class="line">256                                                                 &lt;--cmd1;cmd2;...中有一个cmd执行失败,状态返回码就不为0</div><div class="line">sh-commands.py</div><div class="line">sh-system.py</div><div class="line">test.sh</div><div class="line">cat: /data/1.txt: No such file or directory</div></pre></td></tr></table></figure>
+<h5 id="方法三"><a href="#方法三" class="headerlink" title="方法三"></a>方法三</h5><p><strong>3.os.popen(‘cmd’)方法</strong></p>
+<blockquote>
+<p><em>popen(command [, mode=’r’ [, bufsize]])</em></p>
+<p>-&gt; pipe Open a pipe to/from a command returning a file object. 返回一个类文件对象，调用该对象的read()或readlines()方法可以读取输出内容</p>
+<p>command – 使用的命令</p>
+<p>mode – 模式权限可以是 ‘r’(默认) 或 ‘w’</p>
+<p>bufsize – 指明了文件需要的缓冲大小：0意味着无缓冲；1意味着行缓冲；其它正值表示使用参数大小的缓冲（大概值，以字节为单位）。负的bufsize意味着使用系统的默认值，一般来说，对于tty设备，它是行缓冲；对于其它文件，它是全缓冲。如果没有改参数，使用系统的默认值</p>
+</blockquote>
+<ul>
+<li>python脚本中</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">[root@master python_learning]<span class="comment"># vim sh-popen.py </span></div><div class="line"><span class="comment">#!/usr/bin/env python36</span></div><div class="line"><span class="comment">#-*- coding:utf-8 -*-</span></div><div class="line"><span class="keyword">import</span> os,sys</div><div class="line"><span class="keyword">if</span> len(sys.argv) &lt; <span class="number">3</span> :</div><div class="line">        <span class="keyword">print</span> (<span class="string">'2 arguments is needed'</span>)</div><div class="line">        sys.exit(<span class="number">1</span>)</div><div class="line">cmd = <span class="string">'./test.sh %s %s'</span>%(sys.argv[<span class="number">1</span>],sys.argv[<span class="number">2</span>])</div><div class="line"><span class="keyword">print</span> (os.popen(cmd).readlines())                                 &lt;--返回的是类文件对象，需要调用<span class="keyword">print</span>打印出来</div><div class="line"><span class="keyword">print</span> (os.popen(cmd).read(),end=<span class="string">''</span>)</div></pre></td></tr></table></figure>
+<p>运行python脚本，终端结果如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[root@master python_learning]# ./sh-popen.py test tom</div><div class="line">[&apos;This is a shell script. \n&apos;, &apos;NAME:test\tAUTHOR:tom\n&apos;]</div><div class="line">This is a shell script. </div><div class="line">NAME:test       AUTHOR:tom</div></pre></td></tr></table></figure>
+<h5 id="方法四"><a href="#方法四" class="headerlink" title="方法四"></a>方法四</h5><p><strong>4.subprocess模块</strong></p>
+<blockquote>
+<p>subprocess被用来替换一些老的模块和函数，如：os.system、os.spawn<em>、os.popen</em>、popen2.<em>、commands.</em>。所以强烈推荐使用subprocess模块。</p>
+</blockquote>
+<p>subprocess模块中只定义了一个类: Popen。可以使用Popen来创建进程，并与进程进行复杂的交互。它的构造函数如下：</p>
+<blockquote>
+<p><em>class subprocess.Popen(args, bufsize=-1, executable=None, stdin=None, stdout=None, stderr=None, preexec_fn=None, close_fds=False, shell=False, cwd=None, env=None, universal_newlines=False, startupinfo=None, creationflags=0,restore_signals=True, start_new_session=False, pass_fds=(), </em>, encoding=None, errors=None*) </p>
+<p>各参数请参考<a href="https://docs.python.org/3/library/subprocess.html?highlight=subprocess#module-subprocess" target="_blank" rel="external">Python Documentation</a>中的定义</p>
+</blockquote>
+<p>常用的几个函数subprocess.call()、subprocess.check_call()、subprocess.check_output()、subprocess.Popen()。实际上，上面的几个函数都是基于Popen()的封装(wrapper)。这些封装的目的在于让我们容易使用子进程。</p>
+<ul>
+<li>subprocess.call()</li>
+</ul>
+<blockquote>
+<p>subprocess.call(<em>args</em>,<em> </em>, stdin=None<em>, </em>stdout=None<em>, </em>stderr=None<em>, </em>shell=False<em>, </em>cwd=None<em>, </em>timeout=None*)</p>
+<p>Run the command described by <em>args</em>. Wait for command to complete, then return the <a href="https://docs.python.org/3/library/subprocess.html?highlight=subprocess#subprocess.Popen.returncode" target="_blank" rel="external"><code>returncode</code></a> attribute</p>
+</blockquote>
+<p>运行命令，父进程等待子进程完成(阻塞)，然后返回returncode(状态码)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line">[root@master python_learning]# python36</div><div class="line">Python 3.6.3 (default, Jan  4 2018, 16:40:53) </div><div class="line">[GCC 4.8.5 20150623 (Red Hat 4.8.5-16)] on linux</div><div class="line">Type &quot;help&quot;, &quot;copyright&quot;, &quot;credits&quot; or &quot;license&quot; for more information.</div><div class="line">&gt;&gt;&gt; import subprocess</div><div class="line">&gt;&gt;&gt; subprocess.call([&apos;ls&apos;,&apos;-l&apos;,&apos;/data&apos;])             &lt;--args序列化的表达方式</div><div class="line">total 20</div><div class="line">-rw-r--r--. 1 root root 10240 Feb  8 11:06 1.tar</div><div class="line">-rw-r--r--. 1 root root    24 Feb 22 14:56 1.txt</div><div class="line">drwxr-xr-x. 2 root root    79 Dec 25 09:56 build_images</div><div class="line">drwxr-xr-x. 2 root root     6 Jan 15 16:05 container</div><div class="line">drwxr-xr-x. 4 root root    30 Jan 10 15:47 dcos</div><div class="line">drwxr-xr-x. 3 root root    28 Feb  8 11:06 docker</div><div class="line">drwxr-xr-x. 3 root root  4096 Feb 22 15:31 python_learning</div><div class="line">drwxr-xr-x. 5 root root    36 Dec 11 11:07 zookeeper</div><div class="line">0</div><div class="line">&gt;&gt;&gt; subprocess.call(&apos;ls -l /data&apos;,shell=True)        &lt;--args字符串表达，指定shell=True</div><div class="line">total 20</div><div class="line">-rw-r--r--. 1 root root 10240 Feb  8 11:06 1.tar</div><div class="line">-rw-r--r--. 1 root root    24 Feb 22 14:56 1.txt</div><div class="line">drwxr-xr-x. 2 root root    79 Dec 25 09:56 build_images</div><div class="line">drwxr-xr-x. 2 root root     6 Jan 15 16:05 container</div><div class="line">drwxr-xr-x. 4 root root    30 Jan 10 15:47 dcos</div><div class="line">drwxr-xr-x. 3 root root    28 Feb  8 11:06 docker</div><div class="line">drwxr-xr-x. 3 root root  4096 Feb 22 15:31 python_learning</div><div class="line">drwxr-xr-x. 5 root root    36 Dec 11 11:07 zookeeper</div><div class="line">0</div><div class="line">&gt;&gt;&gt; subprocess.call(&apos;ls -l /data/ ; ls notexistfile&apos;,shell=True)</div><div class="line">total 20</div><div class="line">-rw-r--r--. 1 root root 10240 Feb  8 11:06 1.tar</div><div class="line">-rw-r--r--. 1 root root    24 Feb 22 14:56 1.txt</div><div class="line">drwxr-xr-x. 2 root root    79 Dec 25 09:56 build_images</div><div class="line">drwxr-xr-x. 2 root root     6 Jan 15 16:05 container</div><div class="line">drwxr-xr-x. 4 root root    30 Jan 10 15:47 dcos</div><div class="line">drwxr-xr-x. 3 root root    28 Feb  8 11:06 docker</div><div class="line">drwxr-xr-x. 3 root root  4096 Feb 22 15:31 python_learning</div><div class="line">drwxr-xr-x. 5 root root    36 Dec 11 11:07 zookeeper</div><div class="line">ls: cannot access notexistfile: No such file or directory</div><div class="line">2</div></pre></td></tr></table></figure>
+<p>Tips: </p>
+<blockquote>
+<p>使用shlex.split()方法序列化args</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; import shlex,subprocess</div><div class="line">&gt;&gt;&gt; cmd=input()</div><div class="line">/bin/echo -e -n &quot;this a test &apos;$CASE&apos;&quot;</div><div class="line">&gt;&gt;&gt; args=shlex.split(cmd)</div><div class="line">&gt;&gt;&gt; print (args)</div><div class="line">[&apos;/bin/echo&apos;, &apos;-e&apos;, &apos;-n&apos;, &quot;this a test &apos;$CASE&apos;&quot;]</div><div class="line">&gt;&gt;&gt; p = subprocess.Popen(args)</div><div class="line">&gt;&gt;&gt; this a test &apos;$CASE&apos;</div></pre></td></tr></table></figure>
+<ul>
+<li>subprocess.check_call()</li>
+</ul>
+<blockquote>
+<p>subprocess.check_call(<em>args</em>, <em>*,stdin=None</em>, <em>stdout=None</em>, <em>stderr=None</em>, <em>shell=False</em>, <em>cwd=None</em>, <em>timeout=None</em>)</p>
+<p>Run command with arguments. Wait for command to complete. If the return code was zero then return, otherwise raise <a href="https://docs.python.org/3/library/subprocess.html?highlight=subprocess#subprocess.CalledProcessError" target="_blank" rel="external"><code>CalledProcessError</code></a>. The<a href="https://docs.python.org/3/library/subprocess.html?highlight=subprocess#subprocess.CalledProcessError" target="_blank" rel="external"><code>CalledProcessError</code></a> object will have the return code in the <a href="https://docs.python.org/3/library/subprocess.html?highlight=subprocess#subprocess.CalledProcessError.returncode" target="_blank" rel="external"><code>returncode</code></a> attribute.</p>
+</blockquote>
+<p>运行命令，父进程等待子进程完成(阻塞)，如果子进程返回的returncode不为0的话，将抛出CalledProcessError异常。在异常对象中，包括进程的returncode信息。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; subprocess.check_call(&apos;ls -l /data/;ls notexistfile&apos;,shell=True)</div><div class="line">total 20</div><div class="line">-rw-r--r--. 1 root root 10240 Feb  8 11:06 1.tar</div><div class="line">-rw-r--r--. 1 root root    24 Feb 22 14:56 1.txt</div><div class="line">drwxr-xr-x. 2 root root    79 Dec 25 09:56 build_images</div><div class="line">drwxr-xr-x. 2 root root     6 Jan 15 16:05 container</div><div class="line">drwxr-xr-x. 4 root root    30 Jan 10 15:47 dcos</div><div class="line">drwxr-xr-x. 3 root root    28 Feb  8 11:06 docker</div><div class="line">drwxr-xr-x. 3 root root  4096 Feb 22 15:31 python_learning</div><div class="line">drwxr-xr-x. 5 root root    36 Dec 11 11:07 zookeeper</div><div class="line">ls: cannot access notexistfile: No such file or directory</div><div class="line">Traceback (most recent call last):</div><div class="line">  File &quot;&lt;stdin&gt;&quot;, line 1, in &lt;module&gt;</div><div class="line">  File &quot;/usr/lib64/python3.6/subprocess.py&quot;, line 291, in check_call</div><div class="line">    raise CalledProcessError(retcode, cmd)</div><div class="line">subprocess.CalledProcessError: Command &apos;ls -l /data/;ls notexistfile&apos; returned non-zero exit status 2.</div></pre></td></tr></table></figure>
+<ul>
+<li>subprocess.check_output()</li>
+</ul>
+<blockquote>
+<p>subprocess.check_output(<em>args</em>, <em>*, stdin=None</em>, <em>stderr=None</em>, <em>shell=False</em>, <em>cwd=None</em>, <em>encoding=None</em>, <em>errors=None</em>, <em>universal_newlines=False</em>, <em>timeout=None</em>)</p>
+<p>Run command with arguments and return its output.</p>
+<p>If the return code was non-zero it raises a <a href="https://docs.python.org/3/library/subprocess.html?highlight=subprocess#subprocess.CalledProcessError" target="_blank" rel="external"><code>CalledProcessError</code></a>. The <a href="https://docs.python.org/3/library/subprocess.html?highlight=subprocess#subprocess.CalledProcessError" target="_blank" rel="external"><code>CalledProcessError</code></a> object will have the return code in the <a href="https://docs.python.org/3/library/subprocess.html?highlight=subprocess#subprocess.CalledProcessError.returncode" target="_blank" rel="external"><code>returncode</code></a> attribute and any output in the <a href="https://docs.python.org/3/library/subprocess.html?highlight=subprocess#subprocess.CalledProcessError.output" target="_blank" rel="external"><code>output</code></a> attribute.</p>
+</blockquote>
+<p>运行命令，父进程等待子进程完成(阻塞)，并返回子进程的标准输出，如果子进程返回的returncode不为0的话，将抛出CalledProcessError异常。在异常对象中，包括进程的returncode信息和标准输出的信息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; subprocess.check_output(&apos;ls -l&apos;,shell=True)        </div><div class="line">b&apos;total 32\n-rw-r--r--. 1 root root  164 Feb 22 19:28 \\\n-rwxr-xr-x. 1 root root  229 Feb 22 10:24 getIP.py\n-rwxr-xr-x. 1 root root  253 Feb  8 13:37 sh-commands.py\n-rwxr-xr-x. 1 root root  369 Feb 22 15:31 sh-popen.py\n-rwxr-xr-x. 1 root root  572 Feb  8 20:44 sh-subprocess.py\n-rwxr-xr-x. 1 root root  407 Feb 22 14:46 sh-system.py\n-rwxr-xr-x. 1 root root   72 Feb  8 13:24 test.sh\ndrwxr-xr-x. 4 root root   42 Feb  8 18:29 zipdir\n-rwxr-xr-x. 1 root root 1046 Feb  8 19:00 zip.py\n&apos;</div><div class="line">&gt;&gt;&gt; subprocess.check_output(&apos;ls notexistfile&apos;,shell=True) </div><div class="line">ls: cannot access notexistfile: No such file or directory</div><div class="line">Traceback (most recent call last):</div><div class="line">  File &quot;&lt;stdin&gt;&quot;, line 1, in &lt;module&gt;</div><div class="line">  File &quot;/usr/lib64/python3.6/subprocess.py&quot;, line 336, in check_output</div><div class="line">    **kwargs).stdout</div><div class="line">  File &quot;/usr/lib64/python3.6/subprocess.py&quot;, line 418, in run</div><div class="line">    output=stdout, stderr=stderr)</div><div class="line">subprocess.CalledProcessError: Command &apos;ls notexistfile&apos; returned non-zero exit status 2.</div></pre></td></tr></table></figure>
+<p>使用try和except语句处理subprocess.CalledProcessError异常 </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="comment">#!/usr/bin/env python36</span></div><div class="line"><span class="keyword">import</span> subprocess</div><div class="line">code_flag=<span class="number">0</span></div><div class="line"><span class="keyword">try</span>:</div><div class="line">        p2=subprocess.check_output(<span class="string">'ls notexistfile'</span>,shell=<span class="keyword">True</span>)</div><div class="line">        print(p2)</div><div class="line"><span class="keyword">except</span> subprocess.CalledProcessError:</div><div class="line">        <span class="comment">#print ('returncode is not 0')</span></div><div class="line">        code_flag=<span class="number">2</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> code_flag != <span class="number">0</span>:</div><div class="line">        <span class="keyword">print</span> (<span class="string">'execute cmd failed'</span>)</div></pre></td></tr></table></figure>
+<p>如果要获取标准错误，需定义stderr参数 <code>stderr=subprocess.STDOUT</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; subprocess.check_output(</div><div class="line">...     &quot;ls non_existent_file; exit 0&quot;,</div><div class="line">...     stderr=subprocess.STDOUT,</div><div class="line">...     shell=True)</div><div class="line">&apos;ls: non_existent_file: No such file or directory\n&apos;</div></pre></td></tr></table></figure>
+<ul>
+<li>subprocess.Popen()</li>
+</ul>
+<p>经常的使用方法为subporcess.Popen, 我们可以在Popen()建立子进程的时候改变标准输入、标准输出和标准错误，并可以利用subprocess.PIPE将多个子进程的输入和输出连接在一起，构成管道(pipe):</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">import subprocess</div><div class="line">child1 = subprocess.Popen([&quot;ls&quot;,&quot;-l&quot;], stdout=subprocess.PIPE)</div><div class="line">child2 = subprocess.Popen([&quot;wc&quot;], stdin=child1.stdout,stdout=subprocess.PIPE)</div><div class="line">out = child2.communicate()</div><div class="line">print(out)</div></pre></td></tr></table></figure>
+<blockquote>
+<p><em>subprocess.PIPE</em></p>
+<p>在创建Popen对象时，subprocess.PIPE可以初始化stdin, stdout或stderr参数。表示与子进程通信的标准流，它实际上为文本流提供一个缓存区，缓存区有一定的容量限制，当缓存区满了之后，子进程就会停止写入数据，程序就会卡住</p>
+</blockquote>
+<p>Popen对象创建后，主程序不会自动等待子进程完成。我们必须调用对象的wait()方法，父进程才会等待 (也就是阻塞block)。这里要注意的是如果进程输出文本数据超过buffersize（默认64k）,调用wait()方法会使程序锁死，推荐使用communicate()方法（<code>communicate()是Popen对象的一个方法，该方法也会阻塞父进程，直到子进程完成</code> ），这个方法会把输出放在内存，而不是管道里，所以这时候上限就和内存大小有关了，一般不会有问题。而且如果要获得程序返回值，可以在调用 Popen.communicate() 之后取 Popen.returncode 的值。但如果超过内存，那么要考虑比如文件 stdout=open(“process.out”, “w”) 的方式来解决，不能再使用管道了</p>
+<p><strong><em>Popen对象的方法：</em></strong></p>
+<p>Popen.poll()<br>用于检查子进程是否已经结束。设置并返回returncode属性。</p>
+<p>Popen.wait()<br>等待子进程结束。设置并返回returncode属性。</p>
+<p>Popen.communicate(input=None)<br>与子进程进行交互。向stdin发送数据，或从stdout和stderr中读取数据。可选参数input指定发送到子进程的参数。 <em><code>Communicate()返回一个元组：(stdoutdata, stderrdata)</code></em>。注意：如果希望通过进程的stdin向其发送数据，在创建Popen对象的时候，参数stdin必须被设置为PIPE。同样，如 果希望从stdout和stderr获取数据，必须将stdout和stderr设置为PIPE。</p>
+<p>Popen.send_signal(signal)<br>向子进程发送信号。</p>
+<p>Popen.terminate()<br>停止(stop)子进程。在windows平台下，该方法将调用Windows API TerminateProcess（）来结束子进程。</p>
+<p>Popen.kill()<br>杀死子进程。</p>
+<p>Popen.stdin<br>如果在创建Popen对象是，参数stdin被设置为PIPE，Popen.stdin将返回一个文件对象用于策子进程发送指令。否则返回None。</p>
+<p>Popen.stdout<br>如果在创建Popen对象是，参数stdout被设置为PIPE，Popen.stdout将返回一个文件对象用于策子进程发送指令。否则返回 None。（<code>类似于os.popen()方法</code>）</p>
+<p>Popen.stderr<br>如果在创建Popen对象是，参数stdout被设置为PIPE，Popen.stdout将返回一个文件对象用于策子进程发送指令。否则返回 None。</p>
+<p>Popen.pid<br>获取子进程的进程ID。</p>
+<p>Popen.returncode<br>获取进程的返回值。如果进程还没有结束，返回None。</p>
+<p><em>实例一 :</em> </p>
+<p>使用Popen的communicate()方法保存子进程输出信息，避免程序死锁</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">[root@master python_learning]<span class="comment"># vim sh-subprocess.py  </span></div><div class="line"><span class="comment">#!/usr/bin/env python36</span></div><div class="line"><span class="comment">#-*- coding:utf-8 -*-</span></div><div class="line"><span class="keyword">import</span> os,sys</div><div class="line"><span class="keyword">import</span> subprocess</div><div class="line"></div><div class="line"><span class="keyword">if</span> len(sys.argv) &lt; <span class="number">3</span> :</div><div class="line">        <span class="keyword">print</span> (<span class="string">'2 arguments is needed'</span>)</div><div class="line">        sys.exit(<span class="number">1</span>)</div><div class="line"></div><div class="line">cmd = <span class="string">'./test.sh %s %s'</span>%(sys.argv[<span class="number">1</span>],sys.argv[<span class="number">2</span>])</div><div class="line"></div><div class="line">p=subprocess.Popen(cmd,shell=<span class="keyword">True</span>,stdout=subprocess.PIPE)</div><div class="line"><span class="comment">#p.wait()                                         #阻塞父进程，等待cmd执行完成</span></div><div class="line"><span class="comment">#print(p.stdout.read())                           #从管道读出输出信息</span></div><div class="line">output,errors=p.communicate()                     <span class="comment">#输出信息缓存到内存中;进程结束后，返回元组(stdoutdata, stderrdata)</span></div><div class="line">print(output)                                     <span class="comment">#打印stdoutdata</span></div><div class="line"><span class="keyword">if</span> p.returncode != <span class="number">0</span>:</div><div class="line">        <span class="keyword">print</span> (<span class="string">"execute shell script failed"</span>)</div></pre></td></tr></table></figure>
+<p><em>实例二 :</em> </p>
+<p>env参数默认为None，子进程默认继承父进程的环境变量。但是，一旦你自定义了env的值（类型为字典），则子程序的环境变量全部由env参数决定，与父进程无关</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; p=subprocess.Popen(&apos;echo this is a test &quot;$case&quot;&apos;,env=&#123;&apos;case&apos;:&apos;123456&apos;&#125;,shell=True,stdout=subprocess.PIPE)</div><div class="line">&gt;&gt;&gt; print(p.stdout.read())</div><div class="line">b&apos;this is 123456\n&apos;</div></pre></td></tr></table></figure>
+<h5 id="方法五"><a href="#方法五" class="headerlink" title="方法五"></a>方法五</h5><p><strong>5.sh模块</strong></p>
+<p>参考<a href="http://amoffat.github.io/sh/" target="_blank" rel="external">官方文档</a></p>
+<ul>
+<li>调用常用命令<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">&gt;&gt;&gt; import sh</div><div class="line">&gt;&gt;&gt; sh.ls()</div><div class="line">getIP.py        sh-popen.py       sh-system.py  test.sh  zip.py</div><div class="line">sh-commands.py  sh-subprocess.py  sub1.py       zipdir</div><div class="line">&gt;&gt;&gt; sh.ls(&apos;-l&apos;,&apos;./getIP.py&apos;)                              #命令参数以字符串形式传递</div><div class="line">-rwxr-xr-x. 1 root root 229 Feb 22 10:24 ./getIP.py</div><div class="line">或者</div><div class="line">&gt;&gt;&gt; from sh import ls</div><div class="line">&gt;&gt;&gt; ls()</div><div class="line">getIP.py        sh-popen.py       sh-system.py  test.sh  zip.py</div><div class="line">sh-commands.py  sh-subprocess.py  sub1.py       zipdir</div><div class="line">&gt;&gt;&gt; ls(&apos;-l&apos;,&apos;./getIP.py&apos;)   </div><div class="line">-rwxr-xr-x. 1 root root 229 Feb 22 10:24 ./getIP.py</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>未完待续。。。</p>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>♪ 交个朋友吧  ♪<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/images/webchat.png">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">python</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
+      
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://fufeixiang.com/blogs/python脚本中调用shell的几种方法/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/yum客户端的配置及yum命令用法/" class="archive-article-date">
-  	<time datetime="2016-03-02T08:20:44.737Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-03-02</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/blogs/批量自动构建镜像/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">批量自动构建docker镜像的shell脚本</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/yum客户端的配置及yum命令用法/">yum客户端的配置及yum命令用法</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-5"><a class="toc-link" href="#方法一"><span class="toc-number">1.</span> <span class="toc-text">方法一</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#方法二"><span class="toc-number">2.</span> <span class="toc-text">方法二</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#方法三"><span class="toc-number">3.</span> <span class="toc-text">方法三</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#方法四"><span class="toc-number">4.</span> <span class="toc-text">方法四</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#方法五"><span class="toc-number">5.</span> <span class="toc-text">方法五</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
         </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
+        
+    </div>
+</aside>
+
+
+
   
   
-    </div></section>
   
 
-    
+  
+
+  
 
 
           </div>
@@ -265,8 +481,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
