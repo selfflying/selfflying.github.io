@@ -6,14 +6,21 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://fufeixiang.com">
-  <title>Archives: 2018 | fufeixiang&#39;s Blogs</title>
+  <title>批量export Docker镜像脚本 | fufeixiang&#39;s Blogs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="fufeixiang&#39;s Blogs">
-<meta property="og:url" content="http://fufeixiang.com/archives/2018/index.html">
+  <meta name="description" content="背景 公司容器管理平台需要周期性对weblogic镜像进行打补丁升级操作，由于docker的分层管理机制，weblogic镜像体积会越来越大，影响后续的维护部署。我就写了一个批量export镜像并推送至镜像仓库的脚本，来精简镜像大小">
+<meta name="keywords" content="docker">
+<meta property="og:type" content="article">
+<meta property="og:title" content="批量export Docker镜像脚本">
+<meta property="og:url" content="http://fufeixiang.com/blogs/批量export Docker镜像脚本/index.html">
 <meta property="og:site_name" content="fufeixiang&#39;s Blogs">
+<meta property="og:description" content="背景 公司容器管理平台需要周期性对weblogic镜像进行打补丁升级操作，由于docker的分层管理机制，weblogic镜像体积会越来越大，影响后续的维护部署。我就写了一个批量export镜像并推送至镜像仓库的脚本，来精简镜像大小">
+<meta property="og:image" content="d:/Linux%20learning/博客/20180806/1533196232151.png">
+<meta property="og:updated_time" content="2018-08-07T14:59:49.832Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="fufeixiang&#39;s Blogs">
+<meta name="twitter:title" content="批量export Docker镜像脚本">
+<meta name="twitter:description" content="背景 公司容器管理平台需要周期性对weblogic镜像进行打补丁升级操作，由于docker的分层管理机制，weblogic镜像体积会越来越大，影响后续的维护部署。我就写了一个批量export镜像并推送至镜像仓库的脚本，来精简镜像大小">
+<meta name="twitter:image" content="d:/Linux%20learning/博客/20180806/1533196232151.png">
   
     <link rel="alternative" href="/atom.xml" title="fufeixiang&#39;s Blogs" type="application/atom+xml">
   
@@ -151,36 +158,76 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-批量export Docker镜像脚本" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2018" class="archive-year">2018</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/批量export Docker镜像脚本/" class="archive-article-date">
-  	<time datetime="2018-08-07T14:59:04.036Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-07</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/批量export Docker镜像脚本/">批量export Docker镜像脚本</a>
+    <h1 class="article-title" itemprop="name">
+      批量export Docker镜像脚本
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
+        
+        <a href="/blogs/批量export Docker镜像脚本/" class="archive-article-date">
+  	<time datetime="2018-08-07T14:59:04.036Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-07</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h4><blockquote>
+<p>公司容器管理平台需要周期性对weblogic镜像进行打补丁升级操作，由于docker的分层管理机制，weblogic镜像体积会越来越大，影响后续的维护部署。我就写了一个批量export镜像并推送至镜像仓库的脚本，来精简镜像大小<a id="more"></a></p>
+</blockquote>
+<h4 id="脚本运行示例"><a href="#脚本运行示例" class="headerlink" title="脚本运行示例"></a>脚本运行示例</h4><p><img src="D:\Linux learning\博客\20180806\1533196232151.png" alt="1533196232151"></p>
+<h4 id="脚本执行步骤"><a href="#脚本执行步骤" class="headerlink" title="脚本执行步骤"></a>脚本执行步骤</h4><ol>
+<li><p>准备镜像列表文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">$ cat images_list.txt                                                 &lt;-- 需要export的镜像</div><div class="line">registry:8088/nginx:latest</div><div class="line">registry:8088/kubernetes-dashboard-amd64:v1.5.0</div><div class="line"></div><div class="line">#export之前镜像仓库中的镜像tag</div><div class="line">$ curl registry:8088/v2/nginx/tags/list</div><div class="line">&#123;&quot;name&quot;:&quot;nginx&quot;,&quot;tags&quot;:[&quot;latest&quot;]&#125;</div><div class="line">$ curl registry:8088/v2/kubernetes-dashboard-amd64/tags/list</div><div class="line">&#123;&quot;name&quot;:&quot;kubernetes-dashboard-amd64&quot;,&quot;tags&quot;:[&quot;v1.5.0&quot;]&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>运行脚本</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">$ sh export-images.sh -h</div><div class="line">-------------------------------------------------------------------------</div><div class="line">Usage:</div><div class="line">        export_images.sh -f IMAGES_FILE -t IMAGE_TAG [-p THREAD_NUM] [-h]</div><div class="line">Description:</div><div class="line">        IMAGES_FILE: the list of images need to be exported</div><div class="line">        IMAGE_TAG: the target tag of exported images</div><div class="line">        THREAD_NUM: the target thread numbers</div><div class="line">-------------------------------------------------------------------------</div><div class="line"></div><div class="line">$ sh export-images.sh -f images_list.txt -t test -p 2</div><div class="line">开始执行任务</div><div class="line">registry:8088/kubernetes-dashboard-amd64:test pushed</div><div class="line">registry:8088/nginx:test pushed</div><div class="line">任务执行结束</div><div class="line"></div><div class="line">#export之后镜像仓库中的镜像tag，增加了test</div><div class="line">$ curl registry:8088/v2/nginx/tags/list                     </div><div class="line">&#123;&quot;name&quot;:&quot;nginx&quot;,&quot;tags&quot;:[&quot;latest&quot;,&quot;test&quot;]&#125;</div><div class="line">$ curl registry:8088/v2/kubernetes-dashboard-amd64/tags/list</div><div class="line">&#123;&quot;name&quot;:&quot;kubernetes-dashboard-amd64&quot;,&quot;tags&quot;:[&quot;v1.5.0&quot;,&quot;test&quot;]&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>查看脚本运行日志</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">$ cat export_images.log  </div><div class="line">Trying to pull repository registry:8088/kubernetes-dashboard-amd64 ... </div><div class="line">v1.5.0: Pulling from registry:8088/kubernetes-dashboard-amd64</div><div class="line">Digest: sha256:ddd3454819c089517b434a3ea42abf3c184fce9bf45704abf22513082d900eba</div><div class="line">Status: Image is up to date for registry:8088/kubernetes-dashboard-amd64:v1.5.0</div><div class="line">.....中间省略.....</div><div class="line">Sending build context to Docker daemon 2.048 kB</div><div class="line">Step 1/5 : FROM registry:8088/kubernetes-dashboard-amd64:tmp</div><div class="line"> ---&gt; 17b601e3c483</div><div class="line">.....中间省略.....</div><div class="line">Successfully built 8712115d0f0b</div><div class="line">Login Succeeded</div><div class="line">The push refers to a repository [registry:8088/nginx]</div><div class="line">.....中间省略.....</div><div class="line">registry:8088/kubernetes-dashboard-amd64:test pushed</div><div class="line">Untagged: registry:8088/kubernetes-dashboard-amd64:tmp</div><div class="line">Untagged: registry:8088/kubernetes-dashboard-amd64:test</div><div class="line">Untagged: registry:8088/kubernetes-dashboard-amd64@sha256:5c601d866b5a6b135fc6654417c4f8726661ce6903f00fc96ffe8127cdc272a0</div><div class="line">.....中间省略.....</div><div class="line">Deleted: sha256:cc940a53e84603ed3886909d8150f456fc93d25abf85d5ea07099d92e33640d9</div><div class="line">.....后面省略.....</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<h4 id="shell脚本"><a href="#shell脚本" class="headerlink" title="shell脚本"></a>shell脚本</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div></pre></td><td class="code"><pre><div class="line">$ cat export-images.sh </div><div class="line">#!/bin/bash</div><div class="line">#Author:Feixiang Fu</div><div class="line">#set -x</div><div class="line"></div><div class="line">#指定镜像仓库的验证用户及密码</div><div class="line">user_name=fufeixiang</div><div class="line">passwd=123456</div><div class="line"></div><div class="line">tty=$(tty)</div><div class="line">usage()&#123;</div><div class="line">        echo &quot;--------------------------------------------------------------&quot;</div><div class="line">        echo &quot;Usage:&quot;</div><div class="line">        echo -e &quot;\texport_images.sh -f IMAGES_FILE -t IMAGE_TAG [-p THREAD_NUM] [-h]&quot;</div><div class="line">        echo &quot;Description:&quot;</div><div class="line">        echo -e &quot;\tIMAGES_FILE: the list of images need to be exported&quot;</div><div class="line">        echo -e &quot;\tIMAGE_TAG: the target tag of exported images&quot;</div><div class="line">        echo -e &quot;\tTHREAD_NUM: the target thread numbers&quot;</div><div class="line">        echo &quot;--------------------------------------------------------------&quot;</div><div class="line">        exit -1</div><div class="line">&#125;</div><div class="line"></div><div class="line">function work()&#123;</div><div class="line">        i=$RANDOM</div><div class="line">        docker pull $org_image</div><div class="line">        #随机容器名称</div><div class="line">        docker run -d --name container$i $org_image sh -c &quot;tail -f /etc/hosts&quot;</div><div class="line">        docker export container$i &gt; container$&#123;i&#125;.tar</div><div class="line">        docker import container$&#123;i&#125;.tar $image_name:tmp</div><div class="line">        docker rm -f container$i</div><div class="line">        rm -rf container$&#123;i&#125;.tar</div><div class="line">        mkdir build-$i</div><div class="line">cat &lt;&lt;EOF  &gt; build-$i/Dockerfile</div><div class="line">FROM $image_name:tmp</div><div class="line">WORKDIR /app/bin</div><div class="line">ENTRYPOINT [&quot;/usr/bin/dumb-init&quot;,&quot;--&quot;]</div><div class="line">USER dcos</div><div class="line">CMD [&quot;sh&quot;, &quot;/app/bin/startServer.sh&quot;]</div><div class="line">EOF</div><div class="line">        #export镜像之后，entrypoint/cmd等会丢失，需要重新定制</div><div class="line">        docker build -t $image_name:$tag build-$i/</div><div class="line">        docker login -u $user_name -p $passwd $image_addr</div><div class="line">        if [ &quot;$?&quot; -eq 0 ];then</div><div class="line">            docker push $image_name:$tag &amp;&amp; echo -e &quot;\e[32m$&#123;image_name&#125;:$&#123;tag&#125; pushed\e[0m&quot; |tee $tty</div><div class="line">        else</div><div class="line">            echo -e &quot;\e[31m账户$&#123;user_name&#125;密码不匹配,$&#123;image_name&#125;:$&#123;tag&#125; push failed\e[0m&quot; |tee $tty</div><div class="line">        fi</div><div class="line">        #清理import的镜像及build的新镜像</div><div class="line">       docker rmi $image_name:tmp $image_name:$tag</div><div class="line">&#125;</div><div class="line"></div><div class="line">[ -z &quot;$*&quot; ] &amp;&amp; usage &amp;&amp; exit 1</div><div class="line">while getopts &apos;f:t:p:h&apos; opt;do</div><div class="line">        case $opt in</div><div class="line">                f) IMAGES_FILE=&quot;$OPTARG&quot;;;</div><div class="line">                t) tag=&quot;$OPTARG&quot;;;</div><div class="line">                p) thread=&quot;$OPTARG&quot;;;</div><div class="line">                h) usage;;</div><div class="line">                ?) usage;;</div><div class="line">        esac</div><div class="line">done</div><div class="line">echo &quot;开始执行任务&quot;</div><div class="line">#支持多进程模式</div><div class="line">mkfifo tmp.fifo</div><div class="line">exec 6&lt;&gt; tmp.fifo</div><div class="line">thread=$&#123;thread:-1&#125;</div><div class="line">for ((j=0;j&lt;$thread;j++));</div><div class="line">do</div><div class="line">    echo</div><div class="line">done &gt;&amp;6</div><div class="line">while read line || [ -n &quot;$line&quot; ];do</div><div class="line">   org_image=$&#123;line%% *&#125;</div><div class="line">   image_name=$&#123;line%:*&#125;</div><div class="line">   #user_name=`echo $line|cut -d&quot; &quot; -f2`</div><div class="line">   #passwd=$&#123;line##* &#125; </div><div class="line">   image_addr=$&#123;line%%/*&#125;</div><div class="line">   read -u6 </div><div class="line">   &#123; </div><div class="line">    work &gt;&gt; export_images.log</div><div class="line">    echo &gt;&amp;6</div><div class="line">   &#125; &amp; </div><div class="line">done &lt; $IMAGES_FILE </div><div class="line">wait</div><div class="line">exec 6&gt;&amp;-</div><div class="line">rm -rf tmp.fifo build-*/</div><div class="line">echo &quot;任务执行结束&quot;</div></pre></td></tr></table></figure>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>♪ 交个朋友吧  ♪<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/images/webchat.png">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -192,133 +239,117 @@
 		</ul>
 	</div>
 
-          
+      
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://fufeixiang.com/blogs/批量export Docker镜像脚本/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/Docker存储驱动direct-lvm的配置/" class="archive-article-date">
-  	<time datetime="2018-05-08T13:03:39.247Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-08</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/blogs/Docker存储驱动direct-lvm的配置/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Docker存储驱动direct-lvm的配置</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/Docker存储驱动direct-lvm的配置/">Docker存储驱动direct-lvm的配置</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#背景"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#脚本运行示例"><span class="toc-number">2.</span> <span class="toc-text">脚本运行示例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#脚本执行步骤"><span class="toc-number">3.</span> <span class="toc-text">脚本执行步骤</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#shell脚本"><span class="toc-number">4.</span> <span class="toc-text">shell脚本</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
         </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
+        
+    </div>
+</aside>
+
+
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/python脚本中调用shell的几种方法/" class="archive-article-date">
-  	<time datetime="2018-02-25T04:43:31.515Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-02-25</time>
-</a>
-        </div>
-    	 
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/python脚本中调用shell的几种方法/">python脚本中调用shell的几种方法</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">python</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/批量自动构建镜像/" class="archive-article-date">
-  	<time datetime="2018-01-06T05:56:33.585Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-06</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/批量自动构建镜像/">批量自动构建docker镜像的shell脚本</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
   
-  
-    </div></section>
-  
-
-    
 
 
           </div>
@@ -341,8 +372,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
