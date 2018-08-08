@@ -153,6 +153,83 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-Docker配置TLS安全认证" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blogs/Docker配置TLS安全认证/">Docker配置TLS安全认证</a>
+    </h1>
+  
+
+        
+        <a href="/blogs/Docker配置TLS安全认证/" class="archive-article-date">
+  	<time datetime="2018-08-08T15:08:35.904Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-08</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h4><blockquote>
+<p>通常，我们在配置docker daemon的监听方式为本地的socket和开放TCP端口，docker服务允许远程访问，方便对docker集群的主机执行管理命令及调用等。如果不使用TLS加密docker，任意客户端都可以对docker主机进行远程操作，有很大的安全隐患。而配置TLS后，只有信任的客户端才可以远程访问docker服务。
+        
+          <a class="article-more-a" href="/blogs/Docker配置TLS安全认证/#more">more >></a>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/blogs/Docker配置TLS安全认证/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-批量export Docker镜像脚本" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -821,83 +898,6 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/blogs/使用mysqldump工具实现MySQL数据备份/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-MySQL主从复制的实现" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blogs/MySQL主从复制的实现/">MySQL主从复制的实现</a>
-    </h1>
-  
-
-        
-        <a href="/blogs/MySQL主从复制的实现/" class="archive-article-date">
-  	<time datetime="2016-11-06T02:52:36.384Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-11-06</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h4 id="MySQL主从复制原理"><a href="#MySQL主从复制原理" class="headerlink" title="MySQL主从复制原理"></a>MySQL主从复制原理</h4><p>从节点的I/O线程向主节点请求binlog事件，主节点Dump线程读取binlog事件并发送事件至从节点I/O线程，从节点将事件写到relay log（中继日志） 文件中；之后从节点的SQL 线程，会读取relay log文件中的日志，重放事件来实现主从数据一致。</p>
-<p>事实上，主节点是可以并行写的(mysql的并发)，而binlog是串行写(每次写一个事件) ，所以主从复制中，mysql是单线程复制，也就不可避免的造成了主从数据同步有延迟，所以主从复制也成为异步复制
-        
-          <a class="article-more-a" href="/blogs/MySQL主从复制的实现/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/MySQL主从复制的实现/">展开全文 >></a>
         </p>
       
 

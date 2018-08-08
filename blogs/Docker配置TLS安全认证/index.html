@@ -6,14 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://fufeixiang.com">
-  <title>fufeixiang&#39;s Blogs</title>
+  <title>Docker配置TLS安全认证 | fufeixiang&#39;s Blogs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="fufeixiang&#39;s Blogs">
-<meta property="og:url" content="http://fufeixiang.com/page/3/index.html">
+  <meta name="description" content="背景 通常，我们在配置docker daemon的监听方式为本地的socket和开放TCP端口，docker服务允许远程访问，方便对docker集群的主机执行管理命令及调用等。如果不使用TLS加密docker，任意客户端都可以对docker主机进行远程操作，有很大的安全隐患。而配置TLS后，只有信任的客户端才可以远程访问docker服务。">
+<meta name="keywords" content="Docker">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Docker配置TLS安全认证">
+<meta property="og:url" content="http://fufeixiang.com/blogs/Docker配置TLS安全认证/index.html">
 <meta property="og:site_name" content="fufeixiang&#39;s Blogs">
+<meta property="og:description" content="背景 通常，我们在配置docker daemon的监听方式为本地的socket和开放TCP端口，docker服务允许远程访问，方便对docker集群的主机执行管理命令及调用等。如果不使用TLS加密docker，任意客户端都可以对docker主机进行远程操作，有很大的安全隐患。而配置TLS后，只有信任的客户端才可以远程访问docker服务。">
+<meta property="og:updated_time" content="2018-08-08T15:06:35.746Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="fufeixiang&#39;s Blogs">
+<meta name="twitter:title" content="Docker配置TLS安全认证">
+<meta name="twitter:description" content="背景 通常，我们在配置docker daemon的监听方式为本地的socket和开放TCP端口，docker服务允许远程访问，方便对docker集群的主机执行管理命令及调用等。如果不使用TLS加密docker，任意客户端都可以对docker主机进行远程操作，有很大的安全隐患。而配置TLS后，只有信任的客户端才可以远程访问docker服务。">
   
     <link rel="alternative" href="/atom.xml" title="fufeixiang&#39;s Blogs" type="application/atom+xml">
   
@@ -151,34 +156,127 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-    <article id="post-逻辑卷LVM的实现" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+            <article id="post-Docker配置TLS安全认证" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/blogs/逻辑卷LVM的实现/">逻辑卷LVM的实现</a>
+    <h1 class="article-title" itemprop="name">
+      Docker配置TLS安全认证
     </h1>
   
 
         
-        <a href="/blogs/逻辑卷LVM的实现/" class="archive-article-date">
-  	<time datetime="2015-11-14T13:31:23.529Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-11-14</time>
+        <a href="/blogs/Docker配置TLS安全认证/" class="archive-article-date">
+  	<time datetime="2018-08-08T15:08:35.904Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-08</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h5 id="什么是LVM"><a href="#什么是LVM" class="headerlink" title="什么是LVM"></a>什么是LVM</h5><p>LVM(Logical Volume Manager 逻辑卷管理)可以实现把多个实体硬盘分区整合在一起，当作一个硬盘来重新操作处理。最重要的是LVM不像传统分区一旦确定分区大小就不能再调整，它允许我们<code>弹性的调整分区及文件系统容量</code>！
-        
-          <a class="article-more-a" href="/blogs/逻辑卷LVM的实现/#more">more >></a>
-        
+        <h4 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h4><blockquote>
+<p>通常，我们在配置docker daemon的监听方式为本地的socket和开放TCP端口，docker服务允许远程访问，方便对docker集群的主机执行管理命令及调用等。如果不使用TLS加密docker，任意客户端都可以对docker主机进行远程操作，有很大的安全隐患。而配置TLS后，只有信任的客户端才可以远程访问docker服务。<a id="more"></a></p>
+</blockquote>
+<h4 id="TLS认证配置"><a href="#TLS认证配置" class="headerlink" title="TLS认证配置"></a>TLS认证配置</h4><ol>
+<li>自签名的证书—使用openssl创建私有CA并签发公钥</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line">#生成根证书RSA私钥,123456位私钥文件的密码</div><div class="line">$ openssl genrsa -aes256 -passout pass:123456 -out cakey.pem 2048</div><div class="line">Generating RSA private key, 2048 bit long modulus</div><div class="line">........+++</div><div class="line">......................+++</div><div class="line">e is 65537 (0x10001)</div><div class="line">#生成自签名证书</div><div class="line">$ openssl req -new -x509 -days 365 -key cakey.pem -passin pass:123456 -sha256 -out ca.pem -subj &quot;/C=CN/ST=./L=./O=./CN=192.168.196.136&quot;</div><div class="line"></div><div class="line">#生成server私钥</div><div class="line">$ openssl genrsa -out server.key 2048</div><div class="line">Generating RSA private key, 2048 bit long modulus</div><div class="line">.....................................................................+++</div><div class="line">...............+++</div><div class="line">e is 65537 (0x10001)</div><div class="line">#指定允许通过IP地址访问的IP列表，使用逗号隔开</div><div class="line">$ echo subjectAltName=IP:192.168.196.136 &gt; extfile.cnf</div><div class="line">$ echo extendedKeyUsage=serverAuth &gt;&gt; extfile.cnf</div><div class="line">#生成server证书申请文件</div><div class="line">$ openssl req -new -sha256 -key server.key -out server.csr -subj &quot;/CN=server&quot;</div><div class="line">#CA签署证书，并颁发server证书</div><div class="line">$ openssl x509 -passin pass:123456 -req -days 365 -sha256 -in server.csr -CA ca.pem -CAkey cakey.pem -CAcreateserial -out server.crt -extfile extfile.cnf</div><div class="line">Signature ok</div><div class="line">subject=/CN=192.168.196.136</div><div class="line">Getting CA Private Key</div><div class="line"></div><div class="line">#生成client私钥</div><div class="line">$ openssl genrsa -out client.key 2048</div><div class="line">Generating RSA private key, 2048 bit long modulus</div><div class="line">.................................................+++</div><div class="line">...................................................+++</div><div class="line">e is 65537 (0x10001)</div><div class="line">#生成client证书申请文件</div><div class="line">$ openssl req -new -sha256 -key client.key -out client.csr -subj &quot;/CN=client&quot;</div><div class="line">#CA签署证书，并颁发client证书</div><div class="line">$ openssl x509 -passin pass:123456 -req -days 365 -sha256 -in client.csr -CA ca.pem -CAkey cakey.pem -CAcreateserial -out client.crt -extfile extfile.cnf</div><div class="line">Signature ok</div><div class="line">subject=/CN=client</div><div class="line">Getting CA Private Key</div></pre></td></tr></table></figure>
+<ol>
+<li>配置docker服务开启TLS认证</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line">#修改daemon.json文件，配置docker服务开启TLS认证</div><div class="line">$ cat daemon.json </div><div class="line">&#123;</div><div class="line">        &quot;hosts&quot;: [&quot;unix:///var/run/docker.sock&quot;, &quot;tcp://0.0.0.0:3666&quot;],</div><div class="line">        &quot;insecure-registries&quot;: [&quot;registry:8088&quot;],</div><div class="line">        &quot;tlsverify&quot;:true,</div><div class="line">        &quot;tlscacert&quot;:&quot;/etc/docker/ca.pem&quot;,</div><div class="line">        &quot;tlscert&quot;:&quot;/etc/docker/server.crt&quot;,</div><div class="line">        &quot;tlskey&quot;:&quot;/etc/docker/server.key&quot;</div><div class="line">&#125;</div><div class="line">$ systemctl restart docker</div><div class="line"></div><div class="line">#在本机执行验证命令</div><div class="line">$ docker --tlsverify --tlscacert ca.pem --tlscert client.crt --tlskey=client.key -H tcp://192.168.196.136:3666 version   </div><div class="line">Client:</div><div class="line"> Version:         1.12.6</div><div class="line"> API version:     1.24</div><div class="line"> Package version: docker-1.12.6-61.git85d7426.el7.centos.x86_64</div><div class="line"> Go version:      go1.8.3</div><div class="line"> Git commit:      85d7426/1.12.6</div><div class="line"> Built:           Tue Oct 24 15:40:21 2017</div><div class="line"> OS/Arch:         linux/amd64</div><div class="line"></div><div class="line">Server:</div><div class="line"> Version:         1.12.6</div><div class="line"> API version:     1.24</div><div class="line"> Package version: docker-1.12.6-61.git85d7426.el7.centos.x86_64</div><div class="line"> Go version:      go1.8.3</div><div class="line"> Git commit:      85d7426/1.12.6</div><div class="line"> Built:           Tue Oct 24 15:40:21 2017</div><div class="line"> OS/Arch:         linux/amd64</div></pre></td></tr></table></figure>
+<ol>
+<li><p>分发key文件到客户端，验证</p>
+<p>只有有秘钥文件的客户端才能连接到此docker服务器上</p>
+</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">$ scp ca.pem client.crt client.key 192.168.196.135:/root/</div><div class="line">root@192.168.196.135&apos;s password: </div><div class="line">ca.pem                                  100% 1245     1.2KB/s   00:00    </div><div class="line">client.crt                              100% 1086     1.1KB/s   00:00    </div><div class="line">client.key                              100% 1675     1.6KB/s   00:00    </div><div class="line"></div><div class="line">#登录到135主机</div><div class="line">$ pwd</div><div class="line">  /root</div><div class="line">$ docker --tlsverify --tlscacert ca.pem --tlscert client.crt --tlskey=client.key -H tcp://192.168.196.136:3666 version</div><div class="line">Client:</div><div class="line"> Version:         1.13.1</div><div class="line"> API version:     1.24 (downgraded from 1.26)</div><div class="line"> Package version: docker-1.12.6-61.git85d7426.el7.centos.x86_64</div><div class="line"> Go version:      go1.9.4</div><div class="line"> Git commit:      dded712/1.13.1</div><div class="line"> Built:           Tue Jul 17 18:34:48 2018</div><div class="line"> OS/Arch:         linux/amd64</div><div class="line"></div><div class="line">Server:</div><div class="line"> Version:         1.12.6</div><div class="line"> API version:     1.24 (minimum version )</div><div class="line"> Package version: docker-1.12.6-61.git85d7426.el7.centos.x86_64</div><div class="line"> Go version:      go1.8.3</div><div class="line"> Git commit:      85d7426/1.12.6</div><div class="line"> Built:           Tue Oct 24 15:40:21 2017</div><div class="line"> OS/Arch:         linux/amd64</div><div class="line"> Experimental:    false</div></pre></td></tr></table></figure>
+<h4 id="TLS认证模式"><a href="#TLS认证模式" class="headerlink" title="TLS认证模式"></a>TLS认证模式</h4><ol>
+<li>服务端认证模式</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tlsverify, tlscacert, tlscert, tlskey</td>
+<td>向客户端发送服务端证书, 校验客户端证书是否由指定的CA(自签名根证书)签发</td>
+</tr>
+<tr>
+<td>tls, tlscert, tlskey</td>
+<td>向客户端发送服务端证书, 不校验客户端证书是否由指定的CA(自签名根证书)签发</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>客户端认证模式</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tls</td>
+<td>校验服务端证书是否由 公共的CA机构签发</td>
+</tr>
+<tr>
+<td>tlsverify, tlscacert</td>
+<td>校验服务端证书是否由指定的CA(自签名根证书)签发</td>
+</tr>
+<tr>
+<td>tls, tlscert, tlskey</td>
+<td>使用客户端证书进行身份验证, 但不校验服务端证书是否由指定的CA(自签名根证书)签发</td>
+</tr>
+<tr>
+<td>tlsverify, tlscacert, tlscert, tlskey</td>
+<td>使用客户端证书进行身份验证且校验服务端证书是否由指定的CA(自签名根证书)签发</td>
+</tr>
+</tbody>
+</table>
+<p>​    引用上例，我们将ca.pem、server.crt、server.key复制到docker集群的192.168.196.135主机的/etc/docker/目录下，并修改daemon.json开启docker服务TLS认证。此时客户端认证模式选择第四种时，会提示server证书无效，因为在签发证书时指定了允许通过IP地址访问的IP为192.168.196.135。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">#登录到135主机</div><div class="line">$ cd</div><div class="line">$ docker --tlsverify --tlscacert ca.pem --tlscert client.crt --tlskey=client.key -H tcp://192.168.196.135:3666 version   </div><div class="line">Client:</div><div class="line"> Version:         1.13.1</div><div class="line"> API version:     1.26</div><div class="line"> Package version: </div><div class="line">error during connect: Get https://192.168.196.135:3666/v1.26/version: x509: certificate is valid for 192.168.196.136, not 192.168.196.135</div><div class="line"></div><div class="line">$ docker --tls --tlscacert ca.pem --tlscert client.crt --tlskey=client.key -H tcp://192.168.196.135:3666 version</div><div class="line">Client:</div><div class="line"> Version:         1.13.1</div><div class="line"> API version:     1.26</div><div class="line"> Package version: docker-1.13.1-68.gitdded712.el7.centos.x86_64</div><div class="line"> Go version:      go1.9.4</div><div class="line"> Git commit:      dded712/1.13.1</div><div class="line"> Built:           Tue Jul 17 18:34:48 2018</div><div class="line"> OS/Arch:         linux/amd64</div><div class="line"></div><div class="line">Server:</div><div class="line"> Version:         1.13.1</div><div class="line"> API version:     1.26 (minimum version 1.12)</div><div class="line"> Package version: docker-1.13.1-68.gitdded712.el7.centos.x86_64</div><div class="line"> Go version:      go1.9.4</div><div class="line"> Git commit:      dded712/1.13.1</div><div class="line"> Built:           Tue Jul 17 18:34:48 2018</div><div class="line"> OS/Arch:         linux/amd64</div><div class="line"> Experimental:    false</div></pre></td></tr></table></figure>
+<p>​    如果客户端认证模式选择第四种，可以在签发server证书时，将现有docker集群的IP添加到extfile.cnf，然后拷贝到集群中的主机上，分别配置docker服务开启认证即可，而对于后续新添加节点，则需要更新extfile.cnf并重新签发server证书。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ echo subjectAltName=IP:192.168.196.136,IP:192.168.196.135 &gt; extfile.cnf</div><div class="line">$ openssl x509 -passin pass:123456 -req -days 365 -sha256 -in server.csr -CA ca.pem -CAkey cakey.pem -CAcreateserial -out server.crt -extfile extfile.cnf</div></pre></td></tr></table></figure>
+<p>​    如果客户端认证模式选择不校验服务端证书，则无需指定IP，直接拷贝签发的server证书到所有节点即可</p>
+
       
 
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>♪ 交个朋友吧  ♪<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/images/webchat.png">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
       
     </div>
     <div class="article-info article-info-index">
@@ -189,7 +287,7 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
         		</li>
       		
 		</ul>
@@ -198,16 +296,75 @@
       
 
       
-        <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/逻辑卷LVM的实现/">展开全文 >></a>
-        </p>
-      
 
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://fufeixiang.com/blogs/Docker配置TLS安全认证/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
       
       <div class="clearfix"></div>
     </div>
   </div>
 </article>
+
+  
+<nav id="article-nav">
+  
+  
+    <a href="/blogs/批量export Docker镜像脚本/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">批量export Docker镜像脚本</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
 
 <aside class="wrap-side-operation">
     <div class="mod-side-operation">
@@ -222,93 +379,30 @@
         </div>
         
         
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-boot分区文件恢复" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blogs/boot分区文件恢复/">/etc/fstab及/boot分区文件恢复</a>
-    </h1>
-  
-
-        
-        <a href="/blogs/boot分区文件恢复/" class="archive-article-date">
-  	<time datetime="2015-10-26T02:37:38.932Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-10-26</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>​    以centos6为例，/boot目录下有最为关键的开机启动所必须的内核文件、根文件系统驱动文件已经引导加载程序(bootloader)grub。当我们清空此文件夹之后关机，机器就不能正常启动了，这种情况下，可以借助光盘启动进入救援模式解决。具体步骤如下：
-        
-          <a class="article-more-a" href="/blogs/boot分区文件恢复/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/boot分区文件恢复/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#背景"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#TLS认证配置"><span class="toc-number">2.</span> <span class="toc-text">TLS认证配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#TLS认证模式"><span class="toc-number">3.</span> <span class="toc-text">TLS认证模式</span></a></li></ol>
+                    </div>
+                </span>
             </div>
         </div>
         
-        
     </div>
 </aside>
 
 
 
+  
+  
+  
 
   
-  
-    <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/2/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span>
-    </nav>
+
   
 
 
@@ -331,8 +425,8 @@
     <script>
 	var yiliaConfig = {
 		mathjax: false,
-		isHome: true,
-		isPost: false,
+		isHome: false,
+		isPost: true,
 		isArchive: false,
 		isTag: false,
 		isCategory: false,
