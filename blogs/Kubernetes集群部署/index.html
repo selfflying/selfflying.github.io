@@ -6,14 +6,22 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://fufeixiang.com">
-  <title>Tag: Docker | fufeixiang&#39;s Blogs</title>
+  <title>Kubernetes集群部署 | fufeixiang&#39;s Blogs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="fufeixiang&#39;s Blogs">
-<meta property="og:url" content="http://fufeixiang.com/tags/Docker/index.html">
+  <meta name="description" content="k8s是一个Google开源的容器集群管理平台，如今风靡一时，了解并掌握这门技术变得尤为重要。本文将介绍如何搭建一套简单的k8s集群并部署pod、kubernetes-dashboard。关于k8s架构及其组件的详细概念请自行搜索查阅。">
+<meta name="keywords" content="Docker">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kubernetes集群部署">
+<meta property="og:url" content="http://fufeixiang.com/blogs/Kubernetes集群部署/index.html">
 <meta property="og:site_name" content="fufeixiang&#39;s Blogs">
+<meta property="og:description" content="k8s是一个Google开源的容器集群管理平台，如今风靡一时，了解并掌握这门技术变得尤为重要。本文将介绍如何搭建一套简单的k8s集群并部署pod、kubernetes-dashboard。关于k8s架构及其组件的详细概念请自行搜索查阅。">
+<meta property="og:image" content="http://fufeixiang.com/images/k8s.jpg">
+<meta property="og:image" content="http://fufeixiang.com/images/dashboard.JPG">
+<meta property="og:updated_time" content="2018-08-09T16:03:32.033Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="fufeixiang&#39;s Blogs">
+<meta name="twitter:title" content="Kubernetes集群部署">
+<meta name="twitter:description" content="k8s是一个Google开源的容器集群管理平台，如今风靡一时，了解并掌握这门技术变得尤为重要。本文将介绍如何搭建一套简单的k8s集群并部署pod、kubernetes-dashboard。关于k8s架构及其组件的详细概念请自行搜索查阅。">
+<meta name="twitter:image" content="http://fufeixiang.com/images/k8s.jpg">
   
     <link rel="alternative" href="/atom.xml" title="fufeixiang&#39;s Blogs" type="application/atom+xml">
   
@@ -147,36 +155,215 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-Kubernetes集群部署" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Kubernetes集群部署
+    </h1>
+  
+
+        
+        <a href="/blogs/Kubernetes集群部署/" class="archive-article-date">
+  	<time datetime="2018-08-09T15:31:05.097Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-09</time>
+</a>
+        
+      </header>
     
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>k8s是一个Google开源的容器集群管理平台，如今风靡一时，了解并掌握这门技术变得尤为重要。本文将介绍如何搭建一套简单的k8s集群并部署pod、kubernetes-dashboard。关于k8s架构及其组件的详细概念请自行搜索查阅。<a id="more"></a></p>
+</blockquote>
+<h3 id="集群节点规划及架构"><a href="#集群节点规划及架构" class="headerlink" title="集群节点规划及架构"></a>集群节点规划及架构</h3><table>
+<thead>
+<tr>
+<th style="text-align:center">节点</th>
+<th style="text-align:center">IP</th>
+<th style="text-align:center">service</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">master</td>
+<td style="text-align:center">192.168.196.134</td>
+<td style="text-align:center">etcd,flannel,docker,kubernetes-master,docker-distribution,nginx</td>
+</tr>
+<tr>
+<td style="text-align:center">node1</td>
+<td style="text-align:center">192.168.196.135</td>
+<td style="text-align:center">flannel,docker,kubernetes-node</td>
+</tr>
+<tr>
+<td style="text-align:center">node2</td>
+<td style="text-align:center">192.168.196.136</td>
+<td style="text-align:center">flannel,docker,kubernetes-node</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>对于高可用和容错的Kubernetes生产和部署，需要多个主节点和一个单独的etcd集群</p>
+</blockquote>
+<p><img src="/images/k8s.jpg" alt="k8s"></p>
+<h3 id="服务安装"><a href="#服务安装" class="headerlink" title="服务安装"></a>服务安装</h3><h4 id="etcd"><a href="#etcd" class="headerlink" title="etcd"></a>etcd</h4><p>所有关于集群状态的配置信息都以key/value对的形式存储在etcd中，这些状态显示了集群中包含的节点和需要在其中运行的pods<br>本例只是etcd单机部署，在master节点上yum安装etcd并修改<code>etcd.conf</code>，启动etcd</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">$ grep ^[^#] /etc/etcd/etcd.conf </div><div class="line">ETCD_DATA_DIR=&quot;/var/lib/etcd/default.etcd&quot;</div><div class="line">ETCD_LISTEN_CLIENT_URLS=&quot;http://192.168.196.134:2379&quot;</div><div class="line">ETCD_NAME=etcd1</div><div class="line">ETCD_INITIAL_ADVERTISE_PEER_URLS=&quot;http://192.168.196.134:2380&quot;</div><div class="line">ETCD_ADVERTISE_CLIENT_URLS=&quot;http://192.168.196.134:2379&quot;</div><div class="line">ETCD_INITIAL_CLUSTER=&quot;etcd1=http://192.168.196.134:2380&quot;</div><div class="line"></div><div class="line">$ ss -ntl|egrep &quot;2379|2380&quot;</div><div class="line">LISTEN     0      128    192.168.196.134:2379                     *:*                  </div><div class="line">LISTEN     0      128    127.0.0.1:2380                     *:*     </div><div class="line"></div><div class="line">#etcdctl简单命令</div><div class="line">$ etcdctl --endpoints http://192.168.196.134:2379 mkdir /testdir</div><div class="line">$ etcdctl --endpoints http://192.168.196.134:2379 ls /testdir   </div><div class="line">$ etcdctl --endpoints http://192.168.196.134:2379 ls /</div><div class="line">/testdir</div><div class="line">$ etcdctl --endpoints http://192.168.196.134:2379 mk /testdir/testkey testvalue  </div><div class="line">testvalue</div><div class="line">$ etcdctl --endpoints http://192.168.196.134:2379 get /testdir/testkey</div><div class="line">testvalue</div><div class="line">$ etcdctl --endpoints http://192.168.196.134:2379 rm /testdir/testkey</div><div class="line">PrevNode.Value: testvalue</div><div class="line">$ etcdctl --endpoints http://192.168.196.134:2379 rmdir /testdir</div></pre></td></tr></table></figure>
+<h4 id="flannel"><a href="#flannel" class="headerlink" title="flannel"></a>flannel</h4><p> overlay网络解决方案，实现pod到pod之间的网络通信，并为每个pod提供唯一的IP地址</p>
+<ul>
+<li>各节点yum安装flannel，修改<code>/etc/sysconfig/flanneld</code></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ grep ^[^#] /etc/sysconfig/flanneld </div><div class="line">FLANNEL_ETCD_ENDPOINTS=&quot;http://192.168.196.134:2379&quot;</div><div class="line">FLANNEL_ETCD_PREFIX=&quot;/atomic.io/network&quot;                               &lt;--定义在etcd中存储的目录</div><div class="line">FLANNEL_OPTIONS=&quot;-iface=ens34 -ip-masq=true&quot;</div></pre></td></tr></table></figure>
+<ul>
+<li>在etcd中手动创建自定义flannel网段的地址池<code>10.55.0/16</code></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ etcdctl --endpoints http://192.168.196.134:2379 mkdir /atomic.io</div><div class="line">$ etcdctl --endpoints http://192.168.196.134:2379 mkdir /atomic.io/network</div><div class="line">$ etcdctl --endpoints http://192.168.196.134:2379 mk /atomic.io/network/config &apos;&#123;&quot;Network&quot;: &quot;10.55.0.0/16&quot;&#125;&apos;</div><div class="line">&#123;&quot;Network&quot;: &quot;10.55.0.0/16&quot;&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>各节点启动flanneld服务，可查看flannel0桥随机分配的地址</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"># master节点</div><div class="line">$ ifconfig flannel0 | grep -A1 flannel0                                  </div><div class="line">flannel0: flags=4305&lt;UP,POINTOPOINT,RUNNING,NOARP,MULTICAST&gt;  mtu 1472</div><div class="line">        inet 10.55.68.0  netmask 255.255.0.0  destination 10.55.68.0</div><div class="line"></div><div class="line"># flannel配置信息存在subnet.env文件</div><div class="line">$ cat /var/run/flannel/subnet.env </div><div class="line">FLANNEL_NETWORK=10.55.0.0/16</div><div class="line">FLANNEL_SUBNET=10.55.68.1/24</div><div class="line">FLANNEL_MTU=1472</div><div class="line">FLANNEL_IPMASQ=true</div><div class="line"></div><div class="line"># node1节点</div><div class="line">$ ifconfig flannel0 | grep -A1 flannel0</div><div class="line">flannel0: flags=4305&lt;UP,POINTOPOINT,RUNNING,NOARP,MULTICAST&gt;  mtu 1472</div><div class="line">        inet 10.55.91.0  netmask 255.255.0.0  destination 10.55.91.0</div><div class="line"></div><div class="line"># node2节点</div><div class="line">$ ifconfig flannel0 | grep -A1 flannel</div><div class="line">flannel0: flags=4305&lt;UP,POINTOPOINT,RUNNING,NOARP,MULTICAST&gt;  mtu 1472</div><div class="line">        inet 10.55.2.0  netmask 255.255.0.0  destination 10.55.2.0</div></pre></td></tr></table></figure>
+<h4 id="registry"><a href="#registry" class="headerlink" title="registry"></a>registry</h4><p>​    为集群搭建私有镜像仓库，可以从dockerHub上拉取镜像启动，也可以yum安装docker-distribution和nginx进行搭建，本文使用后一种方法</p>
+<ul>
+<li>在master节点上，yum安装docker-distribution并修改<code>config.yml</code>,启动服务</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">$ cat /etc/docker-distribution/registry/config.yml </div><div class="line">version: 0.1</div><div class="line">log:</div><div class="line">  fields:</div><div class="line">    service: registry</div><div class="line">storage:</div><div class="line">    cache:</div><div class="line">        layerinfo: inmemory</div><div class="line">    filesystem:</div><div class="line">        rootdirectory: /var/lib/registry                                &lt;--存储路径</div><div class="line">http:</div><div class="line">    addr: 127.0.0.1:5000                                                &lt;--监听地址和端口</div></pre></td></tr></table></figure>
+<ul>
+<li>在master节点，yum安装nginx，新建一个代理到后端registry的nginx配置文件<code>registry.conf</code>,启动服务</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">$ cat /etc/nginx/conf.d/registry.conf </div><div class="line">server &#123;</div><div class="line">        listen 8088;</div><div class="line">        server_name registry;</div><div class="line">        client_max_body_size 0;</div><div class="line"></div><div class="line">        location / &#123;</div><div class="line">            proxy_pass  http://127.0.0.1:5000;</div><div class="line">            proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504;</div><div class="line">            proxy_redirect off;</div><div class="line">            proxy_buffering off;</div><div class="line">            proxy_set_header        Host            $http_host;</div><div class="line">            proxy_set_header        X-Real-IP       $remote_addr;</div><div class="line">            proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;</div><div class="line">        &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"># 8080和5000端口已监听</div><div class="line">$ netstat -ntl</div><div class="line">Proto Recv-Q Send-Q Local Address           Foreign Address         State      </div><div class="line">tcp        0      0 192.168.196.134:2379    0.0.0.0:*               LISTEN     </div><div class="line">tcp        0      0 127.0.0.1:2380          0.0.0.0:*               LISTEN     </div><div class="line">tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN     </div><div class="line">tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN     </div><div class="line">tcp        0      0 0.0.0.0:8088            0.0.0.0:*               LISTEN     </div><div class="line">tcp        0      0 127.0.0.1:25            0.0.0.0:*               LISTEN     </div><div class="line">tcp        0      0 127.0.0.1:5000          0.0.0.0:*               LISTEN     </div><div class="line">tcp6       0      0 :::80                   :::*                    LISTEN     </div><div class="line">tcp6       0      0 :::22                   :::*                    LISTEN     </div><div class="line">tcp6       0      0 ::1:25                  :::*                    LISTEN</div></pre></td></tr></table></figure>
+<ul>
+<li>修改各节点<code>/etc/hosts</code>文件，配置registry解析，以master节点为例</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div></pre></td><td class="code"><pre><div class="line">$ cat /etc/hosts</div><div class="line">127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4</div><div class="line">::1         localhost localhost.localdomain localhost6 localhost6.localdomain6</div><div class="line">192.168.196.134 registry</div><div class="line">192.168.196.135 node1</div><div class="line">192.168.196.136 node2</div><div class="line"></div><div class="line"># 验证镜像仓库服务是否正常</div><div class="line">$ curl -Lv  registry:8088/v2   </div><div class="line">* About to connect() to registry port 8088 (#0)</div><div class="line">*   Trying 192.168.196.134...</div><div class="line">* Connected to registry (192.168.196.134) port 8088 (#0)</div><div class="line">&gt; GET /v2 HTTP/1.1</div><div class="line">&gt; User-Agent: curl/7.29.0</div><div class="line">&gt; Host: registry:8088</div><div class="line">&gt; Accept: */*</div><div class="line">&gt; </div><div class="line">&lt; HTTP/1.1 301 Moved Permanently</div><div class="line">&lt; Server: nginx/1.12.2</div><div class="line">&lt; Date: Tue, 03 Jul 2018 14:45:49 GMT</div><div class="line">&lt; Content-Type: text/html; charset=utf-8</div><div class="line">&lt; Content-Length: 39</div><div class="line">&lt; Connection: keep-alive</div><div class="line">&lt; Docker-Distribution-Api-Version: registry/2.0</div><div class="line">&lt; Location: /v2/</div><div class="line">&lt; </div><div class="line">* Ignoring the response-body</div><div class="line">* Connection #0 to host registry left intact</div><div class="line">* Issue another request to this URL: &apos;HTTP://registry:8088/v2/&apos;</div><div class="line">* Found bundle for host registry: 0x78fee0</div><div class="line">* Re-using existing connection! (#0) with host registry</div><div class="line">* Connected to registry (192.168.196.134) port 8088 (#0)</div><div class="line">&gt; GET /v2/ HTTP/1.1</div><div class="line">&gt; User-Agent: curl/7.29.0</div><div class="line">&gt; Host: registry:8088</div><div class="line">&gt; Accept: */*</div><div class="line">&gt; </div><div class="line">&lt; HTTP/1.1 200 OK</div><div class="line">&lt; Server: nginx/1.12.2</div><div class="line">&lt; Date: Tue, 03 Jul 2018 14:45:49 GMT</div><div class="line">&lt; Content-Type: application/json; charset=utf-8</div><div class="line">&lt; Content-Length: 2</div><div class="line">&lt; Connection: keep-alive</div><div class="line">&lt; Docker-Distribution-Api-Version: registry/2.0</div><div class="line">&lt; </div><div class="line">* Connection #0 to host registry left intact</div><div class="line">&#123;&#125;</div></pre></td></tr></table></figure>
+<h4 id="docker"><a href="#docker" class="headerlink" title="docker"></a>docker</h4><p>1.master节点yum安装 docker-engine-1.13.1-1</p>
+<ul>
+<li>修改/etc/docker/daemon.json</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">$ cat /etc/docker/daemon.json </div><div class="line">&#123;</div><div class="line">    &quot;storage-driver&quot;: &quot;devicemapper&quot;,</div><div class="line">    &quot;storage-opts&quot;: [</div><div class="line">    &quot;dm.thinpooldev=/dev/mapper/docker--vg-thinpool&quot;,</div><div class="line">    &quot;dm.use_deferred_removal=true&quot;,</div><div class="line">    &quot;dm.use_deferred_deletion=true&quot;</div><div class="line">    ],</div><div class="line">    &quot;graph&quot;: &quot;/docker&quot;,</div><div class="line">    &quot;insecure-registries&quot;: [&quot;registry:8088&quot;]                                  &lt;--配置镜像仓库地址</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>修改/usr/lib/systemd/system/docker.service<ul>
+<li>加入<code>$DOCKER_NETWORK_OPTIONS</code>启动参数，否则docker无法根据flannel服务随机分配的网段配置docker0网桥</li>
+<li>[service]下添加ExecStartPost=/usr/sbin/iptables -P FORWARD ACCEPT；否则，docker启动后FORWARD链的默认策略为DROP</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$vi /usr/lib/systemd/system/docker.service</div><div class="line">ExecStart=/usr/bin/dockerd $DOCKER_NETWORK_OPTIONS</div><div class="line">ExecStartPost=/usr/sbin/iptables -P FORWARD ACCEPT</div><div class="line"></div><div class="line">#flannel服务启动后会自动生成/var/run/flannel/docker文件，可用于指定docker的相关网络参数</div><div class="line">$ cat /var/run/flannel/docker </div><div class="line">DOCKER_OPT_BIP=&quot;--bip=10.55.68.1/24&quot;</div><div class="line">DOCKER_OPT_IPMASQ=&quot;--ip-masq=false&quot;</div><div class="line">DOCKER_OPT_MTU=&quot;--mtu=1472&quot;</div><div class="line">DOCKER_NETWORK_OPTIONS=&quot; --bip=10.55.68.1/24 --ip-masq=false --mtu=1472&quot;</div></pre></td></tr></table></figure>
+<ul>
+<li>启动docker</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">$ systemctl daemon-reload</div><div class="line">$ systemctl start docker</div><div class="line">$ ifconfig|grep -A1 &quot;docker0\|flannel0&quot;</div><div class="line">docker0: flags=4099&lt;UP,BROADCAST,MULTICAST&gt;  mtu 1500</div><div class="line">        inet 10.55.68.1  netmask 255.255.255.0  broadcast 0.0.0.0</div><div class="line">--</div><div class="line">flannel0: flags=4305&lt;UP,POINTOPOINT,RUNNING,NOARP,MULTICAST&gt;  mtu 1472</div><div class="line">        inet 10.55.68.0  netmask 255.255.0.0  destination 10.55.68.0</div><div class="line">        </div><div class="line">$ docker info | grep -A2 Insecure</div><div class="line">Insecure Registries:</div><div class="line"> registry:8088</div><div class="line"> 127.0.0.0/8</div></pre></td></tr></table></figure>
+<p>2.node1节点和node2节点yum安装docker-1.13.1</p>
+<ul>
+<li>添加镜像仓库地址，修改配置文件<code>/etc/sysconfig/docker</code></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ grep ^[^#] /etc/sysconfig/docker   </div><div class="line">OPTIONS=&apos;--selinux-enabled --log-driver=journald --signature-verification=false -g /docker&apos;</div><div class="line">if [ -z &quot;$&#123;DOCKER_CERT_PATH&#125;&quot; ]; then</div><div class="line">    DOCKER_CERT_PATH=/etc/docker</div><div class="line">fi</div><div class="line">ADD_REGISTRY=&quot;--add-registry registry&quot;</div><div class="line">INSECURE_REGISTRY=&quot;--insecure-registry registry:8088&quot;</div></pre></td></tr></table></figure>
+<ul>
+<li><p>修改/usr/lib/systemd/system/docker.service</p>
+<p>[service]下添加ExecStartPost=/usr/sbin/iptables -P FORWARD ACCEPT；否则，docker启动后FORWARD链的默认策略为DROP</p>
+</li>
+<li><p>启动docker服务</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">$ systemctl daemon-reload</div><div class="line">$ systemctl start docker</div><div class="line">$ ifconfig |grep -A1 &quot;docker0\|flannel&quot;</div><div class="line">docker0: flags=4099&lt;UP,BROADCAST,MULTICAST&gt;  mtu 1500</div><div class="line">        inet 10.55.2.1  netmask 255.255.255.0  broadcast 0.0.0.0</div><div class="line">--</div><div class="line">flannel0: flags=4305&lt;UP,POINTOPOINT,RUNNING,NOARP,MULTICAST&gt;  mtu 1472</div><div class="line">        inet 10.55.2.0  netmask 255.255.0.0  destination 10.55.2.0</div><div class="line">        </div><div class="line">$ docker info|grep -A2 Insecure</div><div class="line">Insecure Registries:</div><div class="line"> registry:8088</div><div class="line"> 127.0.0.0/8</div></pre></td></tr></table></figure>
+<h4 id="kubernetes-master"><a href="#kubernetes-master" class="headerlink" title="kubernetes-master"></a>kubernetes-master</h4><ul>
+<li>master节点yum安装kubernetes-master，修改/etc/kubernetes/下的配置文件</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">$ls /etc/kubernetes/</div><div class="line">apiserver  config  controller-manager  scheduler</div><div class="line"></div><div class="line">#config中的配置为apiserver、controller-manager及scheduler的通用配置项</div><div class="line">$ grep ^[^#] /etc/kubernetes/config</div><div class="line">KUBE_LOGTOSTDERR=&quot;--logtostderr=true&quot;</div><div class="line">KUBE_LOG_LEVEL=&quot;--v=0&quot;</div><div class="line">KUBE_ALLOW_PRIV=&quot;--allow-privileged=false&quot;</div><div class="line">KUBE_MASTER=&quot;--master=http://192.168.196.134:8080&quot;                     &lt;--指定apiserver地址及端口</div><div class="line"></div><div class="line">$ grep ^[^#] /etc/kubernetes/apiserver</div><div class="line">KUBE_API_ADDRESS=&quot;--insecure-bind-address=0.0.0.0&quot;</div><div class="line">KUBE_ETCD_SERVERS=&quot;--etcd-servers=http://192.168.196.134:2379&quot;            &lt;--etcd服务地址</div><div class="line">KUBE_SERVICE_ADDRESSES=&quot;--service-cluster-ip-range=10.254.0.0/16&quot;         &lt;--k8s集群的service网段</div><div class="line">KUBE_ADMISSION_CONTROL=&quot;--admission-control=NamespaceLifecycle,NamespaceExists,LimitRanger,SecurityContextDeny,ResourceQuota&quot;</div><div class="line">KUBE_API_ARGS=&quot;&quot;</div></pre></td></tr></table></figure>
+<ul>
+<li><p>master节点上启动kube-apiserver、kube-scheduler、kube-controller-manager服务</p>
+<p>2.1 Kubernetes API Server: 通过kube-apiserver进程提供服务；用户通过Rest操作或kubectl cli与API Server交互；它用于所有与API对象（Pod、RC、Service等）相关的操作(如增、删、改、查及watch等)，是集群内各功能模块之间数据交互和通信的中心枢纽。<br>2.2 Controller Manager: 集群内部的管理控制中心，负责集群内的Node、Pod副本、服务端点（Endpoint）、命名空间（Namespace）、服务账号（serviceAccount）、资源定额（ResourceQuota）等的管理，提供自愈功能，确保集群始终处于预期的工作状态<br>2.3 Scheduler: 负责Pod的调度，将待调度的Pod(API新创建的Pod、Controller Manager为补足副本而创建的Pod等)按照特定的调度算法和调度策略绑定到集群中某个node上，并将绑定信息写入etcd</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ systemctl start kube-apiserver.service kube-scheduler.service kube-controller-manager.service</div><div class="line"></div><div class="line"># 使用命令行工具测试</div><div class="line">$ kubectl -s 192.168.196.134:8080 --version</div><div class="line">Kubernetes v1.5.2</div></pre></td></tr></table></figure>
+<h4 id="kubernetes-node"><a href="#kubernetes-node" class="headerlink" title="kubernetes-node"></a>kubernetes-node</h4><ul>
+<li>node1/node2节点yum安装kubernetes-node，修改/etc/kubernetes/下的配置文件</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">#config中的配置为kubelet及kube-proxy的通用配置项</div><div class="line">$ grep ^[^#] /etc/kubernetes/config </div><div class="line">KUBE_LOGTOSTDERR=&quot;--logtostderr=true&quot;</div><div class="line">KUBE_LOG_LEVEL=&quot;--v=0&quot;</div><div class="line">KUBE_ALLOW_PRIV=&quot;--allow-privileged=false&quot;</div><div class="line">KUBE_MASTER=&quot;--master=lhttp://192.168.196.134:8080&quot;</div><div class="line"></div><div class="line">$ grep ^[^#] /etc/kubernetes/kubelet </div><div class="line">KUBELET_ADDRESS=&quot;--address=0.0.0.0&quot;</div><div class="line">KUBELET_HOSTNAME=&quot;--hostname-override=node1&quot;                          &lt;--注意node1/node2的区别</div><div class="line">KUBELET_API_SERVER=&quot;--api-servers=http://192.168.196.134:8080&quot;</div><div class="line">KUBELET_POD_INFRA_CONTAINER=&quot;--pod-infra-container-image=registry.access.redhat.com/rhel7/pod-infrastructure:latest&quot;                                                &lt;--随pod一起启动的容器的镜像</div><div class="line">KUBELET_ARGS=&quot;&quot;</div></pre></td></tr></table></figure>
+<ul>
+<li><p>在node节点上启动kubelet、kube-proxy</p>
+<p>2.1 kubelet: 处理Master节点下发到本节点的任务，管理Pod及Pod中的容器（通过API Server监听Scheduler产生的Pod绑定event）；每个kubelet进程会在API Server上注册节点自身信息，定期向Master节点汇报节点资源的使用情况，并通过cAdvisor监控容器和节点资源。<br>2.2 kube-proxy: kube-proxy服务进程，可以看做是service的透明代理兼负载均衡，其核心功能是将到某个service的访问请求转发到后端的多个Pod实例上，事实上是通过iptables的NAT转换来实现的。Service是对一组Pod的抽象，创建时可被分配一个虚拟的Cluster IP。</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ systemctl start kubelet.service kube-proxy.service</div><div class="line"></div><div class="line"># 使用命令行工具测试</div><div class="line">$ kubectl -s 192.168.196.134:8080 get node</div><div class="line">NAME      STATUS    AGE</div><div class="line">node1     Ready     2m</div><div class="line">node2     Ready     2m</div></pre></td></tr></table></figure>
+<h3 id="部署示例"><a href="#部署示例" class="headerlink" title="部署示例"></a>部署示例</h3><p>1.查看当前版本的kubernetes服务支持的API类型及版本</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line">$ curl 192.168.196.134:8080</div><div class="line">&#123;</div><div class="line">  &quot;paths&quot;: [</div><div class="line">    &quot;/api&quot;,</div><div class="line">    &quot;/api/v1&quot;,</div><div class="line">    &quot;/apis&quot;,</div><div class="line">    &quot;/apis/apps&quot;,</div><div class="line">    &quot;/apis/apps/v1beta1&quot;,</div><div class="line">    &quot;/apis/authentication.k8s.io&quot;,</div><div class="line">    &quot;/apis/authentication.k8s.io/v1beta1&quot;,</div><div class="line">    &quot;/apis/authorization.k8s.io&quot;,</div><div class="line">    &quot;/apis/authorization.k8s.io/v1beta1&quot;,</div><div class="line">    &quot;/apis/autoscaling&quot;,</div><div class="line">    &quot;/apis/autoscaling/v1&quot;,</div><div class="line">    &quot;/apis/batch&quot;,</div><div class="line">    &quot;/apis/batch/v1&quot;,</div><div class="line">    &quot;/apis/batch/v2alpha1&quot;,</div><div class="line">    &quot;/apis/certificates.k8s.io&quot;,</div><div class="line">    &quot;/apis/certificates.k8s.io/v1alpha1&quot;,</div><div class="line">    &quot;/apis/extensions&quot;,</div><div class="line">    &quot;/apis/extensions/v1beta1&quot;,</div><div class="line">    &quot;/apis/policy&quot;,</div><div class="line">    &quot;/apis/policy/v1beta1&quot;,</div><div class="line">    &quot;/apis/rbac.authorization.k8s.io&quot;,</div><div class="line">    &quot;/apis/rbac.authorization.k8s.io/v1alpha1&quot;,</div><div class="line">    &quot;/apis/storage.k8s.io&quot;,</div><div class="line">    &quot;/apis/storage.k8s.io/v1beta1&quot;,</div><div class="line">    &quot;/healthz&quot;,</div><div class="line">    &quot;/healthz/ping&quot;,</div><div class="line">    &quot;/healthz/poststarthook/bootstrap-controller&quot;,</div><div class="line">    &quot;/healthz/poststarthook/extensions/third-party-resources&quot;,</div><div class="line">    &quot;/healthz/poststarthook/rbac/bootstrap-roles&quot;,</div><div class="line">    &quot;/logs&quot;,</div><div class="line">    &quot;/metrics&quot;,</div><div class="line">    &quot;/swaggerapi/&quot;,</div><div class="line">    &quot;/ui/&quot;,</div><div class="line">    &quot;/version&quot;</div><div class="line">  ]</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>2.部署一个nginx服务的deployment示例</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">$ cat deployment-nginx.yml </div><div class="line">apiVersion: extensions/v1beta1                                    &lt;--指定APIversion</div><div class="line">kind: Deployment                                                  &lt;--指定资源类型为deployment</div><div class="line">metadata:</div><div class="line">  name: deployment-nginx                                          &lt;--deployment的名称</div><div class="line">spec:</div><div class="line">  replicas: 2                                                     &lt;--期望pod的副本数</div><div class="line">  revisionHistoryLimit: 10</div><div class="line">  template:</div><div class="line">    metadata:</div><div class="line">      labels:                                                     &lt;--pod标签</div><div class="line">        app: nginx</div><div class="line">    spec:</div><div class="line">      containers:</div><div class="line">      - name: nginx</div><div class="line">        image: registry:8088/nginx:latest</div><div class="line">        ports:</div><div class="line">        - containerPort: 80</div><div class="line">$ kubectl -s 192.168.196.134:8080 create -f deployment-nginx.yml</div></pre></td></tr></table></figure>
+<ul>
+<li><p>查看deployment信息</p>
+<p>get查询某个resource的详细信息，describe查询某个resource相关的状态信息</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div></pre></td><td class="code"><pre><div class="line">$ kubectl -s 192.168.196.134:8080 get deployment </div><div class="line">NAME               DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE</div><div class="line">deployment-nginx   2         2         2            2           7d</div><div class="line"></div><div class="line">$ kubectl -s 192.168.196.134:8080 describe deployment</div><div class="line">Name:                   deployment-nginx</div><div class="line">Namespace:              default</div><div class="line">CreationTimestamp:      Fri, 27 Jul 2018 13:37:02 +0800</div><div class="line">Labels:                 app=nginx</div><div class="line">Selector:               app=nginx</div><div class="line">Replicas:               2 updated | 2 total | 2 available | 0 unavailable</div><div class="line">StrategyType:           RollingUpdate</div><div class="line">MinReadySeconds:        0</div><div class="line">RollingUpdateStrategy:  1 max unavailable, 1 max surge</div><div class="line">Conditions:</div><div class="line">  Type          Status  Reason</div><div class="line">  ----          ------  ------</div><div class="line">  Available     True    MinimumReplicasAvailable</div><div class="line">OldReplicaSets: &lt;none&gt;</div><div class="line">NewReplicaSet:  deployment-nginx-2481570099 (2/2 replicas created)</div><div class="line">No events.</div><div class="line"></div><div class="line">$ kubectl -s 192.168.196.134:8080 get deployment -o yaml            &lt;--支持导出为json和yaml格式</div><div class="line">apiVersion: v1</div><div class="line">items:</div><div class="line">- apiVersion: extensions/v1beta1</div><div class="line">  kind: Deployment</div><div class="line">  metadata:</div><div class="line">    annotations:</div><div class="line">      deployment.kubernetes.io/revision: &quot;1&quot;</div><div class="line">    creationTimestamp: 2018-07-27T05:37:02Z</div><div class="line">    generation: 1</div><div class="line">    labels:</div><div class="line">      app: nginx</div><div class="line">    name: deployment-nginx</div><div class="line">    namespace: default</div><div class="line">    resourceVersion: &quot;88336&quot;</div><div class="line">    selfLink: /apis/extensions/v1beta1/namespaces/default/deployments/deployment-nginx</div><div class="line">    uid: 16ed87a7-915f-11e8-a083-000c29815d48</div><div class="line">  spec:</div><div class="line">    replicas: 2</div><div class="line">    revisionHistoryLimit: 10</div><div class="line">    selector:</div><div class="line">      matchLabels:</div><div class="line">        app: nginx</div><div class="line">    strategy:</div><div class="line">      rollingUpdate:</div><div class="line">        maxSurge: 1</div><div class="line">        maxUnavailable: 1</div><div class="line">      type: RollingUpdate</div><div class="line">    template:</div><div class="line">      metadata:</div><div class="line">        creationTimestamp: null</div><div class="line">        labels:</div><div class="line">          app: nginx</div><div class="line">      spec:</div><div class="line">        containers:</div><div class="line">        - image: registry:8088/nginx:latest</div><div class="line">          imagePullPolicy: Always</div><div class="line">          name: nginx</div><div class="line">          ports:</div><div class="line">          - containerPort: 80</div><div class="line">            protocol: TCP</div><div class="line">          resources: &#123;&#125;</div><div class="line">          terminationMessagePath: /dev/termination-log</div><div class="line">        dnsPolicy: ClusterFirst</div><div class="line">        restartPolicy: Always</div><div class="line">        securityContext: &#123;&#125;</div><div class="line">        terminationGracePeriodSeconds: 30</div><div class="line">  status:</div><div class="line">    availableReplicas: 2</div><div class="line">    conditions:</div><div class="line">    - lastTransitionTime: 2018-07-30T05:36:05Z</div><div class="line">      lastUpdateTime: 2018-07-30T05:36:05Z</div><div class="line">      message: Deployment has minimum availability.</div><div class="line">      reason: MinimumReplicasAvailable</div><div class="line">      status: &quot;True&quot;</div><div class="line">      type: Available</div><div class="line">    observedGeneration: 1</div><div class="line">    replicas: 2</div><div class="line">    updatedReplicas: 2</div><div class="line">kind: List</div><div class="line">metadata: &#123;&#125;</div><div class="line">resourceVersion: &quot;&quot;</div><div class="line">selfLink: &quot;&quot;</div></pre></td></tr></table></figure>
+<ul>
+<li><p>查看pod的信息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"># pod所部署的节点及分配的IP</div><div class="line">$ kubectl -s 192.168.196.134:8080 get pod -o wide</div><div class="line">NAME                                READY     STATUS    RESTARTS   AGE       IP           NODE</div><div class="line">deployment-nginx-2481570099-cfkhn   1/1       Running   4          7d        10.55.2.2   node2</div><div class="line">deployment-nginx-2481570099-q6xv8   1/1       Running   3          7d        10.55.91.2   node1</div><div class="line"></div><div class="line">#除了通过get/describe查询pod的全部信息，还可以通过template抓取指定key的值</div><div class="line">$ kubectl -s 192.168.196.134:8080 get pod -o template \</div><div class="line">deployment-nginx-2481570099-cfkhn --template=&#123;&#123;.status.podIP&#125;&#125;</div><div class="line">10.55.2.2</div></pre></td></tr></table></figure>
+</li>
+<li><p>验证flannel网络下pod的连通性</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">#登录到node1上</div><div class="line">$ docker ps</div><div class="line">CONTAINER ID        IMAGE                                   COMMAND                  CREATED             STATUS              PORTS               NAMES</div><div class="line">17485262b0a6        registry:8088/nginx:latest              &quot;nginx -g &apos;daemon ...&quot;   5 hours ago         Up 5 hours                              k8s_nginx.4f504e9_deployment-nginx-2481570099-q6xv8_default_16f355db-915f-11e8-a083-000c29815d48_e2f3c24d</div><div class="line">dc1833e50415        registry:8088/pod-infrastructure:v3.4   &quot;/pod&quot;                   5 hours ago         Up 5 hours                              k8s_POD.ee70020d_deployment-nginx-2481570099-q6xv8_default_16f355db-915f-11e8-a083-000c29815d48_7c54ed33</div><div class="line">#访问本节点上的pod服务</div><div class="line">$ curl 10.55.91.2:80   </div><div class="line">Welcome to nginx!</div><div class="line"># 访问node2节点上的pod服务</div><div class="line">$ curl 10.55.2.2:80</div><div class="line">Welcome to nginx!</div><div class="line"></div><div class="line">#登录到node2上</div><div class="line">$ docker ps</div><div class="line">CONTAINER ID        IMAGE                                   COMMAND                  CREATED             STATUS              PORTS               NAMES</div><div class="line">c087c12e8afd        registry:8088/nginx:latest              &quot;nginx -g &apos;daemon off&quot;   5 hours ago         Up 5 hours                              k8s_nginx.4f504e9_deployment-nginx-2481570099-cfkhn_default_16f36465-915f-11e8-a083-000c29815d48_80f894f4</div><div class="line">195f5d3de8c1        registry:8088/pod-infrastructure:v3.4   &quot;/pod&quot;                   5 hours ago         Up 5 hours                              k8s_POD.ee70020d_deployment-nginx-2481570099-cfkhn_default_16f36465-915f-11e8-a083-000c29815d48_e4b4e2e1</div><div class="line">#访问本节点上的pod服务</div><div class="line">$ curl 10.55.2.2:80</div><div class="line">Welcome to nginx!</div><div class="line"># 访问node2节点上的pod服务</div><div class="line">$ curl 10.55.91.2:80</div><div class="line">Welcome to nginx!</div><div class="line"></div><div class="line">#同样的master节点也配置flanne网络，可访问pod的应用</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>3.部署service示例</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div></pre></td><td class="code"><pre><div class="line">#为部署的pod创建service </div><div class="line">$ cat service-nginx.yml </div><div class="line">kind: Service</div><div class="line">apiVersion: v1</div><div class="line">metadata:</div><div class="line">  name: service-nginx</div><div class="line">spec:</div><div class="line">  ports:</div><div class="line">    - port: 80                                         &lt;-- service的访问端口</div><div class="line">      targetPort: 80                                   &lt;-- nginx容器服务端口</div><div class="line">  selector:</div><div class="line">      app: nginx                                       &lt;-- 以pod标签识别要代理的后端应用</div><div class="line">  type: NodePort                                       &lt;-- 负载均衡为轮询</div><div class="line"></div><div class="line">#NodePort模式为 绑定到pod所在Node节点的网卡，对外提供服务，端口为NodePort(不指定时随机分配)</div><div class="line">$ kubectl -s 192.168.196.134:8080 create -f service-nginx.yml</div><div class="line"></div><div class="line">#查看service-nginx的详细信息</div><div class="line">$ kubectl -s 192.168.196.134:8080 get service -o wide service-nginx</div><div class="line">NAME            CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE       SELECTOR</div><div class="line">service-nginx   10.254.104.158   &lt;nodes&gt;       80:30284/TCP   7d        app=nginx</div><div class="line">$ kubectl -s 192.168.196.134:8080 get service -o yaml service-nginx</div><div class="line">apiVersion: v1</div><div class="line">kind: Service</div><div class="line">metadata:</div><div class="line">  creationTimestamp: 2018-07-27T07:01:04Z</div><div class="line">  name: service-nginx</div><div class="line">  namespace: default</div><div class="line">  resourceVersion: &quot;17086&quot;</div><div class="line">  selfLink: /api/v1/namespaces/default/services/service-nginx</div><div class="line">  uid: d437faec-916a-11e8-a083-000c29815d48</div><div class="line">spec:</div><div class="line">  clusterIP: 10.254.104.158                                  &lt;-- 为service分配的随机clusterIP</div><div class="line">  ports:</div><div class="line">  - nodePort: 30284                                          &lt;--绑定到node节点物理网卡的随机端口</div><div class="line">    port: 80</div><div class="line">    protocol: TCP</div><div class="line">    targetPort: 80</div><div class="line">  selector:</div><div class="line">    app: nginx</div><div class="line">  sessionAffinity: None                                       &lt;-- 1）</div><div class="line">  type: NodePort            </div><div class="line">status:</div><div class="line">  loadBalancer: &#123;&#125;</div><div class="line">1)默认负载策略为轮询，可指定sessionAffinity的值为clientIP实现session绑定</div><div class="line"></div><div class="line">$ kubectl -s 192.168.196.134:8080 describe service service-nginx           </div><div class="line">Name:                   service-nginx</div><div class="line">Namespace:              default</div><div class="line">Labels:                 &lt;none&gt;</div><div class="line">Selector:               app=nginx</div><div class="line">Type:                   NodePort</div><div class="line">IP:                     10.254.104.158</div><div class="line">Port:                   &lt;unset&gt; 80/TCP</div><div class="line">NodePort:               &lt;unset&gt; 30284/TCP</div><div class="line">Endpoints:              10.55.2.2:80,10.55.91.2:80</div><div class="line">Session Affinity:       None</div><div class="line">No events.</div><div class="line"></div><div class="line">#在任意node节点上访问service-nginx绑定的ClusterIP:Port</div><div class="line">$ curl 10.254.104.158:80</div><div class="line">Welcome to nginx!</div><div class="line">#通过监测两个node的nginx访问日志可以看出是转发策略为轮询</div><div class="line"></div><div class="line">#在任意节点上访问service-naginx绑定在主机网卡上的NodePort</div><div class="line">[root@master ~]# curl 192.168.196.136:30284</div><div class="line">Welcome to nginx!</div><div class="line">[root@master ~]# curl 192.168.196.135:30284</div><div class="line">Welcome to nginx!</div><div class="line">[root@node1 ~]# curl 192.168.196.135:30284</div><div class="line">Welcome to nginx!</div><div class="line">[root@node1 ~]# curl 192.168.196.136:30284</div><div class="line">Welcome to nginx!</div><div class="line">[root@node2 ~]# curl 192.168.196.136:30284</div><div class="line">Welcome to nginx!</div><div class="line">[root@node2 ~]# curl 192.168.196.135:30284</div><div class="line">Welcome to nginx!</div></pre></td></tr></table></figure>
+<p>4.部署kubernetes dashboard<br>​    github上项目地址<a href="https://github.com/kubernetes/dashboard" target="_blank" rel="external">https://github.com/kubernetes/dashboard</a></p>
+<ul>
+<li>由于安装的k8s服务版本为v1.5.2，这里选择dashboard release版本为v1.5.0的镜像，dockerhub上搜索并pull到本地( <a href="https://hub.docker.com/r/ist0ne/kubernetes-dashboard-amd64/" target="_blank" rel="external">https://hub.docker.com/r/ist0ne/kubernetes-dashboard-amd64/</a> )，打标签推到私有仓库</li>
+<li>获取github上dashboard的部署文件</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ wget https://raw.githubusercontent.com/kubernetes/dashboard/v1.5.0/src/deploy/kubernetes-dashboard.yaml</div></pre></td></tr></table></figure>
+<ul>
+<li><p>修改kubernetes-dashboard.yaml文件中</p>
+<ul>
+<li>image: registry:8088/kubernetes-dashboard-amd64:v1.5.0</li>
+<li>–apiserver-host=<a href="http://192.168.196.134:8080" target="_blank" rel="external">http://192.168.196.134:8080</a></li>
+</ul>
+</li>
+<li><p>部署dashboard</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ kubectl -s 192.168.196.134:8080 create -f kubernetes-dashboard.yaml           </div><div class="line">deployment &quot;kubernetes-dashboard&quot; created</div><div class="line">service &quot;kubernetes-dashboard&quot; created</div></pre></td></tr></table></figure>
+<blockquote>
+<p> 这里要注意，kubernetes-dashboard部署的namespace为kube-system而不是default，需在命令行指定 -n kube-system或者–namespace=kube-system才能获取到对应的资源信息</p>
+</blockquote>
+<ul>
+<li>浏览器访问192.168.196.134:8080/ui</li>
+</ul>
+<p><img src="/images/dashboard.JPG" alt="dashboard"></p>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>♪ 交个朋友吧  ♪<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/images/webchat.png">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
       
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2018" class="archive-year">2018</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/Docker配置TLS安全认证/" class="archive-article-date">
-  	<time datetime="2018-08-08T15:08:35.904Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-08</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/Docker配置TLS安全认证/">Docker配置TLS安全认证</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -188,133 +375,117 @@
 		</ul>
 	</div>
 
-          
+      
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://fufeixiang.com/blogs/Kubernetes集群部署/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/批量export Docker镜像脚本/" class="archive-article-date">
-  	<time datetime="2018-08-07T14:59:04.036Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-07</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/blogs/Docker配置TLS安全认证/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Docker配置TLS安全认证</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/批量export Docker镜像脚本/">批量export Docker镜像脚本</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#集群节点规划及架构"><span class="toc-number">1.</span> <span class="toc-text">集群节点规划及架构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#服务安装"><span class="toc-number">2.</span> <span class="toc-text">服务安装</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#etcd"><span class="toc-number">2.1.</span> <span class="toc-text">etcd</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#flannel"><span class="toc-number">2.2.</span> <span class="toc-text">flannel</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#registry"><span class="toc-number">2.3.</span> <span class="toc-text">registry</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#docker"><span class="toc-number">2.4.</span> <span class="toc-text">docker</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#kubernetes-master"><span class="toc-number">2.5.</span> <span class="toc-text">kubernetes-master</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#kubernetes-node"><span class="toc-number">2.6.</span> <span class="toc-text">kubernetes-node</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#部署示例"><span class="toc-number">3.</span> <span class="toc-text">部署示例</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
         </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
+        
+    </div>
+</aside>
+
+
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/Docker存储驱动direct-lvm的配置/" class="archive-article-date">
-  	<time datetime="2018-05-08T13:03:39.247Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-08</time>
-</a>
-        </div>
-    	 
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/Docker存储驱动direct-lvm的配置/">Docker存储驱动direct-lvm的配置</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/批量自动构建镜像/" class="archive-article-date">
-  	<time datetime="2018-01-06T05:56:33.585Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-06</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/批量自动构建镜像/">批量自动构建docker镜像的shell脚本</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
   
-  
-    </div></section>
-  
-
-    
 
 
           </div>
@@ -337,9 +508,9 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
-		isTag: true,
+		isTag: false,
 		isCategory: false,
 		open_in_new: false,
 		toc_hide_index: true,
@@ -412,6 +583,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">docker</a>
               </li>
             
             <div class="clearfix"></div>
