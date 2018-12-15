@@ -6,19 +6,14 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://fufeixiang.com">
-  <title>使用mysqldump工具实现MySQL数据备份 | fufeixiang&#39;s Blogs</title>
+  <title>Archives: 2018/12 | fufeixiang&#39;s Blogs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="mysqldump是一款mysql服务自带的功能强大的逻辑备份工具，通常使用mysqldump对 MySQL 数据库进行逻辑全量备份(所有数据集)。 mysqldump可以把要备份的数据库装载到一个单独的文本文件中，这个文件包含有所有重建该数据库所需要的SQL命令，这个文本文件可以用一个简单的批处理和一个合适SQL语句导回到MySQL中，完成恢复。">
-<meta name="keywords" content="Linux">
-<meta property="og:type" content="article">
-<meta property="og:title" content="使用mysqldump工具实现MySQL数据备份">
-<meta property="og:url" content="http://fufeixiang.com/blogs/使用mysqldump工具实现MySQL数据备份/index.html">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="fufeixiang&#39;s Blogs">
+<meta property="og:url" content="http://fufeixiang.com/archives/2018/12/index.html">
 <meta property="og:site_name" content="fufeixiang&#39;s Blogs">
-<meta property="og:description" content="mysqldump是一款mysql服务自带的功能强大的逻辑备份工具，通常使用mysqldump对 MySQL 数据库进行逻辑全量备份(所有数据集)。 mysqldump可以把要备份的数据库装载到一个单独的文本文件中，这个文件包含有所有重建该数据库所需要的SQL命令，这个文本文件可以用一个简单的批处理和一个合适SQL语句导回到MySQL中，完成恢复。">
-<meta property="og:updated_time" content="2016-11-18T11:21:12.116Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="使用mysqldump工具实现MySQL数据备份">
-<meta name="twitter:description" content="mysqldump是一款mysql服务自带的功能强大的逻辑备份工具，通常使用mysqldump对 MySQL 数据库进行逻辑全量备份(所有数据集)。 mysqldump可以把要备份的数据库装载到一个单独的文本文件中，这个文件包含有所有重建该数据库所需要的SQL命令，这个文本文件可以用一个简单的批处理和一个合适SQL语句导回到MySQL中，完成恢复。">
+<meta name="twitter:title" content="fufeixiang&#39;s Blogs">
   
     <link rel="alternative" href="/atom.xml" title="fufeixiang&#39;s Blogs" type="application/atom+xml">
   
@@ -152,242 +147,60 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-使用mysqldump工具实现MySQL数据备份" class="article article-type-post " itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
+            
   
-    <h1 class="article-title" itemprop="name">
-      使用mysqldump工具实现MySQL数据备份
+  
+    
+    
+      
+      
+      <section class="archives-wrap">
+        <div class="archive-year-wrap">
+          <a href="/archives/2018" class="archive-year">2018</a>
+        </div>
+        <div class="archives">
+    
+    <article class="archive-article archive-type-post">
+  <div class="archive-article-inner">
+    <header class="archive-article-header">
+      	<div class="article-meta">
+	      	<a href="/blogs/Dragonfly安装部署/" class="archive-article-date">
+  	<time datetime="2018-12-09T11:51:45.703Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-12-09</time>
+</a>
+        </div>
+    	 
+  
+    <h1 itemprop="name">
+      <a class="archive-article-title" href="/blogs/Dragonfly安装部署/">P2P文件与镜像分发开源解决方案Dragonfly安装部署</a>
     </h1>
   
 
-        
-        <a href="/blogs/使用mysqldump工具实现MySQL数据备份/" class="archive-article-date">
-  	<time datetime="2016-11-18T11:23:00.202Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-11-18</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p> mysqldump是一款mysql服务自带的功能强大的逻辑备份工具，通常使用mysqldump对 MySQL 数据库进行逻辑全量备份(所有数据集)。 mysqldump可以把要备份的数据库装载到一个单独的文本文件中，这个文件包含有所有重建该数据库所需要的SQL命令，这个文本文件可以用一个简单的批处理和一个合适SQL语句导回到MySQL中，完成恢复。<a id="more"></a></p>
-<ul>
-<li>备份单个数据库或单个数据库中的指定表：</li>
-</ul>
-<p>​        mysqldump [OPTIONS] database [tables] </p>
-<ul>
-<li>备份多个数据库：</li>
-</ul>
-<p>​         mysqldump [OPTIONS] –databases [OPTIONS] DB1 [DB2 DB3…]</p>
-<ul>
-<li>备份所有数据库：</li>
-</ul>
-<p>​        mysqldump [OPTIONS] –all-databases [OPTIONS]</p>
-<blockquote>
-<p>对于使用MyISAM存储引擎的mysql只支持温备, Innodb存储引擎还支持热备</p>
-<p> 热备：读写操作均可进行的状态下所做的备份；     </p>
-<p> 温备：可读但不可写状态下进行的备份</p>
-<p> 冷备：读写操作均不可进行的状态下所做的备份； 服务不在线</p>
-</blockquote>
-<p>mysqldump命令行常用参数：</p>
-<p>-x, –lock-all-tables：锁定所有库的所有表，读锁                        &lt;– 温备，备份时要锁定表；<br>-l, –lock-tables：锁定指定库所有表                                              &lt;–温备，备份时要锁定表；</p>
-<p>–single-transaction：创建一个事务，基于此快照执行备份       &lt;–InnoDB存储引擎支持热备</p>
-<p>-R, –routines：备份指定库的存储过程和存储函数</p>
-<p>–triggers：备份指定库的触发器</p>
-<p>-E, –events ：备份指定库的事件调度器</p>
-<p>–master-data[=#]                                                                               &lt;– 记录备份时二进制日志的position</p>
-<p>​       1：记录为CHANGE MASTER TO语句，此语句不被注释</p>
-<p>​       2：记录为CHANGE MASTER TO语句，此语句被注释</p>
-<p>–flush-logs：锁定表完成后，即进行日志刷新操作；                     &lt;– 滚动日志，方便按备份时间点恢复</p>
-<h4 id="备份恢复单个数据库"><a href="#备份恢复单个数据库" class="headerlink" title="备份恢复单个数据库"></a>备份恢复单个数据库</h4><p>1) 查看数据库testdb，数据库下的表引擎均为Innodb</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line">$	 mysql -uroot -p</div><div class="line">Enter password: </div><div class="line">Welcome to the MariaDB monitor.  Commands end with ; or \g.</div><div class="line">Your MariaDB connection id is 29</div><div class="line">Server version: 5.5.52-MariaDB MariaDB Server</div><div class="line"></div><div class="line">Copyright (c) 2000, 2016, Oracle, MariaDB Corporation Ab and others.</div><div class="line"></div><div class="line">Type &apos;help;&apos; or &apos;\h&apos; for help. Type &apos;\c&apos; to clear the current input statement.</div><div class="line"></div><div class="line">MariaDB [(none)]&gt; use testdb</div><div class="line">Reading table information for completion of table and column names</div><div class="line">You can turn off this feature to get a quicker startup with -A</div><div class="line"></div><div class="line">Database changed</div><div class="line">MariaDB [testdb]&gt; show table status\G;</div><div class="line">*************************** 1. row ***************************</div><div class="line">           Name: test1</div><div class="line">         Engine: InnoDB</div><div class="line">        Version: 10</div><div class="line">     Row_format: Compact</div><div class="line">           Rows: 3</div><div class="line"> Avg_row_length: 5461</div><div class="line">    Data_length: 16384</div><div class="line">Max_data_length: 0</div><div class="line">   Index_length: 0</div><div class="line">      Data_free: 0</div><div class="line"> Auto_increment: NULL</div><div class="line">    Create_time: 2017-09-13 16:22:53</div><div class="line">    Update_time: NULL</div><div class="line">     Check_time: NULL</div><div class="line">      Collation: latin1_swedish_ci</div><div class="line">       Checksum: NULL</div><div class="line"> Create_options: </div><div class="line">        Comment: </div><div class="line">1 row in set (0.00 sec)</div><div class="line"></div><div class="line">MariaDB [testdb]&gt; show table status where Engine!=&apos;Innodb&apos;;</div><div class="line">Empty set (0.00 sec)</div></pre></td></tr></table></figure>
-<p>2) 使用mysqldump进行备份</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"># 热备</div><div class="line">$ mysqldump -uroot -p --single-transaction --databases testdb --master-data=2 --flush-logs &gt; /tmp/testdb-fullbackup-$(date +%F-%H-%M-%S)</div><div class="line">Enter password: </div><div class="line">$ ls /tmp</div><div class="line">testdb-fullbackup-2017-09-14-19-12-45</div><div class="line"></div><div class="line"># 温备</div><div class="line">$ mysqldump -uroot -p -x -R -E --triggers  --databases testdb --master-data=2 --flush-logs &gt; /tmp/testdb-fullbackup-$(date +%F-%H-%M-%S)</div><div class="line">Enter password: </div><div class="line">$ ls /tmp</div><div class="line">testdb-fullbackup-2017-09-14-19-42-54</div></pre></td></tr></table></figure>
-<p>3) 删除数据库testdb，并恢复</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line">[root@Centos7 ~]# mysql -uroot -p</div><div class="line">Enter password: </div><div class="line">Welcome to the MariaDB monitor.  Commands end with ; or \g.</div><div class="line">Your MariaDB connection id is 35</div><div class="line">Server version: 5.5.52-MariaDB MariaDB Server</div><div class="line"></div><div class="line">Copyright (c) 2000, 2016, Oracle, MariaDB Corporation Ab and others.</div><div class="line"></div><div class="line">Type &apos;help;&apos; or &apos;\h&apos; for help. Type &apos;\c&apos; to clear the current input statement.</div><div class="line"></div><div class="line">MariaDB [(none)]&gt; drop database testdb;</div><div class="line">Query OK, 1 row affected (0.09 sec)</div><div class="line"></div><div class="line">MariaDB [(none)]&gt; show databases;</div><div class="line">+--------------------+</div><div class="line">| Database           |</div><div class="line">+--------------------+</div><div class="line">| information_schema |</div><div class="line">| mydb               |</div><div class="line">| mysql              |</div><div class="line">| performance_schema |</div><div class="line">+--------------------+</div><div class="line">4 rows in set (0.00 sec)</div><div class="line"></div><div class="line">$ mysql -uroot -p123456 &lt; /tmp/testdb-fullbackup-2017-09-14-19-12-45</div><div class="line">$ mysql -uroot -p123456 -e &apos;show databases&apos;</div><div class="line">+--------------------+</div><div class="line">| Database           |</div><div class="line">+--------------------+</div><div class="line">| information_schema |</div><div class="line">| mydb               |</div><div class="line">| mysql              |</div><div class="line">| performance_schema |</div><div class="line">| testdb             |</div><div class="line">+--------------------+</div></pre></td></tr></table></figure>
-<p>上例只是简单演示数据库的备份恢复，实际生产中数据是在一直更新的。所有只是恢复备份是不够的，我们还需要重放执行备份后更新的二进制日志</p>
-<h4 id="备份恢复所有数据库"><a href="#备份恢复所有数据库" class="headerlink" title="备份恢复所有数据库"></a>备份恢复所有数据库</h4><p>1) 使用mysqldump进行备份</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ mysqldump -uroot -p123456 -x -R -E --triggers  --databases testdb --master-data=2 --flush-logs &gt; /tmp/testdb-fullbackup-$(date +%F-%H-%M-%S)</div><div class="line"></div><div class="line">$ ls /tmp</div><div class="line">testdb-fullbackup-2017-09-14-20-23-01</div></pre></td></tr></table></figure>
-<p>2) testdb库中创建新表test2</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line">$ mysql -uroot -p123456</div><div class="line">Welcome to the MariaDB monitor.  Commands end with ; or \g.</div><div class="line">Your MariaDB connection id is 43</div><div class="line">Server version: 5.5.52-MariaDB MariaDB Server</div><div class="line"></div><div class="line">Copyright (c) 2000, 2016, Oracle, MariaDB Corporation Ab and others.</div><div class="line"></div><div class="line">Type &apos;help;&apos; or &apos;\h&apos; for help. Type &apos;\c&apos; to clear the current input statement.</div><div class="line"></div><div class="line">MariaDB [(none)]&gt; use testdb;</div><div class="line">Reading table information for completion of table and column names</div><div class="line">You can turn off this feature to get a quicker startup with -A</div><div class="line"></div><div class="line">Database changed</div><div class="line">MariaDB [testdb]&gt; create table test2 (id int unsigned primary key,name varchar(200));</div><div class="line">Query OK, 0 rows affected (0.03 sec)</div><div class="line"></div><div class="line">MariaDB [testdb]&gt; show tables;</div><div class="line">+------------------+</div><div class="line">| Tables_in_testdb |</div><div class="line">+------------------+</div><div class="line">| test1            |</div><div class="line">| test2            |</div><div class="line">+------------------+</div><div class="line">2 rows in set (0.00 sec)</div><div class="line">MariaDB [testdb]&gt; insert into test2 values(1,&apos;tom&apos;),(2,&apos;jerry&apos;);</div><div class="line">Query OK, 2 rows affected (0.00 sec)</div><div class="line">Records: 2  Duplicates: 0  Warnings: 0</div><div class="line"></div><div class="line">MariaDB [testdb]&gt; select * from test2;</div><div class="line">+----+-------+</div><div class="line">| id | name  |</div><div class="line">+----+-------+</div><div class="line">|  1 | tom   |</div><div class="line">|  2 | jerry |</div><div class="line">+----+-------+</div><div class="line">2 rows in set (0.00 sec)</div></pre></td></tr></table></figure>
-<p>3) 备份二进制日志文件（执行备份操作后的）</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ mysqlbinlog master-log.000005 &gt; /tmp/testdb-backup-binlog</div></pre></td></tr></table></figure>
-<p>4) 删除<code>/var/lib/mysql</code>目录下所有数据库文件,模拟服务器崩溃</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ service mariadb stop</div><div class="line">$ rm -rf /var/lib/mysql/*</div></pre></td></tr></table></figure>
-<p>5)  关闭mysql服务记录二进制日志功能(恢复数据无需记录)</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">$ vim /etc/my.cnf.d/server.cnf </div><div class="line">...</div><div class="line">[mysqld]</div><div class="line">server_id = 1</div><div class="line">#log_bin = master-log</div><div class="line">skip_name_resolve = ON</div><div class="line">innodb_file_per_table = ON</div><div class="line">...</div></pre></td></tr></table></figure>
-<p>6) 启动mysql服务并恢复备份数据</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line">$ service mariadb start</div><div class="line">$ mysql  &lt; /tmp/testdb-fullbackup-2017-09-14-20-23-01</div><div class="line"></div><div class="line">$ mysql</div><div class="line">Welcome to the MariaDB monitor.  Commands end with ; or \g.</div><div class="line">Your MariaDB connection id is 3</div><div class="line">Server version: 5.5.52-MariaDB MariaDB Server</div><div class="line"></div><div class="line">Copyright (c) 2000, 2016, Oracle, MariaDB Corporation Ab and others.</div><div class="line"></div><div class="line">Type &apos;help;&apos; or &apos;\h&apos; for help. Type &apos;\c&apos; to clear the current input statement.</div><div class="line"></div><div class="line">MariaDB [(none)]&gt; show databases;</div><div class="line">+--------------------+</div><div class="line">| Database           |</div><div class="line">+--------------------+</div><div class="line">| information_schema |</div><div class="line">| mydb               |</div><div class="line">| mysql              |</div><div class="line">| performance_schema |</div><div class="line">| table              |</div><div class="line">| test               |</div><div class="line">| testdb             |</div><div class="line">+--------------------+</div><div class="line">7 rows in set (0.00 sec)</div><div class="line"></div><div class="line">MariaDB [(none)]&gt; use testdb;</div><div class="line">Reading table information for completion of table and column names</div><div class="line">You can turn off this feature to get a quicker startup with -A</div><div class="line"></div><div class="line">Database changed</div><div class="line">MariaDB [testdb]&gt; show tables;                             &lt;-- 连入mysql，备份后的testdb.test2没有恢复</div><div class="line">+------------------+ </div><div class="line">| Tables_in_testdb |</div><div class="line">+------------------+</div><div class="line">| test1            |</div><div class="line">+------------------+</div><div class="line">1 row in set (0.00 sec)</div></pre></td></tr></table></figure>
-<p>7) 重放二进制文件，恢复备份时间点后的数据</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">$ mysql &lt; /tmp/testdb-backup-binlog </div><div class="line">$ mysql</div><div class="line">Welcome to the MariaDB monitor.  Commands end with ; or \g.</div><div class="line">Your MariaDB connection id is 5</div><div class="line">Server version: 5.5.52-MariaDB MariaDB Server</div><div class="line"></div><div class="line">Copyright (c) 2000, 2016, Oracle, MariaDB Corporation Ab and others.</div><div class="line"></div><div class="line">Type &apos;help;&apos; or &apos;\h&apos; for help. Type &apos;\c&apos; to clear the current input statement.</div><div class="line"></div><div class="line">MariaDB [(none)]&gt; use testdb;</div><div class="line">Reading table information for completion of table and column names</div><div class="line">You can turn off this feature to get a quicker startup with -A</div><div class="line"></div><div class="line">Database changed</div><div class="line">MariaDB [testdb]&gt; show tables;                        &lt;-- test2表数据也恢复了</div><div class="line">+------------------+</div><div class="line">| Tables_in_testdb |</div><div class="line">+------------------+</div><div class="line">| test1            |</div><div class="line">| test2            |</div><div class="line">+------------------+</div><div class="line">2 rows in set (0.00 sec)</div><div class="line"></div><div class="line">MariaDB [testdb]&gt; select * from test2;           </div><div class="line">+----+-------+</div><div class="line">| id | name  |</div><div class="line">+----+-------+</div><div class="line">|  1 | tom   |</div><div class="line">|  2 | jerry |</div><div class="line">+----+-------+</div><div class="line">2 rows in set (0.00 sec)</div></pre></td></tr></table></figure>
-<p>由于mysqldump是基于mysql客户端协议的备份工具，所以它也支持远程恢复指定数据库。还有一点mysqldump工具是将数据转换为特定格式的字符串并显示出来，所以使用mysqldump工具备份对于浮点型数据会丢失精度。</p>
-
-      
-
-      
-        <div class="page-reward">
-          <a href="javascript:;" class="page-reward-btn tooltip-top">
-            <div class="tooltip tooltip-east">
-            <span class="tooltip-item">
-              赏
-            </span>
-            <span class="tooltip-content">
-              <span class="tooltip-text">
-                <span class="tooltip-inner">
-                  <p class="reward-p"><i class="icon icon-quo-left"></i>♪ 交个朋友吧  ♪<i class="icon icon-quo-right"></i></p>
-                  <div class="reward-box">
-                    
-                    
-                    <div class="reward-box-item">
-                      <img class="reward-img" src="/images/webchat.png">
-                      <span class="reward-type">微信</span>
-                    </div>
-                    
-                  </div>
-                </span>
-              </span>
-            </span>
-          </div>
-          </a>
-        </div>
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
+        <div class="article-info info-on-right">
+          
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">docker</a>
         		</li>
       		
 		</ul>
 	</div>
 
-      
+          
 
-      
-
-      
-        
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a>
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
         </div>
-      </div>
-    </span>
-  </div>
-</div>
-
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-      <img src="http://s.jiathis.com/qrcode.php?url=http://fufeixiang.com/blogs/使用mysqldump工具实现MySQL数据备份/" alt="微信分享二维码">
-    </div>
-</div>
-
-<div class="mask js-mask"></div>
-      
-      <div class="clearfix"></div>
-    </div>
+        <div class="clearfix"></div>
+    </header>
   </div>
 </article>
-
-  
-<nav id="article-nav">
-  
-    <a href="/blogs/使用XtraBackup工具实现MySQL数据备份及恢复/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          使用XtraBackup工具实现MySQL数据备份及恢复
-        
-      </div>
-    </a>
   
   
-    <a href="/blogs/MySQL主从复制的实现/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">MySQL主从复制的实现</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
-
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#备份恢复单个数据库"><span class="toc-number">1.</span> <span class="toc-text">备份恢复单个数据库</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#备份恢复所有数据库"><span class="toc-number">2.</span> <span class="toc-text">备份恢复所有数据库</span></a></li></ol>
-                    </div>
-                </span>
-            </div>
-        </div>
-        
-    </div>
-</aside>
-
-
-
-  
-  
+    </div></section>
   
 
-  
-
-  
+    
 
 
           </div>
@@ -410,8 +223,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: true,
-		isArchive: false,
+		isPost: false,
+		isArchive: true,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
