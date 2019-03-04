@@ -6,19 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://fufeixiang.com">
-  <title>使用XtraBackup工具实现MySQL数据备份及恢复 | fufeixiang&#39;s Blogs</title>
+  <title>Nginx请求头proxy_set_header | fufeixiang&#39;s Blogs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Xtrabackup是由percona提供的mysql数据库备份工具，支持对Innodb存储引擎的数据库在线热备份（备份时不影响数据读写), 它有以下特点： (1)备份过程快速、可靠；(2)备份过程不会打断正在执行的事务；(3)能够基于压缩等功能节约磁盘空间和流量；(4)自动实现备份检验；(5)还原速度快；">
+  <meta name="description" content="前言nginx作为反向代理时，当满足location匹配条件后，向后端动态应用服务器发送请求，如果后端服务器会根据此次请求头做一些操作（比如通过Host或者server_name请求头的值进行校验等），就会出现问题。本文就用实例来分析一下nginx转发的请求头信息">
 <meta name="keywords" content="Linux">
 <meta property="og:type" content="article">
-<meta property="og:title" content="使用XtraBackup工具实现MySQL数据备份及恢复">
-<meta property="og:url" content="http://fufeixiang.com/blogs/使用XtraBackup工具实现MySQL数据备份及恢复/index.html">
+<meta property="og:title" content="Nginx请求头proxy_set_header">
+<meta property="og:url" content="http://fufeixiang.com/blogs/Nginx请求头proxy_set_header/index.html">
 <meta property="og:site_name" content="fufeixiang&#39;s Blogs">
-<meta property="og:description" content="Xtrabackup是由percona提供的mysql数据库备份工具，支持对Innodb存储引擎的数据库在线热备份（备份时不影响数据读写), 它有以下特点： (1)备份过程快速、可靠；(2)备份过程不会打断正在执行的事务；(3)能够基于压缩等功能节约磁盘空间和流量；(4)自动实现备份检验；(5)还原速度快；">
-<meta property="og:updated_time" content="2016-12-08T15:10:18.845Z">
+<meta property="og:description" content="前言nginx作为反向代理时，当满足location匹配条件后，向后端动态应用服务器发送请求，如果后端服务器会根据此次请求头做一些操作（比如通过Host或者server_name请求头的值进行校验等），就会出现问题。本文就用实例来分析一下nginx转发的请求头信息">
+<meta property="og:updated_time" content="2019-03-04T15:35:31.657Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="使用XtraBackup工具实现MySQL数据备份及恢复">
-<meta name="twitter:description" content="Xtrabackup是由percona提供的mysql数据库备份工具，支持对Innodb存储引擎的数据库在线热备份（备份时不影响数据读写), 它有以下特点： (1)备份过程快速、可靠；(2)备份过程不会打断正在执行的事务；(3)能够基于压缩等功能节约磁盘空间和流量；(4)自动实现备份检验；(5)还原速度快；">
+<meta name="twitter:title" content="Nginx请求头proxy_set_header">
+<meta name="twitter:description" content="前言nginx作为反向代理时，当满足location匹配条件后，向后端动态应用服务器发送请求，如果后端服务器会根据此次请求头做一些操作（比如通过Host或者server_name请求头的值进行校验等），就会出现问题。本文就用实例来分析一下nginx转发的请求头信息">
   
     <link rel="alternative" href="/atom.xml" title="fufeixiang&#39;s Blogs" type="application/atom+xml">
   
@@ -152,70 +152,136 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-使用XtraBackup工具实现MySQL数据备份及恢复" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-Nginx请求头proxy_set_header" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      使用XtraBackup工具实现MySQL数据备份及恢复
+      Nginx请求头proxy_set_header
     </h1>
   
 
         
-        <a href="/blogs/使用XtraBackup工具实现MySQL数据备份及恢复/" class="archive-article-date">
-  	<time datetime="2016-12-08T15:10:29.725Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-12-08</time>
+        <a href="/blogs/Nginx请求头proxy_set_header/" class="archive-article-date">
+  	<time datetime="2019-03-04T15:28:02.494Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-03-04</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Xtrabackup是由percona提供的mysql数据库备份工具，支持对Innodb存储引擎的数据库在线热备份（备份时不影响数据读写), 它有以下特点：</p>
-<p>(1)备份过程快速、可靠；<br>(2)备份过程不会打断正在执行的事务；<br>(3)能够基于压缩等功能节约磁盘空间和流量；<br>(4)自动实现备份检验；<br>(5)还原速度快；<a id="more"></a></p>
-<p>本文使用的软件包为 <code>percona-xtrabackup-24-2.4.7-2.el7.x86_64.rpm</code> ，最新版的软件可从 <a href="http://www.percona.com/software/percona-xtrabackup/" target="_blank" rel="external">http://www.percona.com/software/percona-xtrabackup/</a> 获得</p>
-<p>为解决依赖性关系使用yum源安装</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ yum install -y ./percona-xtrabackup-24-2.4.7-2.el7.x86_64.rpm</div></pre></td></tr></table></figure>
-<p>本文的备份策略： 全量备份+增量备份+binlog</p>
-<p>1) 使用root用户进行一次全量备份</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">$ cd /var/lib/mysql</div><div class="line">$ innobackupex --user=root --host=localhost --password=123456 /data/backup/</div><div class="line">...中间省略...</div><div class="line">xtrabackup: Transaction log of lsn (310138946) to (310138946) was copied.</div><div class="line">170915 20:31:03 completed OK!                                            &lt;-- 显示备份成功</div><div class="line"></div><div class="line">$ ls /data/backup</div><div class="line">2017-09-16_08-22-55                                                      &lt;-- 全量备份生成的文件夹</div><div class="line"></div><div class="line">$ cd 2017-09-16_08-22-55/</div><div class="line">$ ls</div><div class="line">backup-my.cnf  ibdata1  performance_schema  xtrabackup_checkpoints  xtrabackup_logfile</div><div class="line">database       mysql    testdb              xtrabackup_info</div><div class="line">$</div></pre></td></tr></table></figure>
-<p>2) testdb库中创建新表tb3并添加数据</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line">$ mysql -uroot -p123456</div><div class="line">Welcome to the MariaDB monitor.  Commands end with ; or \g.</div><div class="line">Your MariaDB connection id is 11</div><div class="line">Server version: 5.5.52-MariaDB MariaDB Server</div><div class="line">Copyright (c) 2000, 2016, Oracle, MariaDB Corporation Ab and others.</div><div class="line">Type &apos;help;&apos; or &apos;\h&apos; for help. Type &apos;\c&apos; to clear the current input statement.</div><div class="line"></div><div class="line">MariaDB [(none)]&gt; use testdb;</div><div class="line">Reading table information for completion of table and column names</div><div class="line">You can turn off this feature to get a quicker startup with -A</div><div class="line"></div><div class="line">Database changed</div><div class="line">MariaDB [testdb]&gt; show tables;</div><div class="line">+------------------+</div><div class="line">| Tables_in_testdb |</div><div class="line">+------------------+</div><div class="line">| tb1              |</div><div class="line">| tb2              |</div><div class="line">+------------------+</div><div class="line">2 rows in set (0.00 sec)</div><div class="line"></div><div class="line">MariaDB [testdb]&gt; create table tb3 (stuid int unsigned primary key,name varchar(200),age tinyint);</div><div class="line">Query OK, 0 rows affected (0.07 sec)</div><div class="line"></div><div class="line">MariaDB [testdb]&gt; insert into tb3 values(1,&apos;stu1&apos;,22),(2,&apos;stu2&apos;,24),(3,&apos;stu3&apos;,28);</div><div class="line">Query OK, 3 rows affected (0.00 sec)</div><div class="line">Records: 3  Duplicates: 0  Warnings: 0</div><div class="line"></div><div class="line">MariaDB [testdb]&gt; select * from tb3;</div><div class="line">+-------+------+------+</div><div class="line">| stuid | name | age  |</div><div class="line">+-------+------+------+</div><div class="line">|     1 | stu1 |   22 |</div><div class="line">|     2 | stu2 |   24 |</div><div class="line">|     3 | stu3 |   28 |</div><div class="line">+-------+------+------+</div><div class="line">3 rows in set (0.00 sec)</div></pre></td></tr></table></figure>
-<p>3) 进行第一次增量备份</p>
-<blockquote>
-<p>每个InnoDB的页面都会包含一个LSN(日志序列号)信息，每当相关的数据发生改变，相关的页面的LSN就会自动增长。这正是InnoDB表可以进行增量备份的基础，即innobackupex通过备份上次完全备份之后发生改变的页面来实现。增量备份仅能应用于<code>InnoDB</code>或<code>XtraDB表</code>，对于<code>MyISAM表</code>而言，执行增量备份时其实进行的是完全备份。</p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">$ cd /var/lib/mysql</div><div class="line">$ innobackupex --user=root --host=localhost --password=123456 --incremental /data/backup --incremental-basedir=/data/backup/2017-09-16_08-22-55</div><div class="line"></div><div class="line">$ ls /data/backup</div><div class="line">2017-09-16_08-22-55  </div><div class="line">2017-09-16_08-27-37                                                    &lt;-- 增量备份生成的文件夹</div><div class="line"></div><div class="line">$ cat 2017-09-16_08-22-55/xtrabackup_checkpoints </div><div class="line">backup_type = full-backuped</div><div class="line">from_lsn = 0</div><div class="line">to_lsn = 310144589</div><div class="line">last_lsn = 310144589</div><div class="line">compact = 0</div><div class="line">recover_binlog_info = 0</div><div class="line"></div><div class="line">$ cat 2017-09-16_08-27-37/xtrabackup_checkpoints </div><div class="line">backup_type = incremental</div><div class="line">from_lsn = 310144589                                                  &lt;-- 日志序列号承接全量备份的</div><div class="line">to_lsn = 310148850</div><div class="line">last_lsn = 310148850</div><div class="line">compact = 0</div><div class="line">recover_binlog_info = 0</div></pre></td></tr></table></figure>
-<p>4)  删除testdb库中tb2</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">$ mysql -uroot -p123456</div><div class="line">Welcome to the MariaDB monitor.  Commands end with ; or \g.</div><div class="line">Your MariaDB connection id is 8</div><div class="line">Server version: 5.5.52-MariaDB MariaDB Server</div><div class="line">Copyright (c) 2000, 2016, Oracle, MariaDB Corporation Ab and others.</div><div class="line">Type &apos;help;&apos; or &apos;\h&apos; for help. Type &apos;\c&apos; to clear the current input statement</div><div class="line"></div><div class="line">MariaDB [(none)]&gt; use testdb</div><div class="line">Reading table information for completion of table and column names</div><div class="line">You can turn off this feature to get a quicker startup with -A</div><div class="line"></div><div class="line">Database changed</div><div class="line">MariaDB [testdb]&gt; drop table tb2;</div><div class="line">MariaDB [testdb]&gt; show tables;</div><div class="line">+------------------+</div><div class="line">| Tables_in_testdb |</div><div class="line">+------------------+</div><div class="line">| tb1              |</div><div class="line">| tb3              |</div><div class="line">+------------------+</div><div class="line">2 rows in set (0.00 sec)</div></pre></td></tr></table></figure>
-<p>5) 进行第二次增量备份</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">$ innobackupex --user=root --host=localhost --password=123456 --incremental /data/backup --incremental-basedir=/data/backup/2017-09-16_08-27-37</div><div class="line">...中间省略...</div><div class="line">xtrabackup: Transaction log of lsn (310149698) to (310149698) was copied.</div><div class="line">170916 08:42:46 completed OK!</div><div class="line"></div><div class="line">$ ls /data/backup</div><div class="line">2017-09-16_08-22-55  2017-09-16_08-27-37  2017-09-16_08-42-43</div><div class="line"></div><div class="line">$ cat 2017-09-16_08-42-43/xtrabackup_checkpoints </div><div class="line">backup_type = incremental</div><div class="line">from_lsn = 310148850                                            &lt;-- 日志序列号承接第一次增量备份的</div><div class="line">to_lsn = 310149698</div><div class="line">last_lsn = 310149698</div><div class="line">compact = 0</div><div class="line">recover_binlog_info = 0</div></pre></td></tr></table></figure>
-<p>6) 删除testdb库中tb1</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">$ mysql -uroot -p123456</div><div class="line">Welcome to the MariaDB monitor.  Commands end with ; or \g.</div><div class="line">Your MariaDB connection id is 11</div><div class="line">Server version: 5.5.52-MariaDB MariaDB Server</div><div class="line">Copyright (c) 2000, 2016, Oracle, MariaDB Corporation Ab and others.</div><div class="line">Type &apos;help;&apos; or &apos;\h&apos; for help. Type &apos;\c&apos; to clear the current input statement.</div><div class="line"></div><div class="line">MariaDB [(none)]&gt; use testdb</div><div class="line">Reading table information for completion of table and column names</div><div class="line">You can turn off this feature to get a quicker startup with -A</div><div class="line"></div><div class="line">Database changed</div><div class="line">MariaDB [testdb]&gt; drop table tb1;</div><div class="line">Query OK, 0 rows affected (0.03 sec)</div><div class="line">MariaDB [testdb]&gt; show tables;</div><div class="line">+------------------+</div><div class="line">| Tables_in_testdb |</div><div class="line">+------------------+</div><div class="line">| tb3              |</div><div class="line">+------------------+</div><div class="line">1 row in set (0.00 sec)</div></pre></td></tr></table></figure>
-<p>7) 备份最近一次增量备份之后的二进制日志</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">$ cat 2017-09-16_08-42-43/xtrabackup_info </div><div class="line">uuid = f5036e11-9a77-11e7-abfa-00505626a77f</div><div class="line">name = </div><div class="line">tool_name = innobackupex</div><div class="line">tool_command = --user=root --host=localhost --password=... --incremental /data/backup --incremental-basedir=/data/backup/2017-09-16_08-27-37</div><div class="line">tool_version = 2.4.7</div><div class="line">ibbackup_version = 2.4.7</div><div class="line">server_version = 5.5.52-MariaDB</div><div class="line">start_time = 2017-09-16 08:42:43</div><div class="line">end_time = 2017-09-16 08:42:46</div><div class="line">lock_time = 0</div><div class="line">binlog_pos = filename &apos;master-log.000001&apos;, position &apos;828&apos;           &lt;--最后一次增量备份对应二进制日志位置</div><div class="line">innodb_from_lsn = 310148850</div><div class="line">innodb_to_lsn = 310149698</div><div class="line">partial = N</div><div class="line">incremental = Y</div><div class="line">format = file</div><div class="line">compact = N</div><div class="line">compressed = N</div><div class="line">encrypted = N</div><div class="line"></div><div class="line">$ mysqlbinlog -j 828 /var/lib/mysql/master-log.000001 &gt; /data/backup/2017-09-16_08-42-43-binlog</div></pre></td></tr></table></figure>
-<p>8 )  模拟服务器故障并恢复</p>
-<ul>
-<li>模拟故障并删除数据</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ service mariadb stop</div><div class="line">$ rm -rf /var/lib/mysql/*</div></pre></td></tr></table></figure>
-<ul>
-<li>prepare增量备份</li>
-</ul>
-<blockquote>
-<p>需要在每个备份(包括完全和各个增量备份)上，将已经提交的事务进行“重放”。“重放”之后，所有的备份数据将合并到完全备份上。<br>基于所有的备份将未提交的事务进行“回滚”。</p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">$ cd 2017-09-16_08-22-55/</div><div class="line">$ innobackupex --apply-log --redo-only ./                  &lt;-- 合并完成之前只重放不回滚</div><div class="line">...中间省略...</div><div class="line">InnoDB: Shutdown completed; log sequence number 310150212</div><div class="line">170916 10:10:24 completed OK!</div><div class="line"></div><div class="line">$ innobackupex --apply-log --redo-only ./ --incremental-dir=/data/backup/2017-09-16_08-27-37</div><div class="line">$ cat 2017-09-16_08-22-55/xtrabackup_checkpoints </div><div class="line">backup_type = log-applied</div><div class="line">from_lsn = 0</div><div class="line">to_lsn = 310148850                                          &lt;-- 完全备份的lsn已经合并到第一次增量备份的lsn</div><div class="line">last_lsn = 310148850</div><div class="line">compact = 0</div><div class="line">recover_binlog_info = 0</div><div class="line"></div><div class="line">$ innobackupex --apply-log --redo-only ./ --incremental-dir=/data/backup/2017-09-16_08-42-43</div><div class="line"></div><div class="line">$ innobackupex --apply-log ./                                      &lt;-- 合并完成后进行回滚操作</div></pre></td></tr></table></figure>
-<ul>
-<li>从完全备份中恢复数据 </li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">$ cd 2017-09-16_08-22-55/</div><div class="line">$ innobackupex --copy-back ./</div><div class="line"></div><div class="line">$ ls -l /var/lib/mysql</div><div class="line">total 40984</div><div class="line">drwxr-x--- 2 root root     4096 Sep 16 10:15 database</div><div class="line">-rw-r----- 1 root root 18874368 Sep 16 10:15 ibdata1</div><div class="line">-rw-r----- 1 root root  5242880 Sep 16 10:15 ib_logfile0</div><div class="line">-rw-r----- 1 root root  5242880 Sep 16 10:15 ib_logfile1</div><div class="line">-rw-r----- 1 root root 12582912 Sep 16 10:15 ibtmp1</div><div class="line">drwxr-x--- 2 root root     4096 Sep 16 10:15 mysql</div><div class="line">drwxr-x--- 2 root root     4096 Sep 16 10:15 performance_schema</div><div class="line">drwxr-x--- 2 root root     4096 Sep 16 10:15 testdb</div><div class="line">-rw-r----- 1 root root       24 Sep 16 10:15 xtrabackup_binlog_pos_innodb</div><div class="line">-rw-r----- 1 root root      569 Sep 16 10:15 xtrabackup_info</div><div class="line"></div><div class="line">$ chown -R mysql.mysql /var/lib/mysql/*                             &lt;-- 修改数据目录属主属组</div></pre></td></tr></table></figure>
-<ul>
-<li>二进制日志还原</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div></pre></td><td class="code"><pre><div class="line">$ service mariadb start</div><div class="line">$ mysql -uroot -p123456</div><div class="line">Welcome to the MariaDB monitor.  Commands end with ; or \g.</div><div class="line">Your MariaDB connection id is 3</div><div class="line">Server version: 5.5.52-MariaDB MariaDB Server</div><div class="line">Copyright (c) 2000, 2016, Oracle, MariaDB Corporation Ab and others.</div><div class="line">Type &apos;help;&apos; or &apos;\h&apos; for help. Type &apos;\c&apos; to clear the current input statement.</div><div class="line"></div><div class="line">MariaDB [(none)]&gt; show databases;</div><div class="line">+--------------------+</div><div class="line">| Database           |</div><div class="line">+--------------------+</div><div class="line">| information_schema |</div><div class="line">| database           |</div><div class="line">| mysql              |</div><div class="line">| performance_schema |</div><div class="line">| testdb             |</div><div class="line">+--------------------+</div><div class="line">5 rows in set (0.00 sec)</div><div class="line"></div><div class="line">MariaDB [(none)]&gt; use testdb;</div><div class="line">Reading table information for completion of table and column names</div><div class="line">You can turn off this feature to get a quicker startup with -A</div><div class="line"></div><div class="line">Database changed </div><div class="line">MariaDB [testdb]&gt; show tables;                                       &lt;-- 已经恢复到最后一次增量备份的状态</div><div class="line">+------------------+</div><div class="line">| Tables_in_testdb |</div><div class="line">+------------------+</div><div class="line">| tb1              |</div><div class="line">| tb3              |</div><div class="line">+------------------+</div><div class="line">2 rows in set (0.00 sec)</div><div class="line"></div><div class="line">MariaDB [testdb]&gt; set @@session.sql_log_bin=OFF;                     &lt;-- 二进制日志重放无需记录日志</div><div class="line">Query OK, 0 rows affected (0.01 sec)</div><div class="line"></div><div class="line">MariaDB [testdb]&gt; \. /data/backup/2017-09-16_08-42-43-binlog        &lt;-- 根据故障前备份的二进制日志重放</div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Database changed</div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Charset changed</div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.01 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">Query OK, 0 rows affected (0.00 sec)</div><div class="line"></div><div class="line">MariaDB [testdb]&gt; show tables;                                    &lt;-- 最后一次增量备份后的操作(drop tb2)已经重放</div><div class="line">+------------------+</div><div class="line">| Tables_in_testdb |</div><div class="line">+------------------+</div><div class="line">| tb3              |</div><div class="line">+------------------+</div><div class="line">1 row in set (0.00 sec)</div><div class="line"></div><div class="line">MariaDB [testdb]&gt; set @@session.sql_log_bin=ON;                     &lt;-- 二进制日志记录开启</div><div class="line">Query OK, 0 rows affected (0.00 sec)</div></pre></td></tr></table></figure>
-<p>至此，mysql服务已经实现数据恢复，可以上线；接下来应该立即更新备份即进行一次全量备份。</p>
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>nginx作为反向代理时，当满足location匹配条件后，向后端动态应用服务器发送请求，如果后端服务器会根据此次请求头做一些操作（比如通过Host或者server_name请求头的值进行校验等），就会出现问题。本文就用实例来分析一下nginx转发的请求头信息<a id="more"></a></p>
+<h3 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h3><table>
+<thead>
+<tr>
+<th>IP</th>
+<th>SERVER</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10.186.49.53</td>
+<td>Nginx1.12</td>
+</tr>
+<tr>
+<td>10.186.51.92</td>
+<td>Tomcat7.0</td>
+</tr>
+</tbody>
+</table>
+<p>一、准备tomcat war包</p>
+<ol>
+<li>创建test.jsp文件来获取各请求头信息</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">&lt;%@ page language=&quot;java&quot; contentType=&quot;text/html; charset=ISO-8859-1&quot; pageEncoding=&quot;ISO-8859-1&quot;%&gt;</div><div class="line">&lt;%</div><div class="line">out.println(&quot;Protocol: &quot; + request.getProtocol());  </div><div class="line">out.println(&quot;Server Name: &quot; + request.getServerName());  </div><div class="line">out.println(&quot;Server Port: &quot; + request.getServerPort());  </div><div class="line">out.println(&quot;Remote Addr: &quot; + request.getRemoteAddr());  </div><div class="line">out.println(&quot;Remote Host: &quot; + request.getRemoteHost());  </div><div class="line">out.println(&quot;Request URL: &quot; + request.getRequestURL());  </div><div class="line">out.println(&quot;Host: &quot; + request.getHeader(&quot;Host&quot;));  </div><div class="line">out.println(&quot;Connection : &quot; + request.getHeader(&quot;Connection&quot;));  </div><div class="line">%&gt;</div></pre></td></tr></table></figure>
+<ol>
+<li>打包th.war并部署</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">jar cvf th.war th/test.jsp</div></pre></td></tr></table></figure>
+<p>10.186.51.92服务器上安装Tomcat7.0，并监听31005端口。这里不再描述tomcat安装部署及发布包的步骤。</p>
+<ol>
+<li>访问<a href="http://10.186.51.92:31005/th/test.jsp" target="_blank" rel="external">http://10.186.51.92:31005/th/test.jsp</a></li>
+</ol>
+<p>tomcat从请求中获取的信息如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">Protocol: HTTP/1.1                                                      &lt;-- http协议版本</div><div class="line">Server Name: 10.186.51.92</div><div class="line">Server Port: 31005</div><div class="line">Remote Addr: 10.191.104.201                                             &lt;-- client IP</div><div class="line">Remote Host: 10.191.104.201                                             &lt;-- client IP</div><div class="line">Request URL: http://10.186.51.92:31005/th/test.jsp</div><div class="line">Host: 10.186.51.92:31005</div><div class="line">Connection : keep-alive</div></pre></td></tr></table></figure>
+<p>二、配置Nginx</p>
+<ol>
+<li>nginx.conf中定义server、upstream</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">upstream backendsrv &#123;</div><div class="line">    server 10.186.51.92:31005;</div><div class="line">&#125;</div><div class="line">server &#123;</div><div class="line">    listen       31001;</div><div class="line">    server_name  www.test.com;</div><div class="line">    location /th &#123;</div><div class="line">        root   html;</div><div class="line">        index  index.html index.htm;</div><div class="line">        proxy_pass http://backendsrv;</div><div class="line">     &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ol>
+<li>启动nginx并访问<a href="http://10.186.49.53:31001/th/test.jsp" target="_blank" rel="external">http://10.186.49.53:31001/th/test.jsp</a></li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">Protocol: HTTP/1.0</div><div class="line">Server Name: backendsrv</div><div class="line">Server Port: 80</div><div class="line">Remote Addr: 10.186.49.53</div><div class="line">Remote Host: 10.186.49.53</div><div class="line">Request URL: http://backendsrv/th/test.jsp</div><div class="line">Host: backendsrv</div><div class="line">Connection : close</div></pre></td></tr></table></figure>
+<p>1) Nginx代理发送http请求默认为HTTP 1.0，可通过定义proxy_http_version 1.1来修改，一般是在使用keepalive连接时才使用1.1版本<br>2) 在使用proxy_set_header的默认值时，Nginx发往后端请求中的Host及server_name为代理的<code>upstream中指定的域名</code></p>
+<h3 id="结果分析"><a href="#结果分析" class="headerlink" title="结果分析"></a>结果分析</h3><ol>
+<li><p>以下是官方doc中的描述</p>
+<p>Syntax:    proxy_set_header <em>field</em> <em>value</em>;<br>Default:    </p>
+<pre><code>proxy_set_header Host \$proxy_host;
+proxy_set_header Connection close;
+</code></pre><p>Context: http, server, location</p>
+<p>允许重新定义或者添加发往后端服务器的请求头。value可以包含文本、变量或者它们的组合。 当且仅当当前配置级别中没有定义proxy_set_header指令时，会从上面的级别继承配置。 默认情况下，只有两个请求头会被重新定义：<br>​        proxy_set_header Host       \$proxy_host;<br>​        proxy_set_header Connection        close;</p>
+<p>所以当客户端访问未携带Host请求头部，并使用proxy_set_header默认值时，请求头部Host值为<code>backendsrv</code>，Connection值为<code>close，</code>而端口则为默认80</p>
+</li>
+<li><p>$host 和 $http_host的区别</p>
+<p>在server上下文中分别指定请求头Host值为\$host和\$http_host，结果对比如下:</p>
+</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>proxy_set_header Host $host</th>
+<th>proxy_set_header Host $http_host</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Protocol</td>
+<td>HTTP/1.0</td>
+<td>HTTP/1.0</td>
+</tr>
+<tr>
+<td>Server Name</td>
+<td><a href="http://www.test.com/" target="_blank" rel="external">www.test.com</a></td>
+<td><a href="http://www.test.com/" target="_blank" rel="external">www.test.com</a></td>
+</tr>
+<tr>
+<td>Server Port</td>
+<td>80</td>
+<td>31001</td>
+</tr>
+<tr>
+<td>Remote Addr</td>
+<td>10.186.49.53</td>
+<td>10.186.49.53</td>
+</tr>
+<tr>
+<td>Remote Host</td>
+<td>10.186.49.53</td>
+<td>10.186.49.53</td>
+</tr>
+<tr>
+<td>Request URL</td>
+<td><a href="http://www.test.com/th/test.jsp" target="_blank" rel="external">http://www.test.com/th/test.jsp</a></td>
+<td><a href="http://www.test.com:31001/th/test.jsp" target="_blank" rel="external">http://www.test.com:31001/th/test.jsp</a></td>
+</tr>
+<tr>
+<td>Host</td>
+<td><a href="http://www.test.com/" target="_blank" rel="external">www.test.com</a></td>
+<td><a href="http://www.test.com:31001/" target="_blank" rel="external">www.test.com:31001</a></td>
+</tr>
+<tr>
+<td>Connection</td>
+<td>close</td>
+<td>close</td>
+</tr>
+</tbody>
+</table>
+<p>可以看出，由于客户端访问未携带Host请求头部，无法继承，则被修改为server上下文中定义的虚拟主机名www.test.com；并且$http_host会修改默认端口80为server上下文中监听的端口31001。所以当后端应用服务器需要根据请求头部Host信息做进一步处理时，要根据需求在nginx中正确配置Host值。</p>
+<h3 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h3><p>当后端服务器有301跳转时，需要注意指定proxy_set_header Host请求头部，会直接影响nginx重新发起的URL请求，要结合实际需求调整proxy_set_header Host及proxy_redirect的值。</p>
 
       
 
@@ -311,7 +377,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="http://s.jiathis.com/qrcode.php?url=http://fufeixiang.com/blogs/使用XtraBackup工具实现MySQL数据备份及恢复/" alt="微信分享二维码">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://fufeixiang.com/blogs/Nginx请求头proxy_set_header/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -325,18 +391,9 @@
   
 <nav id="article-nav">
   
-    <a href="/blogs/DNS acl/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          DNS服务器据源地址解析的实现
-        
-      </div>
-    </a>
   
-  
-    <a href="/blogs/使用mysqldump工具实现MySQL数据备份/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">使用mysqldump工具实现MySQL数据备份</div>
+    <a href="/blogs/Dragonfly安装部署/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">P2P文件与镜像分发开源解决方案Dragonfly安装部署</div>
       <i class="icon-circle-right"></i>
     </a>
   
@@ -363,7 +420,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    目录，不存在的…
+                    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#环境准备"><span class="toc-number">2.</span> <span class="toc-text">环境准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#结果分析"><span class="toc-number">3.</span> <span class="toc-text">结果分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#最佳实践"><span class="toc-number">4.</span> <span class="toc-text">最佳实践</span></a></li></ol>
                     </div>
                 </span>
             </div>
