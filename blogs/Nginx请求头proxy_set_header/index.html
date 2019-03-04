@@ -15,7 +15,7 @@
 <meta property="og:url" content="http://fufeixiang.com/blogs/Nginx请求头proxy_set_header/index.html">
 <meta property="og:site_name" content="fufeixiang&#39;s Blogs">
 <meta property="og:description" content="前言nginx作为反向代理时，当满足location匹配条件后，向后端动态应用服务器发送请求，如果后端服务器会根据此次请求头做一些操作（比如通过Host或者server_name请求头的值进行校验等），就会出现问题。本文就用实例来分析一下nginx转发的请求头信息">
-<meta property="og:updated_time" content="2019-03-04T15:35:31.657Z">
+<meta property="og:updated_time" content="2019-03-04T15:44:50.038Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Nginx请求头proxy_set_header">
 <meta name="twitter:description" content="前言nginx作为反向代理时，当满足location匹配条件后，向后端动态应用服务器发送请求，如果后端服务器会根据此次请求头做一些操作（比如通过Host或者server_name请求头的值进行校验等），就会出现问题。本文就用实例来分析一下nginx转发的请求头信息">
@@ -216,19 +216,11 @@
 </ol>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">Protocol: HTTP/1.0</div><div class="line">Server Name: backendsrv</div><div class="line">Server Port: 80</div><div class="line">Remote Addr: 10.186.49.53</div><div class="line">Remote Host: 10.186.49.53</div><div class="line">Request URL: http://backendsrv/th/test.jsp</div><div class="line">Host: backendsrv</div><div class="line">Connection : close</div></pre></td></tr></table></figure>
 <p>1) Nginx代理发送http请求默认为HTTP 1.0，可通过定义proxy_http_version 1.1来修改，一般是在使用keepalive连接时才使用1.1版本<br>2) 在使用proxy_set_header的默认值时，Nginx发往后端请求中的Host及server_name为代理的<code>upstream中指定的域名</code></p>
-<h3 id="结果分析"><a href="#结果分析" class="headerlink" title="结果分析"></a>结果分析</h3><ol>
-<li><p>以下是官方doc中的描述</p>
-<p>Syntax:    proxy_set_header <em>field</em> <em>value</em>;<br>Default:    </p>
-<pre><code>proxy_set_header Host \$proxy_host;
-proxy_set_header Connection close;
-</code></pre><p>Context: http, server, location</p>
-<p>允许重新定义或者添加发往后端服务器的请求头。value可以包含文本、变量或者它们的组合。 当且仅当当前配置级别中没有定义proxy_set_header指令时，会从上面的级别继承配置。 默认情况下，只有两个请求头会被重新定义：<br>​        proxy_set_header Host       \$proxy_host;<br>​        proxy_set_header Connection        close;</p>
-<p>所以当客户端访问未携带Host请求头部，并使用proxy_set_header默认值时，请求头部Host值为<code>backendsrv</code>，Connection值为<code>close，</code>而端口则为默认80</p>
-</li>
-<li><p>$host 和 $http_host的区别</p>
-<p>在server上下文中分别指定请求头Host值为\$host和\$http_host，结果对比如下:</p>
-</li>
-</ol>
+<h3 id="结果分析"><a href="#结果分析" class="headerlink" title="结果分析"></a>结果分析</h3><p>1.以下是官方doc中的描述<br>Syntax:    proxy_set_header <em>field</em> <em>value</em>;<br>Default:<br>​    proxy_set_header Host \$proxy_host;<br>​    proxy_set_header Connection close;<br>   Context: http, server, location</p>
+<p>允许重新定义或者添加发往后端服务器的请求头。value可以包含文本、变量或者它们的组合。 当且仅当当前配置级别中没有定义proxy_set_header指令时，会从上面的级别继承配置。 默认情况下，只有两个请求头会被重新定义：<br>   ​        proxy_set_header Host       \$proxy_host;<br>   ​        proxy_set_header Connection        close;</p>
+<p>   所以当客户端访问未携带Host请求头部，并使用proxy_set_header默认值时，请求头部Host值为<code>backendsrv</code>，Connection值为<code>close，</code>而端口则为默认80</p>
+<p>2.$host 和 $http_host的区别</p>
+<p>   在server上下文中分别指定请求头Host值为$host和$http_host，结果对比如下:</p>
 <table>
 <thead>
 <tr>
