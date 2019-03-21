@@ -6,14 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://fufeixiang.com">
-  <title>Archives | fufeixiang&#39;s Blogs</title>
+  <title>nginx请求头X-Real-IP与X-Forwarded-For | fufeixiang&#39;s Blogs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="fufeixiang&#39;s Blogs">
-<meta property="og:url" content="http://fufeixiang.com/archives/page/2/index.html">
+  <meta name="description" content="前言  nginx反向代理后端应用服务器时，遇到web应用服务器需要获取客户端真实IP，该如何正确配置nginx?本文分别在一级反向代理及两级反向代理情况下，测试请求头X-Real-IP与X-Forwarded-For如何配置">
+<meta name="keywords" content="Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="nginx请求头X-Real-IP与X-Forwarded-For">
+<meta property="og:url" content="http://fufeixiang.com/blogs/nginx请求头X-Real-IPX-Forwarded-For/index.html">
 <meta property="og:site_name" content="fufeixiang&#39;s Blogs">
+<meta property="og:description" content="前言  nginx反向代理后端应用服务器时，遇到web应用服务器需要获取客户端真实IP，该如何正确配置nginx?本文分别在一级反向代理及两级反向代理情况下，测试请求头X-Real-IP与X-Forwarded-For如何配置">
+<meta property="og:updated_time" content="2019-03-21T13:27:30.156Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="fufeixiang&#39;s Blogs">
+<meta name="twitter:title" content="nginx请求头X-Real-IP与X-Forwarded-For">
+<meta name="twitter:description" content="前言  nginx反向代理后端应用服务器时，遇到web应用服务器需要获取客户端真实IP，该如何正确配置nginx?本文分别在一级反向代理及两级反向代理情况下，测试请求头X-Real-IP与X-Forwarded-For如何配置">
   
     <link rel="alternative" href="/atom.xml" title="fufeixiang&#39;s Blogs" type="application/atom+xml">
   
@@ -147,36 +152,156 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-nginx请求头X-Real-IPX-Forwarded-For" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      nginx请求头X-Real-IP与X-Forwarded-For
+    </h1>
+  
+
+        
+        <a href="/blogs/nginx请求头X-Real-IPX-Forwarded-For/" class="archive-article-date">
+  	<time datetime="2019-03-19T13:15:58.525Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-03-19</time>
+</a>
+        
+      </header>
     
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><blockquote>
+<p> nginx反向代理后端应用服务器时，遇到web应用服务器需要获取客户端真实IP，该如何正确配置nginx?本文分别在一级反向代理及两级反向代理情况下，测试请求头X-Real-IP与X-Forwarded-For如何配置<a id="more"></a></p>
+</blockquote>
+<h4 id="一级代理测试验证"><a href="#一级代理测试验证" class="headerlink" title="一级代理测试验证"></a>一级代理测试验证</h4><p>1.测试架构: nginx反向代理 + tomcat web服务</p>
+<table>
+<thead>
+<tr>
+<th>ip</th>
+<th>server</th>
+<th>server port</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>192.168.196.135</td>
+<td>nginx</td>
+<td>31005</td>
+</tr>
+<tr>
+<td>192.168.196.136</td>
+<td>tomcat</td>
+<td>31001</td>
+</tr>
+<tr>
+<td>192.168.196.1</td>
+<td>客户端</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p>2.部署tomcat测试war包</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">$cat test.jsp</div><div class="line"> &lt;%@ page language=<span class="string">"java"</span> contentType=<span class="string">"text/html; charset=ISO-8859-1"</span></div><div class="line">      pageEncoding=<span class="string">"ISO-8859-1"</span>%&gt;</div><div class="line"> &lt;%</div><div class="line"> out.println("Protocol: " + request.getProtocol());  </div><div class="line"> out.println("Server Name: " + request.getServerName());  </div><div class="line"> out.println("Server Port: " + request.getServerPort());  </div><div class="line"> out.println("Remote Addr: " + request.getRemoteAddr());  </div><div class="line"> out.println("Remote Host: " + request.getRemoteHost());  </div><div class="line"> out.println("Request URL: " + request.getRequestURL());  </div><div class="line"> out.println("Host: " + request.getHeader("Host"));  </div><div class="line"> out.println("X-Real-IP: " + request.getHeader("X-Real-IP"));</div><div class="line"> out.println("X-Forwarded-For: " + request.getHeader("X-Forwarded-For"));</div><div class="line"> out.println("Connection : " + request.getHeader("Connection"));  </div><div class="line"> %&gt;</div><div class="line">  </div><div class="line">$jar cvf th.war th/test.jsp</div></pre></td></tr></table></figure>
+<p>3.修改nginx.conf</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">upstream backendsrv &#123;</div><div class="line">    server 192.168.196.136:31005;</div><div class="line">&#125;</div><div class="line">server &#123;</div><div class="line">    listen       31001;</div><div class="line">    server_name  www.test.com;</div><div class="line">    location /th &#123;</div><div class="line">        root   html;</div><div class="line">        index  index.html index.htm;</div><div class="line">        proxy_pass http://backendsrv;</div><div class="line">        proxy_set_header Host $http_host;</div><div class="line">        proxy_set_header X-Real-IP $remote_addr;</div><div class="line">        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>nginx重设请求头X-Real-IP为&dollar;remote_addr、 X-Forwarded-For为&dollar;proxy_add_x_forwarded_for</p>
+<blockquote>
+<p>&dollar;proxy_add_x_forwarded_for:</p>
+<p>&dollar;remote_addr变量值添加在客户端“X-Forwarded-For”请求头的后面，并以逗号分隔。<br>如果客户端请求未携带“X-Forwarded-For”请求头，&dollar;proxy_add_x_forwarded_for 变量值将与&dollar;remote_addr变量相同</p>
+</blockquote>
+<p>4.使用curl构造X-Real-IP、X-Forwarded-For请求头，在客户端发起请求</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="variable">$curl</span> -H <span class="string">"X-Forwarded-For: 1.1.1.1"</span> -H <span class="string">"X-Real-IP: 2.2.2.2"</span> 192.168.196.135:31001/th/test.jsp</div><div class="line">Protocol: HTTP/1.0</div><div class="line">Server Name: 192.168.196.135</div><div class="line">Server Port: 31001</div><div class="line">Remote Addr: 192.168.196.135</div><div class="line">Remote Host: 192.168.196.135</div><div class="line">Request URL: http://192.168.196.135:31001/th/test.jsp</div><div class="line">Host: 192.168.196.135:31001</div><div class="line">X-Real-IP: 192.168.196.1</div><div class="line">X-Forwarded-For: 1.1.1.1, 192.168.196.1</div><div class="line">Connection : close</div></pre></td></tr></table></figure>
+<p>根据请求结果看出：</p>
+<ul>
+<li>nginx清理了伪造的X-Real-IP请求头并重写为clientIP-</li>
+<li>nginx在X-Forwarded-For后追加clientIP</li>
+</ul>
+<p>后端web应用可通过<code>X-Real-IP</code>或者<code>X-Forwarded-For的最后一个IP</code>获取clientIP</p>
+<p>5.本例中，nginx为一级代理，为避免客户端伪造X-Forwarded-For请求头，可添加 proxy_set_header X-Forwarded-For &dollar;remote_addr</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">upstream backendsrv &#123;</div><div class="line">    server 192.168.196.136:31005;</div><div class="line">&#125;</div><div class="line">server &#123;</div><div class="line">    listen       31001;</div><div class="line">    server_name  www.test.com;</div><div class="line">    location /th &#123;</div><div class="line">        root   html;</div><div class="line">        index  index.html index.htm;</div><div class="line">        proxy_pass http://backendsrv;</div><div class="line">        proxy_set_header Host <span class="variable">$http_host</span>;</div><div class="line"></div><div class="line">        proxy_set_header X-Real-IP <span class="variable">$remote_addr</span>;</div><div class="line">        proxy_set_header X-Forwarded-For <span class="variable">$remote_addr</span>;</div><div class="line">        proxy_set_header X-Forwarded-For <span class="variable">$proxy_add_x_forwarded_for</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="variable">$curl</span> -H <span class="string">"X-Forwarded-For: 1.1.1.1"</span> 192.168.196.135:31001/th/test.jsp</div><div class="line">Protocol: HTTP/1.0</div><div class="line">Server Name: 192.168.196.135</div><div class="line">Server Port: 31001</div><div class="line">Remote Addr: 192.168.196.135</div><div class="line">Remote Host: 192.168.196.135</div><div class="line">Request URL: http://192.168.196.135:31001/th/test.jsp</div><div class="line">Host: 192.168.196.135:31001</div><div class="line">X-Real-IP: 192.168.196.1</div><div class="line">X-Forwarded-For: 192.168.196.1</div><div class="line">Connection : close</div></pre></td></tr></table></figure>
+<h4 id="二级代理测试验证"><a href="#二级代理测试验证" class="headerlink" title="二级代理测试验证"></a>二级代理测试验证</h4><p>1.测试架构: nginx1反向代理 +nginx2反向代理+ tomcat web服务</p>
+<table>
+<thead>
+<tr>
+<th>ip</th>
+<th>server</th>
+<th>server port</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>192.168.196.133</td>
+<td>nginx1</td>
+<td>31009</td>
+</tr>
+<tr>
+<td>192.168.196.135</td>
+<td>nginx2</td>
+<td>31001</td>
+</tr>
+<tr>
+<td>192.168.196.136</td>
+<td>tomcat</td>
+<td>31005</td>
+</tr>
+<tr>
+<td>192.168.196.1</td>
+<td>client</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p>2.修改nginx.conf</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">一级反向代理nginx1</div><div class="line">upstream backendnginx &#123;</div><div class="line">    server 192.168.196.135:31001;</div><div class="line">&#125;</div><div class="line">server &#123;</div><div class="line">    listen       31009;</div><div class="line">    server_name  192.168.196.133;</div><div class="line">    location /th &#123;</div><div class="line">        root   html;</div><div class="line">        index  index.html index.htm;</div><div class="line">        proxy_pass http://backendnginx;</div><div class="line">        proxy_set_header Host <span class="variable">$http_host</span>;</div><div class="line">        proxy_set_header X-Real-IP <span class="variable">$remote_addr</span>;</div><div class="line">        proxy_set_header X-Forwarded-For <span class="variable">$proxy_add_x_forwarded_for</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">二级反向代理nginx2</div><div class="line">upstream backendsrv &#123;</div><div class="line">    server 192.168.196.136:31005;</div><div class="line">&#125;</div><div class="line">server &#123;</div><div class="line">    listen       31001;</div><div class="line">    server_name  www.test.com;</div><div class="line">    location /th/ft &#123;</div><div class="line">        root   html;</div><div class="line">        index  index.html index.htm;</div><div class="line">        proxy_pass http://backendsrv;</div><div class="line">        proxy_set_header Host <span class="variable">$http_host</span>;</div><div class="line">        proxy_set_header X-Forwarded-For <span class="variable">$proxy_add_x_forwarded_for</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>3.使用curl构造X-Forwarded-For请求头，在客户端发起请求</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="variable">$curl</span> -H <span class="string">"X-Forwarded-For: unknown, 1.1.1.1"</span> 192.168.196.133:31009/th/ft/test.jsp</div><div class="line">Protocol: HTTP/1.0</div><div class="line">Server Name: 192.168.196.133</div><div class="line">Server Port: 31009</div><div class="line">Remote Addr: 192.168.196.135</div><div class="line">Remote Host: 192.168.196.135</div><div class="line">Request URL: http://192.168.196.133:31009/th/ft/test.jsp</div><div class="line">Host: 192.168.196.133:31009</div><div class="line">X-Real-IP: 192.168.196.1</div><div class="line">X-Forwarded-For: unknown, 1.1.1.1, 192.168.196.1, 192.168.196.133</div><div class="line">Connection : close</div></pre></td></tr></table></figure>
+<blockquote>
+<p>nginx依次将&dollar;remote_addr追加到X-Forwarded-For</p>
+<p>clientIP为倒数第n个IP, n为proxy的次数</p>
+</blockquote>
+<p>4.面向客户端的第一级nginx中，添加proxy_set_header X-Forwarded-For &dollar;remote_addr;</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">upstream backendnginx &#123;</div><div class="line">    server 192.168.196.135:31001;</div><div class="line">&#125;</div><div class="line">server &#123;</div><div class="line">    listen       31009;</div><div class="line">    server_name  192.168.196.133;</div><div class="line">    location /th &#123;</div><div class="line">        root   html;</div><div class="line">        index  index.html index.htm;</div><div class="line">        proxy_pass http://backendnginx;</div><div class="line">        proxy_set_header Host <span class="variable">$http_host</span>;</div><div class="line">        proxy_set_header X-Real-IP <span class="variable">$remote_addr</span>;</div><div class="line">        proxy_set_header X-Forwarded-For <span class="variable">$remote_addr</span>;</div><div class="line">        proxy_set_header X-Forwarded-For <span class="variable">$proxy_add_x_forwarded_for</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="variable">$curl</span> -H <span class="string">"X-Forwarded-For: unknown, 1.1.1.1"</span>  192.168.196.133:31009/th/ft/test.jsp</div><div class="line"></div><div class="line">Protocol: HTTP/1.0</div><div class="line">Server Name: 192.168.196.133</div><div class="line">Server Port: 31009</div><div class="line">Remote Addr: 192.168.196.135</div><div class="line">Remote Host: 192.168.196.135</div><div class="line">Request URL: http://192.168.196.133:31009/th/ft/test.jsp</div><div class="line">Host: 192.168.196.133:31009</div><div class="line">X-Real-IP: 192.168.196.1</div><div class="line">X-Forwarded-For: 192.168.196.1, unknown, 1.1.1.1, 192.168.196.1, 192.168.196.133</div><div class="line">Connection : close</div></pre></td></tr></table></figure>
+<blockquote>
+<p>X-Forwarded-For的第一个IP为clientIP </p>
+</blockquote>
+<h4 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h4><p>第一级反向代理nginx:<br>proxy_set_header X-Real-IP &dollar;remote_addr;<br>proxy_set_header X-Forwarded-For &dollar;remote_addr;<br>proxy_set_header X-Forwarded-For &dollar;proxy_add_x_forwarded_for;</p>
+<p>中间的反向代理nginx只需配置:<br>proxy_set_header X-Forwarded-For &dollar;proxy_add_x_forwarded_for;</p>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>♪ 交个朋友吧  ♪<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/images/webchat.png">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
       
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2017" class="archive-year">2017</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/varnish/" class="archive-article-date">
-  	<time datetime="2017-09-10T09:06:41.846Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-09-10</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/varnish/">varnish缓存服务器的配置</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -188,374 +313,116 @@
 		</ul>
 	</div>
 
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/DNS acl/" class="archive-article-date">
-  	<time datetime="2017-08-07T13:06:15.272Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-07</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/DNS acl/">DNS服务器据源地址解析的实现</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
       
-        </div></section>
+
       
+
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2016" class="archive-year">2016</a>
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/使用XtraBackup工具实现MySQL数据备份及恢复/" class="archive-article-date">
-  	<time datetime="2016-12-08T15:10:29.725Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-12-08</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/使用XtraBackup工具实现MySQL数据备份及恢复/">使用XtraBackup工具实现MySQL数据备份及恢复</a>
-    </h1>
-  
+      </div>
+    </span>
+  </div>
+</div>
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://fufeixiang.com/blogs/nginx请求头X-Real-IPX-Forwarded-For/" alt="微信分享二维码">
+    </div>
+</div>
 
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/使用mysqldump工具实现MySQL数据备份/" class="archive-article-date">
-  	<time datetime="2016-11-18T11:23:00.202Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-11-18</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/blogs/Nginx请求头proxy_set_header/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Nginx请求头proxy_set_header</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/使用mysqldump工具实现MySQL数据备份/">使用mysqldump工具实现MySQL数据备份</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#一级代理测试验证"><span class="toc-number">2.</span> <span class="toc-text">一级代理测试验证</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#二级代理测试验证"><span class="toc-number">3.</span> <span class="toc-text">二级代理测试验证</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#最佳实践"><span class="toc-number">4.</span> <span class="toc-text">最佳实践</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
         </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
+        
+    </div>
+</aside>
+
+
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/MySQL主从复制的实现/" class="archive-article-date">
-  	<time datetime="2016-11-06T02:52:36.384Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-11-06</time>
-</a>
-        </div>
-    	 
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/MySQL主从复制的实现/">MySQL主从复制的实现</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/Nginx+php-fpm分离部署搭建wordpress/" class="archive-article-date">
-  	<time datetime="2016-09-15T09:03:23.976Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-09-15</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/Nginx+php-fpm分离部署搭建wordpress/">Nginx+php-fpm分离部署搭建wordpress</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/CentOS6-mariadb二进制安装/" class="archive-article-date">
-  	<time datetime="2016-08-31T02:23:35.973Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-08-31</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/CentOS6-mariadb二进制安装/">CentOS6 mariadb二进制安装</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/Keepalived+nginx-LB高可用集群实现/" class="archive-article-date">
-  	<time datetime="2016-07-20T15:32:22.390Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-07-20</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/Keepalived+nginx-LB高可用集群实现/">Keepalived+nginx LB高可用集群实现</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/LVS-DR-负载均衡实现/" class="archive-article-date">
-  	<time datetime="2016-06-03T05:02:36.403Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-06-03</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/LVS-DR-负载均衡实现/">LVS DR 负载均衡实现</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/LVS-NAT-负载均衡的实现/" class="archive-article-date">
-  	<time datetime="2016-05-16T05:13:23.410Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-05-16</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/LVS-NAT-负载均衡的实现/">LVS NAT 负载均衡的实现</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
-
-    
-    <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/archives/">&laquo; Prev</a><a class="page-number" href="/archives/">1</a><span class="page-number current">2</span><a class="page-number" href="/archives/page/3/">3</a><a class="extend next" rel="next" href="/archives/page/3/">Next &raquo;</a>
-    </nav>
   
 
 
@@ -579,8 +446,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
