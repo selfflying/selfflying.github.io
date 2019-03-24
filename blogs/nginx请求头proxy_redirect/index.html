@@ -6,19 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://fufeixiang.com">
-  <title>Docker配置TLS安全认证 | fufeixiang&#39;s Blogs</title>
+  <title>Nginx的proxy_redirect配置 | fufeixiang&#39;s Blogs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="背景 通常，我们在配置docker daemon的监听方式为本地的socket和开放TCP端口，docker服务允许远程访问，方便对docker集群的主机执行管理命令及调用等。如果不使用TLS加密docker，任意客户端都可以对docker主机进行远程操作，有很大的安全隐患。而配置TLS后，只有信任的客户端才可以远程访问docker服务。">
-<meta name="keywords" content="Docker">
+  <meta name="description" content="前言 当nginx代理的后端服务器有301、302跳转时，需要注意指定proxy_set_header Host请求头部，会直接影响nginx反馈给客户端的URL请求，要结合实际需求调整proxy_set_header Host和proxy_redirect将被代理服务器设置在response header中的Location做转换。">
+<meta name="keywords" content="Linux">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Docker配置TLS安全认证">
-<meta property="og:url" content="http://fufeixiang.com/blogs/Docker配置TLS安全认证/index.html">
+<meta property="og:title" content="Nginx的proxy_redirect配置">
+<meta property="og:url" content="http://fufeixiang.com/blogs/nginx请求头proxy_redirect/index.html">
 <meta property="og:site_name" content="fufeixiang&#39;s Blogs">
-<meta property="og:description" content="背景 通常，我们在配置docker daemon的监听方式为本地的socket和开放TCP端口，docker服务允许远程访问，方便对docker集群的主机执行管理命令及调用等。如果不使用TLS加密docker，任意客户端都可以对docker主机进行远程操作，有很大的安全隐患。而配置TLS后，只有信任的客户端才可以远程访问docker服务。">
-<meta property="og:updated_time" content="2018-08-08T15:06:35.746Z">
+<meta property="og:description" content="前言 当nginx代理的后端服务器有301、302跳转时，需要注意指定proxy_set_header Host请求头部，会直接影响nginx反馈给客户端的URL请求，要结合实际需求调整proxy_set_header Host和proxy_redirect将被代理服务器设置在response header中的Location做转换。">
+<meta property="og:updated_time" content="2019-03-24T15:38:26.692Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Docker配置TLS安全认证">
-<meta name="twitter:description" content="背景 通常，我们在配置docker daemon的监听方式为本地的socket和开放TCP端口，docker服务允许远程访问，方便对docker集群的主机执行管理命令及调用等。如果不使用TLS加密docker，任意客户端都可以对docker主机进行远程操作，有很大的安全隐患。而配置TLS后，只有信任的客户端才可以远程访问docker服务。">
+<meta name="twitter:title" content="Nginx的proxy_redirect配置">
+<meta name="twitter:description" content="前言 当nginx代理的后端服务器有301、302跳转时，需要注意指定proxy_set_header Host请求头部，会直接影响nginx反馈给客户端的URL请求，要结合实际需求调整proxy_set_header Host和proxy_redirect将被代理服务器设置在response header中的Location做转换。">
   
     <link rel="alternative" href="/atom.xml" title="fufeixiang&#39;s Blogs" type="application/atom+xml">
   
@@ -152,98 +152,90 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-Docker配置TLS安全认证" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-nginx请求头proxy_redirect" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      Docker配置TLS安全认证
+      Nginx的proxy_redirect配置
     </h1>
   
 
         
-        <a href="/blogs/Docker配置TLS安全认证/" class="archive-article-date">
-  	<time datetime="2018-08-08T15:08:35.904Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-08</time>
+        <a href="/blogs/nginx请求头proxy_redirect/" class="archive-article-date">
+  	<time datetime="2019-03-24T15:38:37.489Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-03-24</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h4 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h4><blockquote>
-<p>通常，我们在配置docker daemon的监听方式为本地的socket和开放TCP端口，docker服务允许远程访问，方便对docker集群的主机执行管理命令及调用等。如果不使用TLS加密docker，任意客户端都可以对docker主机进行远程操作，有很大的安全隐患。而配置TLS后，只有信任的客户端才可以远程访问docker服务。<a id="more"></a></p>
+        <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><blockquote>
+<p>当nginx代理的后端服务器有301、302跳转时，需要注意指定proxy_set_header Host请求头部，会直接影响nginx反馈给客户端的URL请求，要结合实际需求调整proxy_set_header Host和proxy_redirect将被代理服务器设置在response header中的Location做转换。<a id="more"></a></p>
 </blockquote>
-<h4 id="TLS认证配置"><a href="#TLS认证配置" class="headerlink" title="TLS认证配置"></a>TLS认证配置</h4><ol>
-<li>自签名的证书—使用openssl创建私有CA并签发公钥</li>
-</ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line">#生成根证书RSA私钥,123456位私钥文件的密码</div><div class="line">$ openssl genrsa -aes256 -passout pass:123456 -out cakey.pem 2048</div><div class="line">Generating RSA private key, 2048 bit long modulus</div><div class="line">........+++</div><div class="line">......................+++</div><div class="line">e is 65537 (0x10001)</div><div class="line">#生成自签名证书</div><div class="line">$ openssl req -new -x509 -days 365 -key cakey.pem -passin pass:123456 -sha256 -out ca.pem -subj &quot;/C=CN/ST=./L=./O=./CN=192.168.196.136&quot;</div><div class="line"></div><div class="line">#生成server私钥</div><div class="line">$ openssl genrsa -out server.key 2048</div><div class="line">Generating RSA private key, 2048 bit long modulus</div><div class="line">.....................................................................+++</div><div class="line">...............+++</div><div class="line">e is 65537 (0x10001)</div><div class="line">#指定允许通过IP地址访问的IP列表，使用逗号隔开</div><div class="line">$ echo subjectAltName=IP:192.168.196.136 &gt; extfile.cnf</div><div class="line">$ echo extendedKeyUsage=serverAuth &gt;&gt; extfile.cnf</div><div class="line">#生成server证书申请文件</div><div class="line">$ openssl req -new -sha256 -key server.key -out server.csr -subj &quot;/CN=server&quot;</div><div class="line">#CA签署证书，并颁发server证书</div><div class="line">$ openssl x509 -passin pass:123456 -req -days 365 -sha256 -in server.csr -CA ca.pem -CAkey cakey.pem -CAcreateserial -out server.crt -extfile extfile.cnf</div><div class="line">Signature ok</div><div class="line">subject=/CN=192.168.196.136</div><div class="line">Getting CA Private Key</div><div class="line"></div><div class="line">#生成client私钥</div><div class="line">$ openssl genrsa -out client.key 2048</div><div class="line">Generating RSA private key, 2048 bit long modulus</div><div class="line">.................................................+++</div><div class="line">...................................................+++</div><div class="line">e is 65537 (0x10001)</div><div class="line">#生成client证书申请文件</div><div class="line">$ openssl req -new -sha256 -key client.key -out client.csr -subj &quot;/CN=client&quot;</div><div class="line">#CA签署证书，并颁发client证书</div><div class="line">$ openssl x509 -passin pass:123456 -req -days 365 -sha256 -in client.csr -CA ca.pem -CAkey cakey.pem -CAcreateserial -out client.crt -extfile extfile.cnf</div><div class="line">Signature ok</div><div class="line">subject=/CN=client</div><div class="line">Getting CA Private Key</div></pre></td></tr></table></figure>
-<ol>
-<li>配置docker服务开启TLS认证</li>
-</ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line">#修改daemon.json文件，配置docker服务开启TLS认证</div><div class="line">$ cat daemon.json </div><div class="line">&#123;</div><div class="line">        &quot;hosts&quot;: [&quot;unix:///var/run/docker.sock&quot;, &quot;tcp://0.0.0.0:3666&quot;],</div><div class="line">        &quot;insecure-registries&quot;: [&quot;registry:8088&quot;],</div><div class="line">        &quot;tlsverify&quot;:true,</div><div class="line">        &quot;tlscacert&quot;:&quot;/etc/docker/ca.pem&quot;,</div><div class="line">        &quot;tlscert&quot;:&quot;/etc/docker/server.crt&quot;,</div><div class="line">        &quot;tlskey&quot;:&quot;/etc/docker/server.key&quot;</div><div class="line">&#125;</div><div class="line">$ systemctl restart docker</div><div class="line"></div><div class="line">#在本机执行验证命令</div><div class="line">$ docker --tlsverify --tlscacert ca.pem --tlscert client.crt --tlskey=client.key -H tcp://192.168.196.136:3666 version   </div><div class="line">Client:</div><div class="line"> Version:         1.12.6</div><div class="line"> API version:     1.24</div><div class="line"> Package version: docker-1.12.6-61.git85d7426.el7.centos.x86_64</div><div class="line"> Go version:      go1.8.3</div><div class="line"> Git commit:      85d7426/1.12.6</div><div class="line"> Built:           Tue Oct 24 15:40:21 2017</div><div class="line"> OS/Arch:         linux/amd64</div><div class="line"></div><div class="line">Server:</div><div class="line"> Version:         1.12.6</div><div class="line"> API version:     1.24</div><div class="line"> Package version: docker-1.12.6-61.git85d7426.el7.centos.x86_64</div><div class="line"> Go version:      go1.8.3</div><div class="line"> Git commit:      85d7426/1.12.6</div><div class="line"> Built:           Tue Oct 24 15:40:21 2017</div><div class="line"> OS/Arch:         linux/amd64</div></pre></td></tr></table></figure>
-<ol>
-<li><p>分发key文件到客户端，验证</p>
-<p>只有有秘钥文件的客户端才能连接到此docker服务器上</p>
+<h4 id="搭建测试环境"><a href="#搭建测试环境" class="headerlink" title="搭建测试环境"></a>搭建测试环境</h4><p>1.测试架构规划</p>
+<ul>
+<li>主机192.168.196.134<ul>
+<li>nginx虚拟主机www.test.com；监听端口31001；转发文根 /th；后端server 192.168.196.135:31009</li>
+<li>nginx虚拟主机192.168.196.134；监听端口31000；转发文根 *.jsp；后端server 192.168.196.136:31005</li>
+</ul>
 </li>
-</ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">$ scp ca.pem client.crt client.key 192.168.196.135:/root/</div><div class="line">root@192.168.196.135&apos;s password: </div><div class="line">ca.pem                                  100% 1245     1.2KB/s   00:00    </div><div class="line">client.crt                              100% 1086     1.1KB/s   00:00    </div><div class="line">client.key                              100% 1675     1.6KB/s   00:00    </div><div class="line"></div><div class="line">#登录到135主机</div><div class="line">$ pwd</div><div class="line">  /root</div><div class="line">$ docker --tlsverify --tlscacert ca.pem --tlscert client.crt --tlskey=client.key -H tcp://192.168.196.136:3666 version</div><div class="line">Client:</div><div class="line"> Version:         1.13.1</div><div class="line"> API version:     1.24 (downgraded from 1.26)</div><div class="line"> Package version: docker-1.12.6-61.git85d7426.el7.centos.x86_64</div><div class="line"> Go version:      go1.9.4</div><div class="line"> Git commit:      dded712/1.13.1</div><div class="line"> Built:           Tue Jul 17 18:34:48 2018</div><div class="line"> OS/Arch:         linux/amd64</div><div class="line"></div><div class="line">Server:</div><div class="line"> Version:         1.12.6</div><div class="line"> API version:     1.24 (minimum version )</div><div class="line"> Package version: docker-1.12.6-61.git85d7426.el7.centos.x86_64</div><div class="line"> Go version:      go1.8.3</div><div class="line"> Git commit:      85d7426/1.12.6</div><div class="line"> Built:           Tue Oct 24 15:40:21 2017</div><div class="line"> OS/Arch:         linux/amd64</div><div class="line"> Experimental:    false</div></pre></td></tr></table></figure>
-<h4 id="TLS认证模式"><a href="#TLS认证模式" class="headerlink" title="TLS认证模式"></a>TLS认证模式</h4><ol>
-<li>服务端认证模式</li>
-</ol>
-<table>
-<thead>
-<tr>
-<th>选项</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>tlsverify, tlscacert, tlscert, tlskey</td>
-<td>向客户端发送服务端证书, 校验客户端证书是否由指定的CA(自签名根证书)签发</td>
-</tr>
-<tr>
-<td>tls, tlscert, tlskey</td>
-<td>向客户端发送服务端证书, 不校验客户端证书是否由指定的CA(自签名根证书)签发</td>
-</tr>
-</tbody>
-</table>
-<ol>
-<li>客户端认证模式</li>
-</ol>
-<table>
-<thead>
-<tr>
-<th>选项</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>tls</td>
-<td>校验服务端证书是否由 公共的CA机构签发</td>
-</tr>
-<tr>
-<td>tlsverify, tlscacert</td>
-<td>校验服务端证书是否由指定的CA(自签名根证书)签发</td>
-</tr>
-<tr>
-<td>tls, tlscert, tlskey</td>
-<td>使用客户端证书进行身份验证, 但不校验服务端证书是否由指定的CA(自签名根证书)签发</td>
-</tr>
-<tr>
-<td>tlsverify, tlscacert, tlscert, tlskey</td>
-<td>使用客户端证书进行身份验证且校验服务端证书是否由指定的CA(自签名根证书)签发</td>
-</tr>
-</tbody>
-</table>
-<p>​    引用上例，我们将ca.pem、server.crt、server.key复制到docker集群的192.168.196.135主机的/etc/docker/目录下，并修改daemon.json开启docker服务TLS认证。此时客户端认证模式选择第四种时，会提示server证书无效，因为在签发证书时指定了允许通过IP地址访问的IP为192.168.196.135。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">#登录到135主机</div><div class="line">$ cd</div><div class="line">$ docker --tlsverify --tlscacert ca.pem --tlscert client.crt --tlskey=client.key -H tcp://192.168.196.135:3666 version   </div><div class="line">Client:</div><div class="line"> Version:         1.13.1</div><div class="line"> API version:     1.26</div><div class="line"> Package version: </div><div class="line">error during connect: Get https://192.168.196.135:3666/v1.26/version: x509: certificate is valid for 192.168.196.136, not 192.168.196.135</div><div class="line"></div><div class="line">$ docker --tls --tlscacert ca.pem --tlscert client.crt --tlskey=client.key -H tcp://192.168.196.135:3666 version</div><div class="line">Client:</div><div class="line"> Version:         1.13.1</div><div class="line"> API version:     1.26</div><div class="line"> Package version: docker-1.13.1-68.gitdded712.el7.centos.x86_64</div><div class="line"> Go version:      go1.9.4</div><div class="line"> Git commit:      dded712/1.13.1</div><div class="line"> Built:           Tue Jul 17 18:34:48 2018</div><div class="line"> OS/Arch:         linux/amd64</div><div class="line"></div><div class="line">Server:</div><div class="line"> Version:         1.13.1</div><div class="line"> API version:     1.26 (minimum version 1.12)</div><div class="line"> Package version: docker-1.13.1-68.gitdded712.el7.centos.x86_64</div><div class="line"> Go version:      go1.9.4</div><div class="line"> Git commit:      dded712/1.13.1</div><div class="line"> Built:           Tue Jul 17 18:34:48 2018</div><div class="line"> OS/Arch:         linux/amd64</div><div class="line"> Experimental:    false</div></pre></td></tr></table></figure>
-<p>​    如果客户端认证模式选择第四种，可以在签发server证书时，将现有docker集群的IP添加到extfile.cnf，然后拷贝到集群中的主机上，分别配置docker服务开启认证即可，而对于后续新添加节点，则需要更新extfile.cnf并重新签发server证书。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ echo subjectAltName=IP:192.168.196.136,IP:192.168.196.135 &gt; extfile.cnf</div><div class="line">$ openssl x509 -passin pass:123456 -req -days 365 -sha256 -in server.csr -CA ca.pem -CAkey cakey.pem -CAcreateserial -out server.crt -extfile extfile.cnf</div></pre></td></tr></table></figure>
-<p>​    如果客户端认证模式选择不校验服务端证书，则无需指定IP，直接拷贝签发的server证书到所有节点即可</p>
+<li>主机192.168.196.135<ul>
+<li>nginx虚拟主机 192.168.196.135；监听端口31009；转发文根 /th/ft；后端server 192.168.196.134:31000</li>
+</ul>
+</li>
+<li>主机192.168.196.136<ul>
+<li>tomcat server; 监听端口31005</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>192.168.196.134:31001/th —&gt; 192.168.196.135:31009/th/ft –&gt; 192.168.196.134:31000 *.jsp –&gt; 192.168.196.136:31005</p>
+</blockquote>
+<p>2.192.168.196.136上部署war包</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">sh-4.2$ cat test.jsp</div><div class="line">&lt;%@ page language=&quot;java&quot; contentType=&quot;text/html; charset=ISO-8859-1&quot; pageEncoding=&quot;ISO-8859-1&quot;%&gt;</div><div class="line">&lt;%</div><div class="line">out.println(&quot;Protocol: &quot; + request.getProtocol());  </div><div class="line">out.println(&quot;Server Name: &quot; + request.getServerName());  </div><div class="line">out.println(&quot;Server Port: &quot; + request.getServerPort());  </div><div class="line">out.println(&quot;Remote Addr: &quot; + request.getRemoteAddr());  </div><div class="line">out.println(&quot;Remote Host: &quot; + request.getRemoteHost());  </div><div class="line">out.println(&quot;Request URL: &quot; + request.getRequestURL());  </div><div class="line">out.println(&quot;Host: &quot; + request.getHeader(&quot;Host&quot;));  </div><div class="line">out.println(&quot;Connection : &quot; + request.getHeader(&quot;Connection&quot;));  </div><div class="line">%&gt;</div><div class="line"></div><div class="line">$jar cvf th.war th/ft/test.jsp</div></pre></td></tr></table></figure>
+<p>3.192.168.196.134上配置 nginx</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">upstream backendsrv &#123;</div><div class="line">	server 192.168.196.136:31005;</div><div class="line">&#125;</div><div class="line">server &#123;</div><div class="line">    listen       31001;</div><div class="line">    server_name  www.test.com;</div><div class="line">    location /th &#123;</div><div class="line">         root   html;</div><div class="line">         index  index.html index.htm;</div><div class="line">         proxy_pass http://192.168.196.135:31009;</div><div class="line">         #proxy_redirect ~^http://www.test.com:31009(.*) http://$host:$server_port$1;</div><div class="line">         proxy_set_header Host $http_host;</div><div class="line">      &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">server &#123;</div><div class="line">   listen 31000;</div><div class="line">   server_name www.firsthost.com 192.168.196.134;</div><div class="line">   location /th/ft &#123;</div><div class="line">        root   html;</div><div class="line">        index  index.html index.htm; </div><div class="line">   &#125;</div><div class="line">   location ~* .jsp$ &#123;</div><div class="line">     proxy_pass http://backendsrv; </div><div class="line">     proxy_set_header Host $http_host;</div><div class="line">   &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>4.192.168.196.135上配置nginx</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">upstream backendnginx &#123;</div><div class="line">    server 192.168.196.134:31000;</div><div class="line">&#125;</div><div class="line">server &#123;</div><div class="line">    listen       31009;</div><div class="line">    server_name  192.168.196.135;</div><div class="line">    location /th/ft &#123;</div><div class="line">        root   html;</div><div class="line">        index  index.html index.htm;</div><div class="line">        proxy_pass http://backendnginx;</div><div class="line">        #proxy_redirect ~^http://www.test.com:31000(.*) http://$host:$server_port$1;</div><div class="line">        proxy_set_header Host $http_host;</div><div class="line">    &#125; </div><div class="line">    </div><div class="line">    location /th &#123;</div><div class="line">        root   html;</div><div class="line">        index  index.html index.htm;</div><div class="line">        </div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>5.按照当前配置在客户端访问:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="variable">$curl</span> -L www.test.com:31001/th/ft/test.jsp </div><div class="line">Protocol: HTTP/1.0</div><div class="line">Server Name: www.test.com</div><div class="line">Server Port: 31001</div><div class="line">Remote Addr: 192.168.196.134</div><div class="line">Remote Host: 192.168.196.134</div><div class="line">Request URL: http://www.test.com:31001/th/ft/test.jsp</div><div class="line">Host: www.test.com:31001                                 </div><div class="line">Connection : close</div></pre></td></tr></table></figure>
+<blockquote>
+<p>由于每个转发文根下都设置了Host请求头(proxy_set_header Host $http_host;)，最终tomcat应用服务器从请求中获取的Host信息为面向客户端的第一级代理nginx的虚拟主机server_name及监听端口</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">$curl -I www.test.com:31001/th </div><div class="line">HTTP/1.1 301 Moved Permanently</div><div class="line">Server: nginx</div><div class="line">Date: Thu, 21 Mar 2019 02:50:47 GMT</div><div class="line">Content-Type: text/html</div><div class="line">Content-Length: 178</div><div class="line">Connection: keep-alive</div><div class="line">Location: http://www.test.com:31009/th/</div><div class="line"></div><div class="line">$curl -I www.test.com:31001/th/ft</div><div class="line">HTTP/1.1 301 Moved Permanently</div><div class="line">Server: nginx</div><div class="line">Date: Thu, 21 Mar 2019 02:50:51 GMT</div><div class="line">Content-Type: text/html</div><div class="line">Content-Length: 178</div><div class="line">Connection: keep-alive</div><div class="line">Location: http://www.test.com:31000/th/ft/</div></pre></td></tr></table></figure>
+<p>301跳转时，返回给客户端重新发送请求的Location中URL有问题。<br>后端server的响应头中的location字段信息为:<br>1.host值被设置为第一个转发Location所在虚拟主机的server_name www.test.com</p>
+<blockquote>
+<p>这里要注意的时，如果nginx转发Location中未设置Host请求头，则host值为proxy_pass后指定的地址</p>
+</blockquote>
+<p>2.端口被设置为每个转发Location中proxy_pass/upstream定义的端口</p>
+<p>此时要用proxy_redirect将被代理服务器设置在response header中的Location做转换。官方解释：</p>
+<blockquote>
+<p>proxy_redirect<br>语法：proxy_redirect [ default|off|redirect replacement ]<br>默认值：proxy_redirect default<br>使用字段：http, server, location<br>如果需要修改从被代理服务器传来的应答头中的”Location”和”Refresh”字段，可以用这个指令设置。</p>
+</blockquote>
+<p>6.根据上面的访问结果，对应跳转地址：/th –&gt; /th/和/th/ft –&gt; /th/ft/</p>
+<p>在相应的转发Location下，分别添加:</p>
+<ul>
+<li>proxy_redirect ~^<a href="http://www.test.com:31009(.*" target="_blank" rel="external">http://www.test.com:31009(.*</a>) <code>http://$host:$server_port$1;</code></li>
+<li>proxy_redirect ~^<a href="http://www.test.com:31000(.*" target="_blank" rel="external">http://www.test.com:31000(.*</a>) <code>http://$host:$server_port$1;</code></li>
+</ul>
+<p><code>$host</code>和<code>$server_port</code>  分别为转发文根Location所在虚拟主机的server_name和listen port</p>
+<p>7.reload Nginx后，从客户端访问</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">$curl -I www.test.com:31001/th </div><div class="line">HTTP/1.1 301 Moved Permanently</div><div class="line">Server: nginx</div><div class="line">Date: Thu, 21 Mar 2019 03:15:10 GMT</div><div class="line">Content-Type: text/html</div><div class="line">Content-Length: 178</div><div class="line">Connection: keep-alive</div><div class="line">Location: http://www.test.com:31001/th/</div><div class="line"></div><div class="line">$curl -I www.test.com:31001/th/ft</div><div class="line">HTTP/1.1 301 Moved Permanently</div><div class="line">Server: nginx</div><div class="line">Date: Thu, 21 Mar 2019 03:18:22 GMT</div><div class="line">Content-Type: text/html</div><div class="line">Content-Length: 178</div><div class="line">Connection: keep-alive</div><div class="line">Location: http://www.test.com:31001/th/ft</div></pre></td></tr></table></figure>
+<p>301跳转时，返回给客户端重新发送请求的Location中URL已正确显示</p>
+<h4 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h4><p>依据转发Location中Host请求头是否被指定，来修改proxy_redirect的值:</p>
+<ul>
+<li><p>如果Host请求头未指定过，则后端server返回的Location为nginx中<code>proxy_pass后的servername/IP</code>与<code>proxy_pass后的端口或upstream中转发端口</code>的拼接</p>
+</li>
+<li><p>如果Host请求头在当前转发Location指定</p>
+<ul>
+<li>Host在nginx收到的请求中未指定过，则后端server返回的Location为<code>nginx当前转发Location的server_name</code>与<code>proxy_pass后的端口或upstream中转发端口</code>的拼接</li>
+<li>Host在nginx收到的请求中已指定，则后端server返回的Location为<code>nginx接收的请求中Host</code>与<code>proxy_pass后的端口或upstream中转发端口</code>的拼接</li>
+</ul>
+</li>
+</ul>
 
       
 
@@ -283,7 +275,7 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
         		</li>
       		
 		</ul>
@@ -339,7 +331,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="http://s.jiathis.com/qrcode.php?url=http://fufeixiang.com/blogs/Docker配置TLS安全认证/" alt="微信分享二维码">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://fufeixiang.com/blogs/nginx请求头proxy_redirect/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -353,18 +345,9 @@
   
 <nav id="article-nav">
   
-    <a href="/blogs/Kubernetes集群部署/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          Kubernetes集群部署
-        
-      </div>
-    </a>
   
-  
-    <a href="/blogs/批量export Docker镜像脚本/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">批量export Docker镜像脚本</div>
+    <a href="/blogs/nginx请求头X-Real-IPX-Forwarded-For/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">nginx请求头X-Real-IP与X-Forwarded-For</div>
       <i class="icon-circle-right"></i>
     </a>
   
@@ -391,7 +374,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#背景"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#TLS认证配置"><span class="toc-number">2.</span> <span class="toc-text">TLS认证配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#TLS认证模式"><span class="toc-number">3.</span> <span class="toc-text">TLS认证模式</span></a></li></ol>
+                    <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#搭建测试环境"><span class="toc-number">2.</span> <span class="toc-text">搭建测试环境</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#最佳实践"><span class="toc-number">3.</span> <span class="toc-text">最佳实践</span></a></li></ol>
                     </div>
                 </span>
             </div>

@@ -15,7 +15,7 @@
 <meta property="og:url" content="http://fufeixiang.com/blogs/Nginx请求头proxy_set_header/index.html">
 <meta property="og:site_name" content="fufeixiang&#39;s Blogs">
 <meta property="og:description" content="前言nginx作为反向代理时，当满足location匹配条件后，向后端动态应用服务器发送请求，如果后端服务器会根据此次请求头做一些操作（比如通过Host或者server_name请求头的值进行校验等），就会出现问题。本文就用实例来分析一下nginx转发的请求头信息">
-<meta property="og:updated_time" content="2019-03-18T14:19:57.931Z">
+<meta property="og:updated_time" content="2019-03-21T14:47:33.224Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Nginx请求头proxy_set_header">
 <meta name="twitter:description" content="前言nginx作为反向代理时，当满足location匹配条件后，向后端动态应用服务器发送请求，如果后端服务器会根据此次请求头做一些操作（比如通过Host或者server_name请求头的值进行校验等），就会出现问题。本文就用实例来分析一下nginx转发的请求头信息">
@@ -273,7 +273,7 @@
 </tbody>
 </table>
 <p>可以看出，由于客户端访问未携带Host请求头部，无法继承，则被修改为server上下文中定义的虚拟主机名www.test.com；并且$http_host会修改默认端口80为server上下文中监听的端口10000。所以当后端应用服务器需要根据请求头部Host信息做进一步处理时，要根据需求在nginx中正确配置Host值。</p>
-<h3 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h3><p>当后端服务器有301跳转时，需要注意指定proxy_set_header Host请求头部，会直接影响nginx重新发起的URL请求，要结合实际需求调整proxy_set_header Host及proxy_redirect的值。</p>
+<h3 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h3><p>当后端服务器有301、302跳转时，需要注意指定proxy_set_header Host请求头部，会直接影响nginx反馈给客户端的URL请求，要结合实际需求调整proxy_set_header Host和proxy_redirect将被代理服务器设置在response header中的Location做转换。</p>
 
       
 
@@ -527,11 +527,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
               </li>
              
               <li class="article-tag-list-item">
