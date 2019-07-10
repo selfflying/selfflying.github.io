@@ -6,14 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://fufeixiang.com">
-  <title>Archives: 2017 | fufeixiang&#39;s Blogs</title>
+  <title>k8s1.14.6集群搭建之apiserver部署 | fufeixiang&#39;s Blogs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="fufeixiang&#39;s Blogs">
-<meta property="og:url" content="http://fufeixiang.com/archives/2017/index.html">
+  <meta name="description" content="1. 创建自签名CA及相关证书1.1 创建自签名CA(apiserver访问相关)">
+<meta name="keywords" content="Docker">
+<meta property="og:type" content="article">
+<meta property="og:title" content="k8s1.14.6集群搭建之apiserver部署">
+<meta property="og:url" content="http://fufeixiang.com/blogs/k8s1.14.6集群搭建之apiserver部署/index.html">
 <meta property="og:site_name" content="fufeixiang&#39;s Blogs">
+<meta property="og:description" content="1. 创建自签名CA及相关证书1.1 创建自签名CA(apiserver访问相关)">
+<meta property="og:updated_time" content="2019-07-10T15:10:33.363Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="fufeixiang&#39;s Blogs">
+<meta name="twitter:title" content="k8s1.14.6集群搭建之apiserver部署">
+<meta name="twitter:description" content="1. 创建自签名CA及相关证书1.1 创建自签名CA(apiserver访问相关)">
   
     <link rel="alternative" href="/atom.xml" title="fufeixiang&#39;s Blogs" type="application/atom+xml">
   
@@ -153,136 +158,218 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-k8s1.14.6集群搭建之apiserver部署" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      k8s1.14.6集群搭建之apiserver部署
+    </h1>
+  
+
+        
+        <a href="/blogs/k8s1.14.6集群搭建之apiserver部署/" class="archive-article-date">
+  	<time datetime="2019-07-10T15:10:33.201Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-07-10</time>
+</a>
+        
+      </header>
     
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="1-创建自签名CA及相关证书"><a href="#1-创建自签名CA及相关证书" class="headerlink" title="1. 创建自签名CA及相关证书"></a>1. 创建自签名CA及相关证书</h4><p>1.1 创建自签名CA(apiserver访问相关) <a id="more"></a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">cd</span> /root/k8s-1.14.6/ssl/</div><div class="line">$ cat &lt;&lt;EOF &gt; ca-config.json</div><div class="line">&#123;</div><div class="line">    <span class="string">"signing"</span>: &#123;</div><div class="line">        <span class="string">"default"</span>: &#123;</div><div class="line">            <span class="string">"expiry"</span>: <span class="string">"87600h"</span></div><div class="line">        &#125;,</div><div class="line">        <span class="string">"profiles"</span>: &#123;</div><div class="line">            <span class="string">"kubernetes"</span>: &#123;</div><div class="line">               <span class="string">"expiry"</span>: <span class="string">"87600h"</span>,</div><div class="line">                <span class="string">"usages"</span>: [</div><div class="line">                    <span class="string">"signing"</span>,</div><div class="line">                    <span class="string">"key encipherment"</span>,</div><div class="line">                    <span class="string">"server auth"</span>,</div><div class="line">                    <span class="string">"client auth"</span></div><div class="line">                ]</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">EOF</div><div class="line"></div><div class="line">$ cat &lt;&lt;EOF &gt; ca-csr.json</div><div class="line">&#123;</div><div class="line">    <span class="string">"CN"</span>: <span class="string">"kubernetes"</span>,</div><div class="line">    <span class="string">"key"</span>: &#123;</div><div class="line">        <span class="string">"algo"</span>: <span class="string">"rsa"</span>,</div><div class="line">        <span class="string">"size"</span>: 2048</div><div class="line">    &#125;,</div><div class="line">    <span class="string">"names"</span>: [</div><div class="line">        &#123;</div><div class="line">            <span class="string">"C"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"L"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"O"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"OU"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"ST"</span>: <span class="string">""</span></div><div class="line">        &#125;</div><div class="line">    ]</div><div class="line">&#125;</div><div class="line">EOF</div><div class="line">$ gencert -initca ca-csr.json|cfssljson -bare ca</div></pre></td></tr></table></figure>
+<p>1.2 签名证书apiserver.pem、apiserver-kubelet-client.pem</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div></pre></td><td class="code"><pre><div class="line">$ cat &lt;&lt;EOF &gt; apiserver-csr.json</div><div class="line">&#123;</div><div class="line">    <span class="string">"CN"</span>: <span class="string">"kube-apiserver"</span>,</div><div class="line">    <span class="string">"hosts"</span>: [</div><div class="line">        <span class="string">"172.16.0.1"</span>,                                             --&gt; 为service-cluster-ip-range参数值</div><div class="line">        <span class="string">"127.0.0.1"</span>,</div><div class="line">        <span class="string">"192.168.18.142"</span>,                                         --&gt; master集群所有节点ip</div><div class="line">        <span class="string">"kubernetes"</span>,</div><div class="line">        <span class="string">"kubernetes.default"</span>,</div><div class="line">        <span class="string">"kubernetes.default.svc"</span>,</div><div class="line">        <span class="string">"kubernetes.default.svc.cluster"</span>,</div><div class="line">        <span class="string">"kubernetes.default.svc.cluster.local"</span>                    --&gt; clusterDomain</div><div class="line">    ],</div><div class="line">    <span class="string">"key"</span>: &#123;</div><div class="line">        <span class="string">"algo"</span>: <span class="string">"rsa"</span>,</div><div class="line">        <span class="string">"size"</span>: 2048</div><div class="line">    &#125;,</div><div class="line">    <span class="string">"names"</span>: [</div><div class="line">        &#123;</div><div class="line">            <span class="string">"C"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"L"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"ST"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"O"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"OU"</span>: <span class="string">""</span></div><div class="line">        &#125;</div><div class="line">    ]</div><div class="line">&#125;</div><div class="line">EOF</div><div class="line">$ cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes apiserver-csr.json |cfssljson -bare apiserver</div><div class="line"></div><div class="line">$ cat &lt;&lt;EOF &gt; apiserver-kubelet-client-csr.json</div><div class="line">&#123;</div><div class="line">    <span class="string">"CN"</span>: <span class="string">"kube-apiserver-kubelet-client"</span>,</div><div class="line">    <span class="string">"key"</span>: &#123;</div><div class="line">        <span class="string">"algo"</span>: <span class="string">"rsa"</span>,</div><div class="line">        <span class="string">"size"</span>: 2048</div><div class="line">    &#125;,</div><div class="line">    <span class="string">"names"</span>: [</div><div class="line">        &#123;</div><div class="line">            <span class="string">"C"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"L"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"O"</span>: <span class="string">"system:masters"</span>,</div><div class="line">            <span class="string">"OU"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"ST"</span>: <span class="string">""</span></div><div class="line">        &#125;</div><div class="line">    ]</div><div class="line">&#125;</div><div class="line">EOF</div><div class="line">$ cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes apiserver-kubelet-client-csr.json |cfssljson -bare apiserver-kubelet-client</div></pre></td></tr></table></figure>
+<p>1.3 创建front-proxy自签名CA，开启k8s api aggregation要用</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">cd</span> /root/k8s-1.14.6/ssl/front-proxy</div><div class="line">$ cat &lt;&lt;EOF &gt; ca-config.json</div><div class="line">&#123;</div><div class="line">    <span class="string">"signing"</span>: &#123;</div><div class="line">        <span class="string">"default"</span>: &#123;</div><div class="line">            <span class="string">"expiry"</span>: <span class="string">"87600h"</span></div><div class="line">        &#125;,</div><div class="line">        <span class="string">"profiles"</span>: &#123;</div><div class="line">            <span class="string">"kubernetes"</span>: &#123;</div><div class="line">               <span class="string">"expiry"</span>: <span class="string">"87600h"</span>,</div><div class="line">                <span class="string">"usages"</span>: [</div><div class="line">                    <span class="string">"signing"</span>,</div><div class="line">                    <span class="string">"key encipherment"</span>,</div><div class="line">                    <span class="string">"server auth"</span>,</div><div class="line">                    <span class="string">"client auth"</span></div><div class="line">                ]</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line">EOF</div><div class="line">$ cat &lt;&lt;EOF &gt; ca-csr.json</div><div class="line">&#123;</div><div class="line">    <span class="string">"CN"</span>: <span class="string">"front-proxy-ca"</span>,</div><div class="line">    <span class="string">"key"</span>: &#123;</div><div class="line">        <span class="string">"algo"</span>: <span class="string">"rsa"</span>,</div><div class="line">        <span class="string">"size"</span>: 2048</div><div class="line">    &#125;,</div><div class="line">    <span class="string">"names"</span>: [</div><div class="line">        &#123;</div><div class="line">            <span class="string">"C"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"L"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"O"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"OU"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"ST"</span>: <span class="string">""</span></div><div class="line">        &#125;</div><div class="line">    ]</div><div class="line">&#125;</div><div class="line">EOF</div><div class="line">$ cfssl gencert -initca ca-csr.json|cfssljson -bare ca</div></pre></td></tr></table></figure>
+<p>1.4 签名front-proxy相关证书</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">$ cat &lt;&lt;EOF &gt; front-proxy-client-csr.json</div><div class="line">&#123;</div><div class="line">    <span class="string">"CN"</span>: <span class="string">"front-proxy-client"</span>,</div><div class="line">    <span class="string">"key"</span>: &#123;</div><div class="line">        <span class="string">"algo"</span>: <span class="string">"rsa"</span>,</div><div class="line">        <span class="string">"size"</span>: 2048</div><div class="line">    &#125;,</div><div class="line">    <span class="string">"names"</span>: [</div><div class="line">        &#123;</div><div class="line">            <span class="string">"C"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"L"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"O"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"OU"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"ST"</span>: <span class="string">""</span></div><div class="line">        &#125;</div><div class="line">    ]</div><div class="line">&#125;</div><div class="line">EOF</div><div class="line">$ cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes front-proxy-client-csr.json |cfssljson -bare front-proxy-client</div></pre></td></tr></table></figure>
+<p>1.5 创建用于server-account认证的公钥与私钥</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ openssl genrsa -out sa.key 2048</div><div class="line">$ openssl rsa -<span class="keyword">in</span> sa.key -out sa.pub -pubout</div></pre></td></tr></table></figure>
+<h4 id="2-部署apiserver"><a href="#2-部署apiserver" class="headerlink" title="2. 部署apiserver"></a>2. 部署apiserver</h4><p>2.1 二进制方式启动，由systemd托管</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">$ kube-apiserver \</div><div class="line">--logtostderr=<span class="literal">false</span> \</div><div class="line">--v=2 \</div><div class="line">--<span class="built_in">log</span>-file=/root/k8s-1.14.6/logs/kube-apiserver.log \</div><div class="line">--advertise-address=192.168.18.142 \</div><div class="line">--allow-privileged=<span class="literal">true</span> \</div><div class="line">--authorization-mode=Node,RBAC \</div><div class="line">--client-ca-file=/root/k8s-1.14.6/ssl/ca.pem \</div><div class="line">--<span class="built_in">enable</span>-admission-plugins=NodeRestriction \</div><div class="line">--<span class="built_in">enable</span>-bootstrap-token-auth=<span class="literal">true</span> \</div><div class="line">--etcd-cafile=/root/k8s-1.14.6/ssl/etcd/ca.pem \</div><div class="line">--etcd-certfile=/root/k8s-1.14.6/ssl/etcd/apiserver-etcd-client.pem \</div><div class="line">--etcd-keyfile=/root/k8s-1.14.6/ssl/etcd/apiserver-etcd-client-key.pem \</div><div class="line">--etcd-servers=https://192.168.18.142:2379 \</div><div class="line">--insecure-port=0 \</div><div class="line">--kubelet-client-certificate=/root/k8s-1.14.6/ssl/apiserver-kubelet-client.pem \</div><div class="line">--kubelet-client-key=/root/k8s-1.14.6/ssl/apiserver-kubelet-client-key.pem \</div><div class="line">--kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname \</div><div class="line">--proxy-client-cert-file=/root/k8s-1.14.6/ssl/front-proxy/front-proxy-client.pem \</div><div class="line">--proxy-client-key-file=/root/k8s-1.14.6/ssl/front-proxy/front-proxy-client-key.pem \</div><div class="line">--requestheader-allowed-names=front-proxy-client \</div><div class="line">--requestheader-client-ca-file=/root/k8s-1.14.6/ssl/front-proxy/ca.pem \</div><div class="line">--requestheader-extra-headers-prefix=X-Remote-Extra- \</div><div class="line">--requestheader-group-headers=X-Remote-Group \</div><div class="line">--requestheader-username-headers=X-Remote-User \</div><div class="line">--secure-port=6443 \</div><div class="line">--service-account-key-file=/root/k8s-1.14.6/ssl/sa.pub \</div><div class="line">--service-cluster-ip-range=172.16.0.0/16 \</div><div class="line">--tls-cert-file=/root/k8s-1.14.6/ssl/apiserver.pem \</div><div class="line">--tls-private-key-file=/root/k8s-1.14.6/ssl/apiserver-key.pem</div></pre></td></tr></table></figure>
+<p>2.2 Staticpod方式</p>
+<p>2.2.1 Master节点部署kubelet.service</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">$ swapoff –a                                                              --&gt; 还要注释/etc/fstab中的swap挂载</div><div class="line">$ cat &lt;&lt;EOF &gt; /usr/lib/systemd/system/kubelet.service</div><div class="line">[Unit]</div><div class="line">Description=kubelet: The Kubernetes Node Agent</div><div class="line">Documentation=https://kubernetes.io/docs/</div><div class="line">[Service]</div><div class="line">Environment=<span class="string">"KUBELET_KUBECONFIG_ARGS=--bootstrap-kubeconfig=/root/k8s-1.14.6/kubelet/bootstrap.kubeconfig --kubeconfig=/root/k8s-1.14.6/kubelet/kubelet.conf"</span></div><div class="line">Environment=<span class="string">"KUBELET_CONFIG_ARGS=--config=/root/k8s-1.14.6/kubelet/config.yaml"</span></div><div class="line">EnvironmentFile=-/etc/sysconfig/kubelet</div><div class="line">ExecStart=/root/k8s-1.14.6/bin/kubelet \<span class="variable">$KUBELET_KUBECONFIG_ARGS</span> \<span class="variable">$KUBELET_CONFIG_ARGS</span> \<span class="variable">$KUBELET_EXTRA_ARGS</span></div><div class="line">Restart=always</div><div class="line">StartLimitInterval=0</div><div class="line">RestartSec=10</div><div class="line">[Install]	</div><div class="line">WantedBy=multi-user.target</div><div class="line">EOF</div></pre></td></tr></table></figure>
+<p>2.2.2 生成kubelet的kubeconfig文件kubelet.conf</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">$ cat create-kubelet-kubeconfig.sh</div><div class="line">KUBE_APISERVER=<span class="string">"https://192.168.18.142:6443"</span>                               --&gt; 高可用master集群的HA或者F5地址</div><div class="line">HOSTNAME=<span class="string">"192.168.18.142"</span>                                                  --&gt; 对应master节点IP</div><div class="line">kubectl config <span class="built_in">set</span>-cluster kubernetes \</div><div class="line">    --certificate-authority=/root/k8s-1.14.6/ssl/ca.pem \</div><div class="line">    --embed-certs=<span class="literal">true</span> \</div><div class="line">    --server=<span class="variable">$&#123;KUBE_APISERVER&#125;</span> \</div><div class="line">    --kubeconfig=kubelet.conf</div><div class="line">kubectl config <span class="built_in">set</span>-credentials system:node:<span class="variable">$&#123;HOSTNAME&#125;</span> \</div><div class="line">    --client-certificate=/root/k8s-1.14.6/ssl/apiserver-kubelet-client.pem \</div><div class="line">    --client-key=/root/k8s-1.14.6/ssl/apiserver-kubelet-client-key.pem \</div><div class="line">    --embed-certs=<span class="literal">true</span> \</div><div class="line">    --kubeconfig=kubelet.conf</div><div class="line">kubectl config <span class="built_in">set</span>-context system:node:<span class="variable">$&#123;HOSTNAME&#125;</span>@kubernetes \</div><div class="line">    --cluster=kubernetes \</div><div class="line">    --user=system:node:<span class="variable">$&#123;HOSTNAME&#125;</span> \</div><div class="line">    --kubeconfig=kubelet.conf</div><div class="line">kubectl config use-context system:node:<span class="variable">$&#123;HOSTNAME&#125;</span>@kubernetes --kubeconfig=kubelet.conf</div><div class="line">$ sh create-kubelet-kubeconfig.sh</div></pre></td></tr></table></figure>
+<p>2.2.3 创建kubelet配置文件config.yaml与/etc/sysconfig/kubelet</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div></pre></td><td class="code"><pre><div class="line">$ cat config.yaml </div><div class="line">address: 0.0.0.0</div><div class="line">apiVersion: kubelet.config.k8s.io/v1beta1</div><div class="line">authentication:</div><div class="line">  anonymous:</div><div class="line">    enabled: <span class="literal">false</span></div><div class="line">  webhook:</div><div class="line">    cacheTTL: 2m0s</div><div class="line">    enabled: <span class="literal">true</span></div><div class="line">  x509:</div><div class="line">    clientCAFile: /root/k8s-1.14.6/ssl/ca.pem</div><div class="line">authorization:</div><div class="line">  mode: Webhook</div><div class="line">  webhook:</div><div class="line">    cacheAuthorizedTTL: 5m0s</div><div class="line">    cacheUnauthorizedTTL: 30s</div><div class="line">cgroupDriver: systemd                                                          --&gt; 默认为cgroups</div><div class="line">cgroupsPerQOS: <span class="literal">true</span></div><div class="line">clusterDNS:</div><div class="line">- 172.16.0.10                                                                  --&gt; k8s集群DNS服务的clusterIP</div><div class="line">clusterDomain: cluster.local                                                   --&gt; k8s集群DNS服务的domain</div><div class="line">configMapAndSecretChangeDetectionStrategy: Watch</div><div class="line">containerLogMaxFiles: 5</div><div class="line">containerLogMaxSize: 10Mi</div><div class="line">contentType: application/vnd.kubernetes.protobuf</div><div class="line">cpuCFSQuota: <span class="literal">true</span></div><div class="line">cpuCFSQuotaPeriod: 100ms</div><div class="line">cpuManagerPolicy: none</div><div class="line">cpuManagerReconcilePeriod: 10s</div><div class="line">enableControllerAttachDetach: <span class="literal">true</span></div><div class="line">enableDebuggingHandlers: <span class="literal">true</span></div><div class="line">enforceNodeAllocatable:</div><div class="line">- pods</div><div class="line">eventBurst: 10</div><div class="line">eventRecordQPS: 5</div><div class="line">evictionHard:</div><div class="line">  imagefs.available: 15%</div><div class="line">  memory.available: 100Mi</div><div class="line">  nodefs.available: 10%</div><div class="line">  nodefs.inodesFree: 5%</div><div class="line">evictionPressureTransitionPeriod: 5m0s</div><div class="line">failSwapOn: <span class="literal">true</span></div><div class="line">fileCheckFrequency: 20s</div><div class="line">hairpinMode: promiscuous-bridge</div><div class="line">healthzBindAddress: 127.0.0.1</div><div class="line">healthzPort: 10248</div><div class="line">httpCheckFrequency: 20s</div><div class="line">imageGCHighThresholdPercent: 85</div><div class="line">imageGCLowThresholdPercent: 80</div><div class="line">imageMinimumGCAge: 2m0s</div><div class="line">iptablesDropBit: 15</div><div class="line">iptablesMasqueradeBit: 14</div><div class="line">kind: KubeletConfiguration</div><div class="line">kubeAPIBurst: 10</div><div class="line">kubeAPIQPS: 5</div><div class="line">makeIPTablesUtilChains: <span class="literal">true</span></div><div class="line">maxOpenFiles: 1000000</div><div class="line">maxPods: 110</div><div class="line">nodeLeaseDurationSeconds: 40</div><div class="line">nodeStatusReportFrequency: 1m0s</div><div class="line">nodeStatusUpdateFrequency: 10s</div><div class="line">oomScoreAdj: -999</div><div class="line">podPidsLimit: -1</div><div class="line">port: 10250</div><div class="line">registryBurst: 10</div><div class="line">registryPullQPS: 5</div><div class="line">resolvConf: /etc/resolv.conf</div><div class="line">rotateCertificates: <span class="literal">true</span></div><div class="line">runtimeRequestTimeout: 2m0s</div><div class="line">serializeImagePulls: <span class="literal">true</span></div><div class="line">staticPodPath: /root/k8s-1.14.6/manifests                                     --&gt; kubetlet读取静态Pod文件的路径</div><div class="line">streamingConnectionIdleTimeout: 4h0m0s</div><div class="line">syncFrequency: 1m0s</div><div class="line">volumeStatsAggPeriod: 1m0s</div><div class="line"></div><div class="line">$ cat /etc/sysconfig/kubelet </div><div class="line">KUBELET_EXTRA_ARGS=<span class="string">"--hostname-override=192.168.18.142 --cert-dir=/root/k8s-1.14.6/kubelet/ssl --pod-infra-container-image=k8s.gcr.io/pause:3.1 --network-plugin=cni"</span></div></pre></td></tr></table></figure>
+<p>2.2.4 修改docker的cgroupdriver为systemd</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">$ cat /etc/docker/daemon.json </div><div class="line">&#123;</div><div class="line">        <span class="string">"exec-opts"</span>: [<span class="string">"native.cgroupdriver=systemd"</span>],</div><div class="line">        <span class="string">"insecure-registries"</span>: [<span class="string">"0.0.0.0/0"</span>],</div><div class="line">        <span class="string">"hosts"</span>: [<span class="string">"unix:///var/run/docker.sock"</span>, <span class="string">"tcp://0.0.0.0:2008"</span>],</div><div class="line">        <span class="string">"graph"</span>: <span class="string">"/data/docker"</span>,</div><div class="line">        <span class="string">"storage-driver"</span>: <span class="string">"overlay2"</span>,</div><div class="line">        <span class="string">"storage-opts"</span>: [</div><div class="line">           <span class="string">"overlay2.override_kernel_check=true"</span></div><div class="line">        ],</div><div class="line">        <span class="string">"tlsverify"</span>: <span class="literal">true</span>,</div><div class="line">        <span class="string">"tlscacert"</span>: <span class="string">"/etc/docker/ca.pem"</span>,</div><div class="line">        <span class="string">"tlscert"</span>: <span class="string">"/etc/docker/server-cert.pem"</span>,</div><div class="line">        <span class="string">"tlskey"</span>: <span class="string">"/etc/docker/server-key.pem"</span>,</div><div class="line">        <span class="string">"userland-proxy"</span>:<span class="literal">false</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>2.2.5 创建cni配置文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">$ mkdir /etc/cni/net.d/ -pv</div><div class="line">$ cat &lt;&lt;EOF &gt; /etc/cni/net.d/10-flannel.conflist</div><div class="line">&#123;</div><div class="line">  <span class="string">"name"</span>: <span class="string">"cbr0"</span>,</div><div class="line">  <span class="string">"plugins"</span>: [</div><div class="line">    &#123;</div><div class="line">      <span class="string">"type"</span>: <span class="string">"flannel"</span>,</div><div class="line">      <span class="string">"delegate"</span>: &#123;</div><div class="line">        <span class="string">"hairpinMode"</span>: <span class="literal">true</span>,</div><div class="line">        <span class="string">"isDefaultGateway"</span>: <span class="literal">true</span></div><div class="line">      &#125;</div><div class="line">    &#125;,</div><div class="line">    &#123;</div><div class="line">      <span class="string">"type"</span>: <span class="string">"portmap"</span>,</div><div class="line">      <span class="string">"capabilities"</span>: &#123;</div><div class="line">        <span class="string">"portMappings"</span>: <span class="literal">true</span></div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  ]</div><div class="line">&#125;</div><div class="line">EOF</div></pre></td></tr></table></figure>
+<p>2.2.6 创建静态pod文件kube-apiserver-pod.yaml</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">cd</span> /root/k8s-1.14.6/manifests</div><div class="line">$ cat kube-apiserver-pod.yaml</div><div class="line">apiVersion: v1</div><div class="line">kind: Pod</div><div class="line">metadata:</div><div class="line">  creationTimestamp: null</div><div class="line">  labels:</div><div class="line">    component: kube-apiserver</div><div class="line">    tier: control-plane</div><div class="line">  name: kube-apiserver</div><div class="line">  namespace: kube-system</div><div class="line">spec:</div><div class="line">  containers:</div><div class="line">  - <span class="built_in">command</span>:</div><div class="line">    - kube-apiserver</div><div class="line">    - --logtostderr=<span class="literal">false</span></div><div class="line">    - --<span class="built_in">log</span>-file=/var/<span class="built_in">log</span>/kube-apiserver.log</div><div class="line">    - --advertise-address=192.168.18.142</div><div class="line">    - --allow-privileged=<span class="literal">true</span></div><div class="line">    - --authorization-mode=Node,RBAC</div><div class="line">    - --client-ca-file=/etc/kubernetes/pki/ca.pem</div><div class="line">    - --<span class="built_in">enable</span>-admission-plugins=NodeRestrictionc</div><div class="line">    - --<span class="built_in">enable</span>-bootstrap-token-auth=<span class="literal">true</span></div><div class="line">    - --etcd-cafile=/etc/kubernetes/pki/etcd/ca.pem</div><div class="line">    - --etcd-certfile=/etc/kubernetes/pki/etcd/apiserver-etcd-client.pem</div><div class="line">    - --etcd-keyfile=/etc/kubernetes/pki/etcd/apiserver-etcd-client-key.pem</div><div class="line">    - --etcd-servers=https://192.168.18.142:2379                                --&gt; etcd集群逗号分隔</div><div class="line">    - --insecure-port=0</div><div class="line">    - --kubelet-client-certificate=/etc/kubernetes/pki/apiserver-kubelet-client.pem</div><div class="line">    - --kubelet-client-key=/etc/kubernetes/pki/apiserver-kubelet-client-key.pem</div><div class="line">    - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname</div><div class="line">    - --proxy-client-cert-file=/etc/kubernetes/pki/front-proxy/front-proxy-client.pem</div><div class="line">    - --proxy-client-key-file=/etc/kubernetes/pki/front-proxy/front-proxy-client-key.pem</div><div class="line">    - --requestheader-allowed-names=front-proxy-client</div><div class="line">    - --requestheader-client-ca-file=/etc/kubernetes/pki/front-proxy/ca.pem</div><div class="line">    - --requestheader-extra-headers-prefix=X-Remote-Extra-</div><div class="line">    - --requestheader-group-headers=X-Remote-Group</div><div class="line">    - --requestheader-username-headers=X-Remote-User</div><div class="line">    - --secure-port=6443</div><div class="line">    - --service-account-key-file=/etc/kubernetes/pki/sa.pub</div><div class="line">    - --service-cluster-ip-range=172.16.0.0/16</div><div class="line">    - --tls-cert-file=/etc/kubernetes/pki/apiserver.pem</div><div class="line">    - --tls-private-key-file=/etc/kubernetes/pki/apiserver-key.pem</div><div class="line">    image: k8s.gcr.io/kube-apiserver:v1.14.6</div><div class="line">    imagePullPolicy: IfNotPresent</div><div class="line">    livenessProbe:</div><div class="line">      failureThreshold: 8</div><div class="line">      httpGet:</div><div class="line">        host: 192.168.18.142</div><div class="line">        path: /healthz</div><div class="line">        port: 6443</div><div class="line">        scheme: HTTPS</div><div class="line">      initialDelaySeconds: 15</div><div class="line">      timeoutSeconds: 15</div><div class="line">    name: kube-apiserver</div><div class="line">    resources:</div><div class="line">      requests:</div><div class="line">        cpu: 250m</div><div class="line">    volumeMounts:</div><div class="line">    - mountPath: /etc/ssl/certs</div><div class="line">      name: ca-certs</div><div class="line">      readOnly: <span class="literal">true</span></div><div class="line">    - mountPath: /etc/pki</div><div class="line">      name: etc-pki</div><div class="line">      readOnly: <span class="literal">true</span></div><div class="line">    - mountPath: /etc/kubernetes/pki</div><div class="line">      name: k8s-certs</div><div class="line">      readOnly: <span class="literal">true</span></div><div class="line">    - mountPath: /var/<span class="built_in">log</span></div><div class="line">      name: logs</div><div class="line">  hostNetwork: <span class="literal">true</span></div><div class="line">  priorityClassName: system-cluster-critical</div><div class="line">  volumes:</div><div class="line">  - hostPath:</div><div class="line">      path: /etc/ssl/certs</div><div class="line">      <span class="built_in">type</span>: DirectoryOrCreate</div><div class="line">    name: ca-certs</div><div class="line">  - hostPath:</div><div class="line">      path: /etc/pki</div><div class="line">      <span class="built_in">type</span>: DirectoryOrCreate</div><div class="line">    name: etc-pki</div><div class="line">  - hostPath:</div><div class="line">      path: /root/k8s-1.14.6/ssl</div><div class="line">    name: k8s-certs</div><div class="line">  - hostPath:</div><div class="line">      path: /root/k8s-1.14.6/logs</div><div class="line">    name: logs</div><div class="line">status: &#123;&#125;</div></pre></td></tr></table></figure>
+<p>2.2.7 启动kubelet.service</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ systemctl start kubelet.service</div></pre></td></tr></table></figure>
+<h4 id="3-配置kubectl访问apiserver"><a href="#3-配置kubectl访问apiserver" class="headerlink" title="3. 配置kubectl访问apiserver"></a>3. 配置kubectl访问apiserver</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">cd</span> /root/k8s-1.14.6/conf</div><div class="line">$ cat create-admin-kubeconfig.sh</div><div class="line">KUBE_APISERVER=<span class="string">"https://192.168.18.142:6443"</span></div><div class="line">kubectl config <span class="built_in">set</span>-cluster kubernetes \</div><div class="line">    --certificate-authority=/root/k8s-1.14.6/ssl/ca.pem \</div><div class="line">    --embed-certs=<span class="literal">true</span> \</div><div class="line">    --server=<span class="variable">$&#123;KUBE_APISERVER&#125;</span> \</div><div class="line">    --kubeconfig=admin.conf</div><div class="line">kubectl config <span class="built_in">set</span>-credentials kubernetes-admin \</div><div class="line">    --client-certificate=/root/k8s-1.14.6/ssl/apiserver-kubelet-client.pem \</div><div class="line">    --client-key=/root/k8s-1.14.6/ssl/apiserver-kubelet-client-key.pem \</div><div class="line">    --embed-certs=<span class="literal">true</span> \</div><div class="line">    --kubeconfig=admin.conf</div><div class="line">kubectl config <span class="built_in">set</span>-context kubernetes-admin@kubernetes \</div><div class="line">    --cluster=kubernetes \</div><div class="line">    --user=kubernetes-admin \</div><div class="line">    --kubeconfig=admin.conf</div><div class="line">kubectl config use-context kubernetes-admin@kubernetes --kubeconfig=admin.conf</div><div class="line">$ sh create-admin-kubeconfig.sh</div><div class="line">$ mv admin.conf /root/.kube/config</div><div class="line">$ kubectl get cs</div></pre></td></tr></table></figure>
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>♪ 交个朋友吧  ♪<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/images/webchat.png">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
       
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2017" class="archive-year">2017</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/session-server-cluster/" class="archive-article-date">
-  	<time datetime="2017-09-19T11:29:51.432Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-09-19</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/session-server-cluster/">nginx负载均衡apache+tomcat集群及session server cluster的实现</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
+      
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://fufeixiang.com/blogs/k8s1.14.6集群搭建之apiserver部署/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/varnish/" class="archive-article-date">
-  	<time datetime="2017-09-10T09:06:41.846Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-09-10</time>
-</a>
+<nav id="article-nav">
+  
+    <a href="/blogs/自定义json解析类型的实现/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          Golang自定义json解析类型的实现
+        
+      </div>
+    </a>
+  
+  
+    <a href="/blogs/k8s1.14.6集群搭建之ETCD集群部署/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">k8s1.14.6集群搭建之ETCD集群部署</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/varnish/">varnish缓存服务器的配置</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-创建自签名CA及相关证书"><span class="toc-number">1.</span> <span class="toc-text">1. 创建自签名CA及相关证书</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-部署apiserver"><span class="toc-number">2.</span> <span class="toc-text">2. 部署apiserver</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-配置kubectl访问apiserver"><span class="toc-number">3.</span> <span class="toc-text">3. 配置kubectl访问apiserver</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
         </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
+        
+    </div>
+</aside>
+
+
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/DNS acl/" class="archive-article-date">
-  	<time datetime="2017-08-07T13:06:15.272Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-07</time>
-</a>
-        </div>
-    	 
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/DNS acl/">DNS服务器据源地址解析的实现</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
   
 
-    
+  
 
 
           </div>
@@ -305,8 +392,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,

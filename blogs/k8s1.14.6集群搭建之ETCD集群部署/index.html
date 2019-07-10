@@ -6,14 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://fufeixiang.com">
-  <title>Archives: 2017 | fufeixiang&#39;s Blogs</title>
+  <title>k8s1.14.6集群搭建之ETCD集群部署 | fufeixiang&#39;s Blogs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="fufeixiang&#39;s Blogs">
-<meta property="og:url" content="http://fufeixiang.com/archives/2017/index.html">
+  <meta name="description" content="1. 创建自签名CA及相关证书1.1 创建自签名CA">
+<meta name="keywords" content="Docker">
+<meta property="og:type" content="article">
+<meta property="og:title" content="k8s1.14.6集群搭建之ETCD集群部署">
+<meta property="og:url" content="http://fufeixiang.com/blogs/k8s1.14.6集群搭建之ETCD集群部署/index.html">
 <meta property="og:site_name" content="fufeixiang&#39;s Blogs">
+<meta property="og:description" content="1. 创建自签名CA及相关证书1.1 创建自签名CA">
+<meta property="og:updated_time" content="2019-07-10T14:22:31.418Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="fufeixiang&#39;s Blogs">
+<meta name="twitter:title" content="k8s1.14.6集群搭建之ETCD集群部署">
+<meta name="twitter:description" content="1. 创建自签名CA及相关证书1.1 创建自签名CA">
   
     <link rel="alternative" href="/atom.xml" title="fufeixiang&#39;s Blogs" type="application/atom+xml">
   
@@ -153,136 +158,199 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-k8s1.14.6集群搭建之ETCD集群部署" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      k8s1.14.6集群搭建之ETCD集群部署
+    </h1>
+  
+
+        
+        <a href="/blogs/k8s1.14.6集群搭建之ETCD集群部署/" class="archive-article-date">
+  	<time datetime="2019-07-10T14:22:31.222Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-07-10</time>
+</a>
+        
+      </header>
     
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="1-创建自签名CA及相关证书"><a href="#1-创建自签名CA及相关证书" class="headerlink" title="1. 创建自签名CA及相关证书"></a>1. 创建自签名CA及相关证书</h4><p>1.1 创建自签名CA <a id="more"></a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">cd</span> /root/k8s-1.14.6/ssl/etcd</div><div class="line">cat &lt;&lt;EOF &gt; ca-config.json</div><div class="line">&#123;</div><div class="line">	<span class="string">"signing"</span>: &#123;</div><div class="line">		<span class="string">"default"</span>: &#123;</div><div class="line">			<span class="string">"expiry"</span>: <span class="string">"87600h"</span></div><div class="line">		&#125;,</div><div class="line">		<span class="string">"profiles"</span>: &#123;</div><div class="line">			<span class="string">"etcd"</span>: &#123;</div><div class="line">			   <span class="string">"expiry"</span>: <span class="string">"87600h"</span>,</div><div class="line">				<span class="string">"usages"</span>: [</div><div class="line">					<span class="string">"signing"</span>,</div><div class="line">					<span class="string">"key encipherment"</span>,</div><div class="line">					<span class="string">"server auth"</span>,</div><div class="line">					<span class="string">"client auth"</span></div><div class="line">				]</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line">EOF</div><div class="line"></div><div class="line">cat &lt;&lt;EOF &gt; ca-csr.json</div><div class="line">&#123;</div><div class="line">    <span class="string">"CN"</span>: <span class="string">"etcd-ca"</span>,</div><div class="line">    <span class="string">"key"</span>: &#123;</div><div class="line">        <span class="string">"algo"</span>: <span class="string">"rsa"</span>,</div><div class="line">        <span class="string">"size"</span>: 2048</div><div class="line">    &#125;,</div><div class="line">    <span class="string">"names"</span>: [</div><div class="line">        &#123;</div><div class="line">            <span class="string">"C"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"L"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"O"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"OU"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"ST"</span>: <span class="string">""</span></div><div class="line">        &#125;</div><div class="line">    ]</div><div class="line">&#125;</div><div class="line">EOF</div><div class="line">cfssl gencert -initca ca-csr.json|cfssljson -bare ca</div><div class="line">ls /root/k8s-1.14.6/ssl/etcd</div><div class="line">ca-config.json  ca.csr  ca-csr.json  ca-key.pem  ca.pem</div></pre></td></tr></table></figure>
+<p>1.2 签名证书</p>
+<p>使用1.1步骤创建的CA(ca.pem)签名相关证书server.pem、peer.pem、apiserver-etcd-client.pem</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div></pre></td><td class="code"><pre><div class="line">cat  &lt;&lt;EOF &gt; server-csr.json</div><div class="line">&#123;</div><div class="line">    <span class="string">"CN"</span>: <span class="string">"etcd-ca"</span>,</div><div class="line">    <span class="string">"hosts"</span>: [</div><div class="line">        <span class="string">"192.168.18.142"</span>                                     --&gt; hosts: etcd集群中所有节点</div><div class="line">    ],</div><div class="line">    <span class="string">"key"</span>: &#123;</div><div class="line">        <span class="string">"algo"</span>: <span class="string">"rsa"</span>,</div><div class="line">        <span class="string">"size"</span>: 2048</div><div class="line">    &#125;,</div><div class="line">    <span class="string">"names"</span>: [</div><div class="line">        &#123;</div><div class="line">            <span class="string">"C"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"L"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"ST"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"O"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"OU"</span>: <span class="string">""</span></div><div class="line">        &#125;</div><div class="line">    ]</div><div class="line">&#125;</div><div class="line">EOF</div><div class="line">cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=etcd server-csr.json|cfssljson -bare server</div><div class="line"></div><div class="line">cat  &lt;&lt;EOF &gt; peer-csr.json</div><div class="line">&#123;</div><div class="line">    <span class="string">"CN"</span>: <span class="string">"etcd-ca"</span>,</div><div class="line">    <span class="string">"hosts"</span>: [</div><div class="line">        <span class="string">"192.168.18.142"</span></div><div class="line">    ],</div><div class="line">    <span class="string">"key"</span>: &#123;</div><div class="line">        <span class="string">"algo"</span>: <span class="string">"rsa"</span>,</div><div class="line">        <span class="string">"size"</span>: 2048</div><div class="line">    &#125;,</div><div class="line">    <span class="string">"names"</span>: [</div><div class="line">        &#123;</div><div class="line">            <span class="string">"C"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"L"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"ST"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"O"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"OU"</span>: <span class="string">""</span></div><div class="line">        &#125;</div><div class="line">    ]</div><div class="line">&#125;</div><div class="line">EOF</div><div class="line">cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=etcd peer-csr.json|cfssljson -bare peer</div><div class="line"></div><div class="line">cat &lt;&lt;EOF &gt; apiserver-etcd-client-csr.json</div><div class="line">&#123;</div><div class="line">    <span class="string">"CN"</span>: <span class="string">"kube-apiserver-etcd-client"</span>,</div><div class="line">    <span class="string">"key"</span>: &#123;</div><div class="line">        <span class="string">"algo"</span>: <span class="string">"rsa"</span>,</div><div class="line">        <span class="string">"size"</span>: 2048</div><div class="line">    &#125;,</div><div class="line">    <span class="string">"names"</span>: [</div><div class="line">        &#123;</div><div class="line">            <span class="string">"C"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"L"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"ST"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"O"</span>: <span class="string">"system:masters"</span>,</div><div class="line">            <span class="string">"OU"</span>: <span class="string">""</span></div><div class="line">        &#125;</div><div class="line">    ]</div><div class="line"></div><div class="line">EOF</div><div class="line">cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=etcd apiserver-etcd-client-csr.json |cfssljson -bare apiserver-etcd-client</div></pre></td></tr></table></figure>
+<h4 id="2-部署ETCD"><a href="#2-部署ETCD" class="headerlink" title="2. 部署ETCD"></a>2. 部署ETCD</h4><p>以单节点为例，容器化部署etcd</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">docker run \</div><div class="line">       --detach \</div><div class="line">       --name k8s1.14.6-etcd-cluster \</div><div class="line">       --restart always \</div><div class="line">       --volume /root/k8s-1.14.6/ssl/etcd/:/etcd/ssl \</div><div class="line">       --volume /root/k8s-1.14.6/etcd/:/etcd/data \</div><div class="line">       --<span class="built_in">log</span>-driver json-file \</div><div class="line">       --<span class="built_in">log</span>-opt max-file=5 \</div><div class="line">       --<span class="built_in">log</span>-opt max-size=50m \</div><div class="line">       --network host \</div><div class="line">       quay.io/coreos/etcd:v3.3.10 \</div><div class="line">       /usr/<span class="built_in">local</span>/bin/etcd \</div><div class="line">       --advertise-client-urls=https://192.168.18.142:2379 \</div><div class="line">       --cert-file=/etcd/ssl/server.pem \</div><div class="line">       --client-cert-auth=<span class="literal">true</span> \</div><div class="line">       --data-dir=/etcd/data \</div><div class="line">       --initial-advertise-peer-urls=https://192.168.18.142:2380 \</div><div class="line">       --initial-cluster=etcd-node1=https://192.168.18.142:2380 \          --&gt; 多点集群逗号分隔 </div><div class="line">       --key-file=/etcd/ssl/server-key.pem \</div><div class="line">       --listen-client-urls=https://192.168.18.142:2379 \</div><div class="line">       --listen-peer-urls=https://192.168.18.142:2380  \</div><div class="line">       --name=etcd-node1  \                                                 --&gt; 当前节点name </div><div class="line">       --peer-cert-file=/etcd/ssl/peer.pem  \</div><div class="line">       --peer-client-cert-auth=<span class="literal">true</span>  \</div><div class="line">       --peer-key-file=/etcd/ssl/peer-key.pem  \</div><div class="line">       --peer-trusted-ca-file=/etcd/ssl/ca.pem  \</div><div class="line">       --snapshot-count=10000  \</div><div class="line">       --trusted-ca-file=/etcd/ssl/ca.pem</div></pre></td></tr></table></figure>
+<p>2.1 etcd集群服务验证</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ docker <span class="built_in">exec</span> -it k8s1.14.6-etcd-cluster sh</div><div class="line">etcdctl  --ca-file=/etcd/ssl/ca.pem \</div><div class="line">--cert-file=/etcd/ssl/server.pem \</div><div class="line">--key-file=/etcd/ssl/server-key.pem \</div><div class="line">--endpoints=<span class="string">"https://192.168.18.142:2379"</span> cluster-health</div><div class="line">member 3980bdec1233ede9 is healthy: got healthy result from https://192.168.18.142:2379</div><div class="line">cluster is healthy</div></pre></td></tr></table></figure>
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>♪ 交个朋友吧  ♪<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/images/webchat.png">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
       
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2017" class="archive-year">2017</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/session-server-cluster/" class="archive-article-date">
-  	<time datetime="2017-09-19T11:29:51.432Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-09-19</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/session-server-cluster/">nginx负载均衡apache+tomcat集群及session server cluster的实现</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
+      
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://fufeixiang.com/blogs/k8s1.14.6集群搭建之ETCD集群部署/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/varnish/" class="archive-article-date">
-  	<time datetime="2017-09-10T09:06:41.846Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-09-10</time>
-</a>
+<nav id="article-nav">
+  
+    <a href="/blogs/k8s1.14.6集群搭建之apiserver部署/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          k8s1.14.6集群搭建之apiserver部署
+        
+      </div>
+    </a>
+  
+  
+    <a href="/blogs/nginx请求头proxy_redirect/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Nginx的proxy_redirect配置</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/varnish/">varnish缓存服务器的配置</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-创建自签名CA及相关证书"><span class="toc-number">1.</span> <span class="toc-text">1. 创建自签名CA及相关证书</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-部署ETCD"><span class="toc-number">2.</span> <span class="toc-text">2. 部署ETCD</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
         </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
+        
+    </div>
+</aside>
+
+
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/DNS acl/" class="archive-article-date">
-  	<time datetime="2017-08-07T13:06:15.272Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-08-07</time>
-</a>
-        </div>
-    	 
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/DNS acl/">DNS服务器据源地址解析的实现</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
   
 
-    
+  
 
 
           </div>
@@ -305,8 +373,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
