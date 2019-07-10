@@ -6,14 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://fufeixiang.com">
-  <title>fufeixiang&#39;s Blogs</title>
+  <title>k8s1.14.6集群搭建之ETCD集群部署 | fufeixiang&#39;s Blogs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="fufeixiang&#39;s Blogs">
-<meta property="og:url" content="http://fufeixiang.com/page/3/index.html">
+  <meta name="description" content="1. 创建自签名CA及相关证书1.1 创建自签名CA">
+<meta name="keywords" content="Docker">
+<meta property="og:type" content="article">
+<meta property="og:title" content="k8s1.14.6集群搭建之ETCD集群部署">
+<meta property="og:url" content="http://fufeixiang.com/blogs/k8s1.14.6集群搭建之ETCD集群/index.html">
 <meta property="og:site_name" content="fufeixiang&#39;s Blogs">
+<meta property="og:description" content="1. 创建自签名CA及相关证书1.1 创建自签名CA">
+<meta property="og:updated_time" content="2019-07-10T14:06:15.447Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="fufeixiang&#39;s Blogs">
+<meta name="twitter:title" content="k8s1.14.6集群搭建之ETCD集群部署">
+<meta name="twitter:description" content="1. 创建自签名CA及相关证书1.1 创建自签名CA">
   
     <link rel="alternative" href="/atom.xml" title="fufeixiang&#39;s Blogs" type="application/atom+xml">
   
@@ -153,34 +158,63 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-    <article id="post-Keepalived+nginx-LB高可用集群实现" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+            <article id="post-k8s1.14.6集群搭建之ETCD集群" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/blogs/Keepalived+nginx-LB高可用集群实现/">Keepalived+nginx LB高可用集群实现</a>
+    <h1 class="article-title" itemprop="name">
+      k8s1.14.6集群搭建之ETCD集群部署
     </h1>
   
 
         
-        <a href="/blogs/Keepalived+nginx-LB高可用集群实现/" class="archive-article-date">
-  	<time datetime="2016-07-20T15:32:22.390Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-07-20</time>
+        <a href="/blogs/k8s1.14.6集群搭建之ETCD集群/" class="archive-article-date">
+  	<time datetime="2019-10-13T13:47:57.971Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-10-13</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="keepalived简介"><a href="#keepalived简介" class="headerlink" title="keepalived简介"></a>keepalived简介</h3><p>keepalived是一款解决负载均衡(调度器)的高可用问题的软件，可以实现负载均衡器的故障转移(failover)，原生设计的目的为了高可用ipvs服务，后来增加了脚本调用接口，使其一定程度上具有了管控服务进程的功能，基于此接口也可以支持nginx、haproxy负载均衡的高可用。keepalived是VRRP协议的软件实现，也基于VRRP协议完成地址流动，那什么是VRRP协议呢？
-        
-          <a class="article-more-a" href="/blogs/Keepalived+nginx-LB高可用集群实现/#more">more >></a>
-        
+        <h4 id="1-创建自签名CA及相关证书"><a href="#1-创建自签名CA及相关证书" class="headerlink" title="1. 创建自签名CA及相关证书"></a>1. 创建自签名CA及相关证书</h4><p>1.1 创建自签名CA <a id="more"></a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">cd</span> /root/k8s-1.14.6/ssl/etcd</div><div class="line">cat &lt;&lt;EOF &gt; ca-config.json</div><div class="line">&#123;</div><div class="line">	<span class="string">"signing"</span>: &#123;</div><div class="line">		<span class="string">"default"</span>: &#123;</div><div class="line">			<span class="string">"expiry"</span>: <span class="string">"87600h"</span></div><div class="line">		&#125;,</div><div class="line">		<span class="string">"profiles"</span>: &#123;</div><div class="line">			<span class="string">"etcd"</span>: &#123;</div><div class="line">			   <span class="string">"expiry"</span>: <span class="string">"87600h"</span>,</div><div class="line">				<span class="string">"usages"</span>: [</div><div class="line">					<span class="string">"signing"</span>,</div><div class="line">					<span class="string">"key encipherment"</span>,</div><div class="line">					<span class="string">"server auth"</span>,</div><div class="line">					<span class="string">"client auth"</span></div><div class="line">				]</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line">EOF</div><div class="line"></div><div class="line">cat &lt;&lt;EOF &gt; ca-csr.json</div><div class="line">&#123;</div><div class="line">    <span class="string">"CN"</span>: <span class="string">"etcd-ca"</span>,</div><div class="line">    <span class="string">"key"</span>: &#123;</div><div class="line">        <span class="string">"algo"</span>: <span class="string">"rsa"</span>,</div><div class="line">        <span class="string">"size"</span>: 2048</div><div class="line">    &#125;,</div><div class="line">    <span class="string">"names"</span>: [</div><div class="line">        &#123;</div><div class="line">            <span class="string">"C"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"L"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"O"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"OU"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"ST"</span>: <span class="string">""</span></div><div class="line">        &#125;</div><div class="line">    ]</div><div class="line">&#125;</div><div class="line">EOF</div><div class="line">cfssl gencert -initca ca-csr.json|cfssljson -bare ca</div><div class="line">ls /root/k8s-1.14.6/ssl/etcd</div><div class="line">ca-config.json  ca.csr  ca-csr.json  ca-key.pem  ca.pem</div></pre></td></tr></table></figure>
+<p>1.2 签名证书</p>
+<p>使用1.1步骤创建的CA(ca.pem)签名相关证书server.pem、peer.pem、apiserver-etcd-client.pem</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div></pre></td><td class="code"><pre><div class="line">cat  &lt;&lt;EOF &gt; server-csr.json</div><div class="line">&#123;</div><div class="line">    <span class="string">"CN"</span>: <span class="string">"etcd-ca"</span>,</div><div class="line">    <span class="string">"hosts"</span>: [</div><div class="line">        <span class="string">"192.168.18.142"</span>                                     --&gt; hosts: etcd集群中所有节点</div><div class="line">    ],</div><div class="line">    <span class="string">"key"</span>: &#123;</div><div class="line">        <span class="string">"algo"</span>: <span class="string">"rsa"</span>,</div><div class="line">        <span class="string">"size"</span>: 2048</div><div class="line">    &#125;,</div><div class="line">    <span class="string">"names"</span>: [</div><div class="line">        &#123;</div><div class="line">            <span class="string">"C"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"L"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"ST"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"O"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"OU"</span>: <span class="string">""</span></div><div class="line">        &#125;</div><div class="line">    ]</div><div class="line">&#125;</div><div class="line">EOF</div><div class="line">cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=etcd server-csr.json|cfssljson -bare server</div><div class="line"></div><div class="line">cat  &lt;&lt;EOF &gt; peer-csr.json</div><div class="line">&#123;</div><div class="line">    <span class="string">"CN"</span>: <span class="string">"etcd-ca"</span>,</div><div class="line">    <span class="string">"hosts"</span>: [</div><div class="line">        <span class="string">"192.168.18.142"</span></div><div class="line">    ],</div><div class="line">    <span class="string">"key"</span>: &#123;</div><div class="line">        <span class="string">"algo"</span>: <span class="string">"rsa"</span>,</div><div class="line">        <span class="string">"size"</span>: 2048</div><div class="line">    &#125;,</div><div class="line">    <span class="string">"names"</span>: [</div><div class="line">        &#123;</div><div class="line">            <span class="string">"C"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"L"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"ST"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"O"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"OU"</span>: <span class="string">""</span></div><div class="line">        &#125;</div><div class="line">    ]</div><div class="line">&#125;</div><div class="line">EOF</div><div class="line">cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=etcd peer-csr.json|cfssljson -bare peer</div><div class="line"></div><div class="line">cat &lt;&lt;EOF &gt; apiserver-etcd-client-csr.json</div><div class="line">&#123;</div><div class="line">    <span class="string">"CN"</span>: <span class="string">"kube-apiserver-etcd-client"</span>,</div><div class="line">    <span class="string">"key"</span>: &#123;</div><div class="line">        <span class="string">"algo"</span>: <span class="string">"rsa"</span>,</div><div class="line">        <span class="string">"size"</span>: 2048</div><div class="line">    &#125;,</div><div class="line">    <span class="string">"names"</span>: [</div><div class="line">        &#123;</div><div class="line">            <span class="string">"C"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"L"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"ST"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"O"</span>: <span class="string">"system:masters"</span>,</div><div class="line">            <span class="string">"OU"</span>: <span class="string">""</span></div><div class="line">        &#125;</div><div class="line">    ]</div><div class="line"></div><div class="line">EOF</div><div class="line">cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=etcd apiserver-etcd-client-csr.json |cfssljson -bare apiserver-etcd-client</div></pre></td></tr></table></figure>
+<h4 id="2-部署ETCD"><a href="#2-部署ETCD" class="headerlink" title="2. 部署ETCD"></a>2. 部署ETCD</h4><p>以单节点为例，容器化部署etcd</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">docker run \</div><div class="line">       --detach \</div><div class="line">       --name k8s1.14.6-etcd-cluster \</div><div class="line">       --restart always \</div><div class="line">       --volume /root/k8s-1.14.6/ssl/etcd/:/etcd/ssl \</div><div class="line">       --volume /root/k8s-1.14.6/etcd/:/etcd/data \</div><div class="line">       --<span class="built_in">log</span>-driver json-file \</div><div class="line">       --<span class="built_in">log</span>-opt max-file=5 \</div><div class="line">       --<span class="built_in">log</span>-opt max-size=50m \</div><div class="line">       --network host \</div><div class="line">       quay.io/coreos/etcd:v3.3.10 \</div><div class="line">       /usr/<span class="built_in">local</span>/bin/etcd \</div><div class="line">       --advertise-client-urls=https://192.168.18.142:2379 \</div><div class="line">       --cert-file=/etcd/ssl/server.pem \</div><div class="line">       --client-cert-auth=<span class="literal">true</span> \</div><div class="line">       --data-dir=/etcd/data \</div><div class="line">       --initial-advertise-peer-urls=https://192.168.18.142:2380 \</div><div class="line">       --initial-cluster=etcd-node1=https://192.168.18.142:2380 \          --&gt; 多点集群逗号分隔 </div><div class="line">       --key-file=/etcd/ssl/server-key.pem \</div><div class="line">       --listen-client-urls=https://192.168.18.142:2379 \</div><div class="line">       --listen-peer-urls=https://192.168.18.142:2380  \</div><div class="line">       --name=etcd-node1  \                                                 --&gt; 当前节点name </div><div class="line">       --peer-cert-file=/etcd/ssl/peer.pem  \</div><div class="line">       --peer-client-cert-auth=<span class="literal">true</span>  \</div><div class="line">       --peer-key-file=/etcd/ssl/peer-key.pem  \</div><div class="line">       --peer-trusted-ca-file=/etcd/ssl/ca.pem  \</div><div class="line">       --snapshot-count=10000  \</div><div class="line">       --trusted-ca-file=/etcd/ssl/ca.pem</div></pre></td></tr></table></figure>
+<p>2.1 etcd集群服务验证</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ docker <span class="built_in">exec</span> -it k8s1.14.6-etcd-cluster sh</div><div class="line">etcdctl  --ca-file=/etcd/ssl/ca.pem \</div><div class="line">--cert-file=/etcd/ssl/server.pem \</div><div class="line">--key-file=/etcd/ssl/server-key.pem \</div><div class="line">--endpoints=<span class="string">"https://192.168.18.142:2379"</span> cluster-health</div><div class="line">member 3980bdec1233ede9 is healthy: got healthy result from https://192.168.18.142:2379</div><div class="line">cluster is healthy</div></pre></td></tr></table></figure>
       
 
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>♪ 交个朋友吧  ♪<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/images/webchat.png">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
       
     </div>
     <div class="article-info article-info-index">
@@ -191,7 +225,7 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
         		</li>
       		
 		</ul>
@@ -200,16 +234,75 @@
       
 
       
-        <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/Keepalived+nginx-LB高可用集群实现/">展开全文 >></a>
-        </p>
-      
 
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://fufeixiang.com/blogs/k8s1.14.6集群搭建之ETCD集群/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
       
       <div class="clearfix"></div>
     </div>
   </div>
 </article>
+
+  
+<nav id="article-nav">
+  
+  
+    <a href="/blogs/自定义json解析类型的实现/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Golang自定义json解析类型的实现</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
 
 <aside class="wrap-side-operation">
     <div class="mod-side-operation">
@@ -224,636 +317,30 @@
         </div>
         
         
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-LVS-DR-负载均衡实现" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blogs/LVS-DR-负载均衡实现/">LVS DR 负载均衡实现</a>
-    </h1>
-  
-
-        
-        <a href="/blogs/LVS-DR-负载均衡实现/" class="archive-article-date">
-  	<time datetime="2016-06-03T05:02:36.403Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-06-03</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <blockquote>
-<p>上篇关于<a href="http://fufeixiang.com/blogs/LVS-NAT-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%9A%84%E5%AE%9E%E7%8E%B0/">LVS-nat 模式的负载均衡实现</a>博客中已经简单介绍了有关LVS集群的概念、四种IP负载均衡技术以及十种调度算法，本文将详细介绍LVS-DR(直接路由)模式的实现</p>
-</blockquote>
-<p>​        LVS-DR：Direct Routing, LVS默认模式, 通过为请求报文重新封装一个MAC首部进行转发，源MAC是DIP所在的接口的MAC，目标MAC是某挑选出的RS的RIP所在接口的MAC地址；源IP/PORT，以及目标IP/PORT均保持不变。请求报文同样要经由 Director，但与nat不同的是DR模式下的响应报文不经由 Director，而由RS直接发往Client
-        
-          <a class="article-more-a" href="/blogs/LVS-DR-负载均衡实现/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/LVS-DR-负载均衡实现/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-创建自签名CA及相关证书"><span class="toc-number">1.</span> <span class="toc-text">1. 创建自签名CA及相关证书</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-部署ETCD"><span class="toc-number">2.</span> <span class="toc-text">2. 部署ETCD</span></a></li></ol>
+                    </div>
+                </span>
             </div>
         </div>
         
-        
     </div>
 </aside>
 
 
 
-
-  
-    <article id="post-LVS-NAT-负载均衡的实现" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blogs/LVS-NAT-负载均衡的实现/">LVS NAT 负载均衡的实现</a>
-    </h1>
-  
-
-        
-        <a href="/blogs/LVS-NAT-负载均衡的实现/" class="archive-article-date">
-  	<time datetime="2016-05-16T05:13:23.410Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-05-16</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="什么是LVS"><a href="#什么是LVS" class="headerlink" title="什么是LVS"></a>什么是LVS</h3><blockquote>
-<p>LVS: Linux Virtual Server，即Linux虚拟服务器，是一个虚拟的服务器集群系统</p>
-</blockquote>
-<p>LVS集群由VS(Virtual Server)负责调度,RS(Real Server)负责真正提供服务。VS根据请求报文的目标IP和目标协议及端口将其调度转发至某RS，根据调度算法来挑选RS，实现负载均衡，而且调度器自动屏蔽掉服务器的故障，从而将一组服务器构成一个高性能的、高可用的虚拟服务器。
-        
-          <a class="article-more-a" href="/blogs/LVS-NAT-负载均衡的实现/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/LVS-NAT-负载均衡的实现/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-如何使用openssl工具创建私有CA" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blogs/如何使用openssl工具创建私有CA/">如何使用openssl工具创建私有CA</a>
-    </h1>
-  
-
-        
-        <a href="/blogs/如何使用openssl工具创建私有CA/" class="archive-article-date">
-  	<time datetime="2016-04-20T14:31:44.792Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-04-20</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="CA及证书"><a href="#CA及证书" class="headerlink" title="CA及证书"></a>CA及证书</h3><p>非对称加密是为了保证互联网中通讯信息安全使用的一种算法，密钥是成对出现(公钥和私钥），它的特点是发送方A使用接收方B的公钥加密数据，所有只有B拥有与之配对的私钥解密该数据，反之亦然。那么，A和B之间怎么交换得到对方的真实安全的公钥呢？此时就需要一个权威的机构来验证公钥的合法性，这个机构称之为CA(Certification Authority)。CA为每个使用公开密钥的客户发放数字证书，数字证书的作用是证明证书中列出的客户合法拥有证书中列出的公开密钥。
-        
-          <a class="article-more-a" href="/blogs/如何使用openssl工具创建私有CA/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/如何使用openssl工具创建私有CA/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-PXE自动化安装CentOS7" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blogs/PXE自动化安装CentOS7/">PXE自动化安装CentOS7</a>
-    </h1>
-  
-
-        
-        <a href="/blogs/PXE自动化安装CentOS7/" class="archive-article-date">
-  	<time datetime="2016-03-29T13:22:50.341Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-03-29</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h4 id="PXE介绍"><a href="#PXE介绍" class="headerlink" title="PXE介绍"></a>PXE介绍</h4><blockquote>
-<p>PXE： Preboot Excution Environment，由Intel公司研发，可以使没有任何操作系统的主机能够基于网络完成系统的安装工作，实现服务器的自动化安装系统<br>
-        
-          <a class="article-more-a" href="/blogs/PXE自动化安装CentOS7/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/PXE自动化安装CentOS7/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-yum客户端的配置及yum命令用法" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blogs/yum客户端的配置及yum命令用法/">yum客户端的配置及yum命令用法</a>
-    </h1>
-  
-
-        
-        <a href="/blogs/yum客户端的配置及yum命令用法/" class="archive-article-date">
-  	<time datetime="2016-03-02T08:20:44.737Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-03-02</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="什么是yum"><a href="#什么是yum" class="headerlink" title="什么是yum"></a>什么是yum</h3><p>我们在Linux系统上安装处理软件，一般是使用RPM，它是通过预先编译完成并且把软件打包为RPM文件格式后，再加以安装的一种方式，使用者只要拿到这个打包好的软件，然后将里头的文件放置到应该摆放的目录，这样就完成了安装。但是，由于有些软件是有依赖于其他软件的，当你要安装某个RPM类型的软件时，RPM会检验RPM软件数据库，它所依赖的相关软件包是否都已存在，如果没有检索到，那么这个RPM文件默认就不能安装。甚至是有些包之间还会存在循环依赖，这时RPM就不能快速有效的进行软件安装了。
-        
-          <a class="article-more-a" href="/blogs/yum客户端的配置及yum命令用法/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/yum客户端的配置及yum命令用法/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-如何实现rsyslog的远程日志存储" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blogs/如何实现rsyslog的远程日志存储/">如何实现rsyslog的远程日志存储</a>
-    </h1>
-  
-
-        
-        <a href="/blogs/如何实现rsyslog的远程日志存储/" class="archive-article-date">
-  	<time datetime="2016-01-14T03:33:24.445Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-01-14</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="远程日志服务器的实现"><a href="#远程日志服务器的实现" class="headerlink" title="远程日志服务器的实现"></a>远程日志服务器的实现</h3><ul>
-<li>rsyslog客户端：CentOS 7 ; 192.168.196.168</li>
-<li>rsyslog服务端：CentOS 6 ; 192.168.196.155</li>
-</ul>
-<p>1) <code>/etc/rsyslog.conf</code> 客户端配置
-        
-          <a class="article-more-a" href="/blogs/如何实现rsyslog的远程日志存储/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/如何实现rsyslog的远程日志存储/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-逻辑卷LVM的实现" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blogs/逻辑卷LVM的实现/">逻辑卷LVM的实现</a>
-    </h1>
-  
-
-        
-        <a href="/blogs/逻辑卷LVM的实现/" class="archive-article-date">
-  	<time datetime="2015-11-14T13:31:23.529Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-11-14</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h5 id="什么是LVM"><a href="#什么是LVM" class="headerlink" title="什么是LVM"></a>什么是LVM</h5><p>LVM(Logical Volume Manager 逻辑卷管理)可以实现把多个实体硬盘分区整合在一起，当作一个硬盘来重新操作处理。最重要的是LVM不像传统分区一旦确定分区大小就不能再调整，它允许我们<code>弹性的调整分区及文件系统容量</code>！
-        
-          <a class="article-more-a" href="/blogs/逻辑卷LVM的实现/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/逻辑卷LVM的实现/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-boot分区文件恢复" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blogs/boot分区文件恢复/">/etc/fstab及/boot分区文件恢复</a>
-    </h1>
-  
-
-        
-        <a href="/blogs/boot分区文件恢复/" class="archive-article-date">
-  	<time datetime="2015-10-26T02:37:38.932Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-10-26</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>​    以centos6为例，/boot目录下有最为关键的开机启动所必须的内核文件、根文件系统驱动文件已经引导加载程序(bootloader)grub。当我们清空此文件夹之后关机，机器就不能正常启动了，这种情况下，可以借助光盘启动进入救援模式解决。具体步骤如下：
-        
-          <a class="article-more-a" href="/blogs/boot分区文件恢复/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/boot分区文件恢复/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
   
   
-    <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/2/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span>
-    </nav>
+  
+
+  
+
   
 
 
@@ -876,8 +363,8 @@
     <script>
 	var yiliaConfig = {
 		mathjax: false,
-		isHome: true,
-		isPost: false,
+		isHome: false,
+		isPost: true,
 		isArchive: false,
 		isTag: false,
 		isCategory: false,
