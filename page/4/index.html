@@ -6,19 +6,14 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://fufeixiang.com">
-  <title>Docker存储驱动direct-lvm的配置 | fufeixiang&#39;s Blogs</title>
+  <title>fufeixiang&#39;s Blogs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="devicemapper是Linux发行版RHEL下Docker Engine的默认存储驱动，它有两种配置模式: loop-lvm和direct-lvm   loop-lvm是默认模式，基于loop设备文件创建thin pool来存储docker镜像及容器数据，官方不推荐在生产环境中使用此模式 direct-lvm是直接使用块设备创建thin pool，在中等负载和高密度环境下会有更好的性能优势">
-<meta name="keywords" content="Docker">
-<meta property="og:type" content="article">
-<meta property="og:title" content="Docker存储驱动direct-lvm的配置">
-<meta property="og:url" content="http://fufeixiang.com/blogs/Docker存储驱动direct-lvm的配置/index.html">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="fufeixiang&#39;s Blogs">
+<meta property="og:url" content="http://fufeixiang.com/page/4/index.html">
 <meta property="og:site_name" content="fufeixiang&#39;s Blogs">
-<meta property="og:description" content="devicemapper是Linux发行版RHEL下Docker Engine的默认存储驱动，它有两种配置模式: loop-lvm和direct-lvm   loop-lvm是默认模式，基于loop设备文件创建thin pool来存储docker镜像及容器数据，官方不推荐在生产环境中使用此模式 direct-lvm是直接使用块设备创建thin pool，在中等负载和高密度环境下会有更好的性能优势">
-<meta property="og:updated_time" content="2018-05-08T13:03:39.769Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Docker存储驱动direct-lvm的配置">
-<meta name="twitter:description" content="devicemapper是Linux发行版RHEL下Docker Engine的默认存储驱动，它有两种配置模式: loop-lvm和direct-lvm   loop-lvm是默认模式，基于loop设备文件创建thin pool来存储docker镜像及容器数据，官方不推荐在生产环境中使用此模式 direct-lvm是直接使用块设备创建thin pool，在中等负载和高密度环境下会有更好的性能优势">
+<meta name="twitter:title" content="fufeixiang&#39;s Blogs">
   
     <link rel="alternative" href="/atom.xml" title="fufeixiang&#39;s Blogs" type="application/atom+xml">
   
@@ -158,82 +153,34 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-Docker存储驱动direct-lvm的配置" class="article article-type-post " itemscope itemprop="blogPost">
+            
+  
+    <article id="post-逻辑卷LVM的实现" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
-    <h1 class="article-title" itemprop="name">
-      Docker存储驱动direct-lvm的配置
+    <h1 itemprop="name">
+      <a class="article-title" href="/blogs/逻辑卷LVM的实现/">逻辑卷LVM的实现</a>
     </h1>
   
 
         
-        <a href="/blogs/Docker存储驱动direct-lvm的配置/" class="archive-article-date">
-  	<time datetime="2018-05-08T13:03:39.247Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-08</time>
+        <a href="/blogs/逻辑卷LVM的实现/" class="archive-article-date">
+  	<time datetime="2015-11-14T13:31:23.529Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-11-14</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <blockquote>
-<p>devicemapper是Linux发行版RHEL下Docker Engine的默认存储驱动，它有两种配置模式: loop-lvm和direct-lvm</p>
-</blockquote>
-<ul>
-<li>loop-lvm是默认模式，基于loop设备文件创建thin pool来存储docker镜像及容器数据，官方不推荐在生产环境中使用此模式</li>
-<li>direct-lvm是直接使用块设备创建thin pool，在中等负载和高密度环境下会有更好的性能优势，也是官方推荐在生产环境中使用的模式<a id="more"></a></li>
-</ul>
-<h4 id="基础环境准备"><a href="#基础环境准备" class="headerlink" title="基础环境准备"></a>基础环境准备</h4><p>操作系统: CentOS7.2</p>
-<p>Docker Engine: docker-engine-1.13.1-1.el7.centos.x86_64</p>
-<p>硬盘: /dev/sda,/dev/sdb</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">$ lsblk</div><div class="line">NAME            MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT</div><div class="line">sda               8:0    0  200G  0 disk </div><div class="line">├─sda1            8:1    0  500M  0 part /boot</div><div class="line">└─sda2            8:2    0  190G  0 part </div><div class="line">  ├─centos-root 253:0    0   90G  0 lvm  /</div><div class="line">  └─centos-data 253:1    0  100G  0 lvm  /data</div><div class="line">sdb               8:16   0  100G  0 disk</div><div class="line">sr0              11:0    1  603M  0 rom</div></pre></td></tr></table></figure>
-<h4 id="划分逻辑卷"><a href="#划分逻辑卷" class="headerlink" title="划分逻辑卷"></a>划分逻辑卷</h4><ul>
-<li>基于/dev/sdb制作逻辑卷组<code>appvg</code>, 并划分逻辑卷<code>appvg-docker</code>，用于挂载docker graph目录(/docker)</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line">$ pvcreate /dev/sdb</div><div class="line">  Physical volume &quot;/dev/sdb&quot; successfully created</div><div class="line">$ vgcreate appvg /dev/sdb</div><div class="line">  Volume group &quot;appvg&quot; successfully created</div><div class="line"></div><div class="line">#规划20G用于逻辑卷/dev/appvg/docker</div><div class="line">$ lvcreate -n docker -L 20G appvg</div><div class="line">  Logical volume &quot;docker&quot; created.</div><div class="line">  </div><div class="line">$ lvs appvg</div><div class="line">  LV     VG    Attr       LSize  Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert</div><div class="line">  docker appvg -wi-a----- 20.00g                                                                 </div><div class="line"></div><div class="line">$ mkfs.xfs /dev/appvg/docker </div><div class="line">meta-data=/dev/appvg/docker      isize=256    agcount=4, agsize=1310720 blks</div><div class="line">         =                       sectsz=512   attr=2, projid32bit=1</div><div class="line">         =                       crc=0        finobt=0</div><div class="line">data     =                       bsize=4096   blocks=5242880, imaxpct=25</div><div class="line">         =                       sunit=0      swidth=0 blks</div><div class="line">naming   =version 2              bsize=4096   ascii-ci=0 ftype=0</div><div class="line">log      =internal log           bsize=4096   blocks=2560, version=2</div><div class="line">         =                       sectsz=512   sunit=0 blks, lazy-count=1</div><div class="line">realtime =none                   extsz=4096   blocks=0, rtextents=0</div><div class="line"></div><div class="line">$ mkdir /docker</div><div class="line">$ mount /dev/appvg/docker /docker</div><div class="line"></div><div class="line">#开机自动挂载</div><div class="line">$ tail -n1 /etc/fstab </div><div class="line">/dev/mapper/appvg-docker /docker                xfs     defaults         0 0</div><div class="line"></div><div class="line">$ lsblk</div><div class="line">NAME            MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT</div><div class="line">sda               8:0    0  200G  0 disk </div><div class="line">├─sda1            8:1    0  500M  0 part /boot</div><div class="line">└─sda2            8:2    0  190G  0 part </div><div class="line">  ├─centos-root 253:0    0   90G  0 lvm  /</div><div class="line">  └─centos-data 253:1    0  100G  0 lvm  /data</div><div class="line">sdb               8:16   0  100G  0 disk </div><div class="line">└─appvg-docker  253:2    0   20G  0 lvm  /docker</div><div class="line">sr0              11:0    1  603M  0 rom</div></pre></td></tr></table></figure>
-<ul>
-<li>基于逻辑卷组appvg, 创建thinpool和thinpoolmeta</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">$ lvcreate --wipesignatures y -n thinpool -L 40G appvg </div><div class="line">  Logical volume &quot;thinpool&quot; created.</div><div class="line">$ lvcreate --wipesignatures y -n thinpoolmeta -L 800M appvg</div><div class="line">  Logical volume &quot;thinpoolmeta&quot; created.</div><div class="line">  </div><div class="line">#将逻辑卷thinpool和thinpoolmeta转换为thin pool</div><div class="line">$ lvconvert -y --zero n -c512K --thinpool appvg/thinpool --poolmetadata appvg/thinpoolmeta</div><div class="line">  WARNING: Converting logical volume appvg/thinpool and appvg/thinpoolmeta to pool&apos;s data and metadata volumes.</div><div class="line">  THIS WILL DESTROY CONTENT OF LOGICAL VOLUME (filesystem etc.)</div><div class="line">  Converted appvg/thinpool to thin pool.</div><div class="line"></div><div class="line">#创建thinpool自动扩容配置文件</div><div class="line">$vi /etc/lvm/profile/appvg-thinpool.profile</div><div class="line">activation &#123;</div><div class="line">        thin_pool_autoextend_threshold=60</div><div class="line">        thin_pool_autoextend_percent=20</div><div class="line">&#125;</div><div class="line"></div><div class="line">#应用thinpool配置文件</div><div class="line">$ lvchange --metadataprofile appvg-thinpool appvg/thinpool</div><div class="line">  Logical volume &quot;thinpool&quot; changed.</div><div class="line"></div><div class="line">#查看thinpool处于监控状态</div><div class="line">$ lvs -o+seg_monitor appvg</div><div class="line">  LV       VG    Attr       LSize  Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert Monitor  </div><div class="line">  docker   appvg -wi-ao---- 20.00g                                                              </div><div class="line">  thinpool appvg twi-a-t--- 40.00g             0.00   0.01                             monitored</div></pre></td></tr></table></figure>
-<h4 id="启动docker服务"><a href="#启动docker服务" class="headerlink" title="启动docker服务"></a>启动docker服务</h4><ul>
-<li>创建docker配置文件/etc/docker/daemon.json</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">$ cat /etc/docker/daemon.json</div><div class="line">&#123;</div><div class="line">        &quot;insecure-registries&quot;: [&quot;0.0.0.0/0&quot;],</div><div class="line">        &quot;hosts&quot;: [&quot;unix:///var/run/docker.sock&quot;, &quot;tcp://0.0.0.0:3666&quot;],</div><div class="line">        &quot;graph&quot;: &quot;/docker&quot;,</div><div class="line">        &quot;storage-driver&quot;: &quot;devicemapper&quot;,</div><div class="line">        &quot;storage-opts&quot;: [</div><div class="line">                &quot;dm.thinpooldev=/dev/mapper/appvg-thinpool&quot;,</div><div class="line">                &quot;dm.use_deferred_deletion=true&quot;,</div><div class="line">                &quot;dm.use_deferred_removal=true&quot;</div><div class="line">        ]</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<ul>
-<li>启动docker服务并执行<code>docker info</code></li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line">$ systemctl start docker</div><div class="line"></div><div class="line">$ docker info</div><div class="line">Containers: 0</div><div class="line"> Running: 0</div><div class="line"> Paused: 0</div><div class="line"> Stopped: 0</div><div class="line">Images: 0</div><div class="line">Server Version: 1.13.1</div><div class="line">Storage Driver: devicemapper</div><div class="line"> Pool Name: appvg-thinpool                                         --&gt; 显示为创建的逻辑卷thinpool</div><div class="line"> Pool Blocksize: 524.3 kB</div><div class="line"> Base Device Size: 10.74 GB</div><div class="line"> Backing Filesystem: xfs</div><div class="line"> Data file: </div><div class="line"> Metadata file: </div><div class="line"> Data Space Used: 20.45 MB</div><div class="line"> Data Space Total: 42.95 GB</div><div class="line"> Data Space Available: 42.93 GB</div><div class="line"> Metadata Space Used: 110.6 kB</div><div class="line"> Metadata Space Total: 838.9 MB</div><div class="line"> Metadata Space Available: 838.8 MB</div><div class="line"> Thin Pool Minimum Free Space: 4.295 GB</div><div class="line"> Udev Sync Supported: true</div><div class="line"> Deferred Removal Enabled: true</div><div class="line"> Deferred Deletion Enabled: true</div><div class="line"> Deferred Deleted Device Count: 0</div><div class="line">...中间省略...</div><div class="line">Docker Root Dir: /docker</div><div class="line">Debug Mode (client): false</div><div class="line">Debug Mode (server): false</div><div class="line">Registry: https://index.docker.io/v1/</div><div class="line">WARNING: bridge-nf-call-iptables is disabled</div><div class="line">WARNING: bridge-nf-call-ip6tables is disabled</div><div class="line">Experimental: false</div><div class="line">Insecure Registries:</div><div class="line"> 0.0.0.0/0</div><div class="line"> 127.0.0.0/8</div><div class="line">Live Restore Enabled: false</div></pre></td></tr></table></figure>
-
+        <h5 id="什么是LVM"><a href="#什么是LVM" class="headerlink" title="什么是LVM"></a>什么是LVM</h5><p>LVM(Logical Volume Manager 逻辑卷管理)可以实现把多个实体硬盘分区整合在一起，当作一个硬盘来重新操作处理。最重要的是LVM不像传统分区一旦确定分区大小就不能再调整，它允许我们<code>弹性的调整分区及文件系统容量</code>！
+        
+          <a class="article-more-a" href="/blogs/逻辑卷LVM的实现/#more">more >></a>
+        
       
 
-      
-        <div class="page-reward">
-          <a href="javascript:;" class="page-reward-btn tooltip-top">
-            <div class="tooltip tooltip-east">
-            <span class="tooltip-item">
-              赏
-            </span>
-            <span class="tooltip-content">
-              <span class="tooltip-text">
-                <span class="tooltip-inner">
-                  <p class="reward-p"><i class="icon icon-quo-left"></i>♪ 交个朋友吧  ♪<i class="icon icon-quo-right"></i></p>
-                  <div class="reward-box">
-                    
-                    
-                    <div class="reward-box-item">
-                      <img class="reward-img" src="/images/webchat.png">
-                      <span class="reward-type">微信</span>
-                    </div>
-                    
-                  </div>
-                </span>
-              </span>
-            </span>
-          </div>
-          </a>
-        </div>
       
     </div>
     <div class="article-info article-info-index">
@@ -244,7 +191,7 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
         		</li>
       		
 		</ul>
@@ -253,84 +200,16 @@
       
 
       
-
+        <p class="article-more-link">
+          <a class="article-more-a" href="/blogs/逻辑卷LVM的实现/">展开全文 >></a>
+        </p>
       
-        
-<div class="share-btn share-icons tooltip-left">
-  <div class="tooltip tooltip-east">
-    <span class="tooltip-item">
-      <a href="javascript:;" class="share-sns share-outer">
-        <i class="icon icon-share"></i>
-      </a>
-    </span>
-    <span class="tooltip-content">
-      <div class="share-wrap">
-        <div class="share-icons">
-          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
-            <i class="icon icon-weibo"></i>
-          </a>
-          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
-            <i class="icon icon-weixin"></i>
-          </a>
-          <a class="qq share-sns" href="javascript:;" data-type="qq">
-            <i class="icon icon-qq"></i>
-          </a>
-          <a class="douban share-sns" href="javascript:;" data-type="douban">
-            <i class="icon icon-douban"></i>
-          </a>
-          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
-            <i class="icon icon-qzone"></i>
-          </a>
-          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
-            <i class="icon icon-facebook"></i>
-          </a>
-          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
-            <i class="icon icon-twitter"></i>
-          </a>
-          <a class="google share-sns" href="javascript:;" data-type="google">
-            <i class="icon icon-google"></i>
-          </a>
-        </div>
-      </div>
-    </span>
-  </div>
-</div>
 
-<div class="page-modal wx-share js-wx-box">
-    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
-    <p>扫一扫，分享到微信</p>
-    <div class="wx-qrcode">
-      <img src="http://s.jiathis.com/qrcode.php?url=http://fufeixiang.com/blogs/Docker存储驱动direct-lvm的配置/" alt="微信分享二维码">
-    </div>
-</div>
-
-<div class="mask js-mask"></div>
       
       <div class="clearfix"></div>
     </div>
   </div>
 </article>
-
-  
-<nav id="article-nav">
-  
-    <a href="/blogs/批量export Docker镜像脚本/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          批量export Docker镜像脚本
-        
-      </div>
-    </a>
-  
-  
-    <a href="/blogs/python脚本中调用shell的几种方法/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">python脚本中调用shell的几种方法</div>
-      <i class="icon-circle-right"></i>
-    </a>
-  
-</nav>
-
 
 <aside class="wrap-side-operation">
     <div class="mod-side-operation">
@@ -345,30 +224,93 @@
         </div>
         
         
-        <div class="toc-container tooltip-left">
-            <i class="icon-font icon-category"></i>
-            <div class="tooltip tooltip-east">
-                <span class="tooltip-item">
-                </span>
-                <span class="tooltip-content">
-                    <div class="toc-article">
-                    <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#基础环境准备"><span class="toc-number">1.</span> <span class="toc-text">基础环境准备</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#划分逻辑卷"><span class="toc-number">2.</span> <span class="toc-text">划分逻辑卷</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#启动docker服务"><span class="toc-number">3.</span> <span class="toc-text">启动docker服务</span></a></li></ol>
-                    </div>
-                </span>
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-boot分区文件恢复" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blogs/boot分区文件恢复/">/etc/fstab及/boot分区文件恢复</a>
+    </h1>
+  
+
+        
+        <a href="/blogs/boot分区文件恢复/" class="archive-article-date">
+  	<time datetime="2015-10-26T02:37:38.932Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-10-26</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>​    以centos6为例，/boot目录下有最为关键的开机启动所必须的内核文件、根文件系统驱动文件已经引导加载程序(bootloader)grub。当我们清空此文件夹之后关机，机器就不能正常启动了，这种情况下，可以借助光盘启动进入救援模式解决。具体步骤如下：
+        
+          <a class="article-more-a" href="/blogs/boot分区文件恢复/#more">more >></a>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/blogs/boot分区文件恢复/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
             </div>
         </div>
+        
         
     </div>
 </aside>
 
 
 
-  
-  
-  
 
   
-
+  
+    <nav id="page-nav">
+      <a class="extend prev" rel="prev" href="/page/3/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span>
+    </nav>
   
 
 
@@ -391,8 +333,8 @@
     <script>
 	var yiliaConfig = {
 		mathjax: false,
-		isHome: false,
-		isPost: true,
+		isHome: true,
+		isPost: false,
 		isArchive: false,
 		isTag: false,
 		isCategory: false,

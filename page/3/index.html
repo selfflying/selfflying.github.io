@@ -155,6 +155,159 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-MySQL主从复制的实现" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blogs/MySQL主从复制的实现/">MySQL主从复制的实现</a>
+    </h1>
+  
+
+        
+        <a href="/blogs/MySQL主从复制的实现/" class="archive-article-date">
+  	<time datetime="2016-11-06T02:52:36.384Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-11-06</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="MySQL主从复制原理"><a href="#MySQL主从复制原理" class="headerlink" title="MySQL主从复制原理"></a>MySQL主从复制原理</h4><p>从节点的I/O线程向主节点请求binlog事件，主节点Dump线程读取binlog事件并发送事件至从节点I/O线程，从节点将事件写到relay log（中继日志） 文件中；之后从节点的SQL 线程，会读取relay log文件中的日志，重放事件来实现主从数据一致。</p>
+<p>事实上，主节点是可以并行写的(mysql的并发)，而binlog是串行写(每次写一个事件) ，所以主从复制中，mysql是单线程复制，也就不可避免的造成了主从数据同步有延迟，所以主从复制也成为异步复制
+        
+          <a class="article-more-a" href="/blogs/MySQL主从复制的实现/#more">more >></a>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/blogs/MySQL主从复制的实现/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-Nginx+php-fpm分离部署搭建wordpress" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blogs/Nginx+php-fpm分离部署搭建wordpress/">Nginx+php-fpm分离部署搭建wordpress</a>
+    </h1>
+  
+
+        
+        <a href="/blogs/Nginx+php-fpm分离部署搭建wordpress/" class="archive-article-date">
+  	<time datetime="2016-09-15T09:03:23.976Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-09-15</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Nginx是一个高性能的HTTP和反向代理服务器，也是一个IMAP/POP3/SMTP服务器。它是基于事件驱动模型，能承受万级别的高并发http请求。由于其负载性能很好，它合适做前端服务器，而高速处理静态类文件也是它的优点。nginx通过使用ngx_http_fastcgi_module模块也可以将客户端动态请求反向代理到后端的php-fpm，两者之间遵循FastCGI协议。
+        
+          <a class="article-more-a" href="/blogs/Nginx+php-fpm分离部署搭建wordpress/#more">more >></a>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/blogs/Nginx+php-fpm分离部署搭建wordpress/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-CentOS6-mariadb二进制安装" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -774,161 +927,9 @@
 
 
   
-    <article id="post-逻辑卷LVM的实现" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blogs/逻辑卷LVM的实现/">逻辑卷LVM的实现</a>
-    </h1>
-  
-
-        
-        <a href="/blogs/逻辑卷LVM的实现/" class="archive-article-date">
-  	<time datetime="2015-11-14T13:31:23.529Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-11-14</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h5 id="什么是LVM"><a href="#什么是LVM" class="headerlink" title="什么是LVM"></a>什么是LVM</h5><p>LVM(Logical Volume Manager 逻辑卷管理)可以实现把多个实体硬盘分区整合在一起，当作一个硬盘来重新操作处理。最重要的是LVM不像传统分区一旦确定分区大小就不能再调整，它允许我们<code>弹性的调整分区及文件系统容量</code>！
-        
-          <a class="article-more-a" href="/blogs/逻辑卷LVM的实现/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/逻辑卷LVM的实现/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-boot分区文件恢复" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blogs/boot分区文件恢复/">/etc/fstab及/boot分区文件恢复</a>
-    </h1>
-  
-
-        
-        <a href="/blogs/boot分区文件恢复/" class="archive-article-date">
-  	<time datetime="2015-10-26T02:37:38.932Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-10-26</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>​    以centos6为例，/boot目录下有最为关键的开机启动所必须的内核文件、根文件系统驱动文件已经引导加载程序(bootloader)grub。当我们清空此文件夹之后关机，机器就不能正常启动了，这种情况下，可以借助光盘启动进入救援模式解决。具体步骤如下：
-        
-          <a class="article-more-a" href="/blogs/boot分区文件恢复/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/boot分区文件恢复/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/page/2/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span>
+      <a class="extend prev" rel="prev" href="/page/2/">&laquo; Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/4/">Next &raquo;</a>
     </nav>
   
 
@@ -1019,11 +1020,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
               </li>
              
               <li class="article-tag-list-item">
