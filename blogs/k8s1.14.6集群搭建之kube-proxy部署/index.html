@@ -6,14 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://fufeixiang.com">
-  <title>Tag: Docker | fufeixiang&#39;s Blogs</title>
+  <title>k8s1.14.6集群搭建之kube-proxy部署 | fufeixiang&#39;s Blogs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="fufeixiang&#39;s Blogs">
-<meta property="og:url" content="http://fufeixiang.com/tags/Docker/index.html">
+  <meta name="description" content="kube-proxy组件的部署，可以选择使用Daemonset的方式或者StaticPod的方式 Daemonset方式保证在加入集群的节点上都运行kube-proxy Pod StaticPod是由kubectl进行管理的运行在该Node上的Pod，不能通过apiserver进行管理">
+<meta name="keywords" content="Docker">
+<meta property="og:type" content="article">
+<meta property="og:title" content="k8s1.14.6集群搭建之kube-proxy部署">
+<meta property="og:url" content="http://fufeixiang.com/blogs/k8s1.14.6集群搭建之kube-proxy部署/index.html">
 <meta property="og:site_name" content="fufeixiang&#39;s Blogs">
+<meta property="og:description" content="kube-proxy组件的部署，可以选择使用Daemonset的方式或者StaticPod的方式 Daemonset方式保证在加入集群的节点上都运行kube-proxy Pod StaticPod是由kubectl进行管理的运行在该Node上的Pod，不能通过apiserver进行管理">
+<meta property="og:updated_time" content="2019-07-18T13:31:26.547Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="fufeixiang&#39;s Blogs">
+<meta name="twitter:title" content="k8s1.14.6集群搭建之kube-proxy部署">
+<meta name="twitter:description" content="kube-proxy组件的部署，可以选择使用Daemonset的方式或者StaticPod的方式 Daemonset方式保证在加入集群的节点上都运行kube-proxy Pod StaticPod是由kubectl进行管理的运行在该Node上的Pod，不能通过apiserver进行管理">
   
     <link rel="alternative" href="/atom.xml" title="fufeixiang&#39;s Blogs" type="application/atom+xml">
   
@@ -153,312 +158,80 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-k8s1.14.6集群搭建之kube-proxy部署" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2019" class="archive-year">2019</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/k8s1.14.6集群搭建之kube-flannel部署/" class="archive-article-date">
-  	<time datetime="2019-07-18T14:23:13.823Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-07-18</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/k8s1.14.6集群搭建之kube-flannel部署/">k8s1.14.6集群搭建之kube-flannel部署</a>
+    <h1 class="article-title" itemprop="name">
+      k8s1.14.6集群搭建之kube-proxy部署
     </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/k8s1.14.6集群搭建之kube-proxy部署/" class="archive-article-date">
+        
+        <a href="/blogs/k8s1.14.6集群搭建之kube-proxy部署/" class="archive-article-date">
   	<time datetime="2019-07-16T15:00:31.602Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-07-16</time>
 </a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/k8s1.14.6集群搭建之kube-proxy部署/">k8s1.14.6集群搭建之kube-proxy部署</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
+        
+      </header>
     
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/k8s1.14.6集群搭建之node节点部署/" class="archive-article-date">
-  	<time datetime="2019-07-16T10:13:37.842Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-07-16</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/k8s1.14.6集群搭建之node节点部署/">k8s1.14.6集群搭建之node节点部署</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/k8s1.14.6集群搭建之scheduler部署/" class="archive-article-date">
-  	<time datetime="2019-07-12T14:17:45.159Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-07-12</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/k8s1.14.6集群搭建之scheduler部署/">k8s1.14.6集群搭建之scheduler部署</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/k8s1.14.6集群搭建之controller-manager部署/" class="archive-article-date">
-  	<time datetime="2019-07-12T14:12:14.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-07-12</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/k8s1.14.6集群搭建之controller-manager部署/">k8s1.14.6集群搭建之controller-manager部署</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/k8s1.14.6集群搭建之apiserver部署/" class="archive-article-date">
-  	<time datetime="2019-07-10T15:10:33.201Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-07-10</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/k8s1.14.6集群搭建之apiserver部署/">k8s1.14.6集群搭建之apiserver部署</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/k8s1.14.6集群搭建之ETCD集群部署/" class="archive-article-date">
-  	<time datetime="2019-07-10T14:22:31.222Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-07-10</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/k8s1.14.6集群搭建之ETCD集群部署/">k8s1.14.6集群搭建之ETCD集群部署</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
+    <div class="article-entry" itemprop="articleBody">
       
-        </div></section>
+        <blockquote>
+<p>kube-proxy组件的部署，可以选择使用Daemonset的方式或者StaticPod的方式</p>
+<p>Daemonset方式保证在加入集群的节点上都运行kube-proxy Pod</p>
+<p>StaticPod是由kubectl进行管理的运行在该Node上的Pod，不能通过apiserver进行管理</p>
+<a id="more"></a>
+</blockquote>
+<h4 id="1-Daemonset方式"><a href="#1-Daemonset方式" class="headerlink" title="1. Daemonset方式"></a>1. Daemonset方式</h4><p> 在master节点上创建kube-proxy的CRD</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">cd</span> /root/k8s-1.14.6/manifests</div><div class="line">$ kubeclt apply -f kube-proxy.yaml</div><div class="line">$ cat kube-proxy.yaml</div><div class="line">kind: ConfigMap</div><div class="line">apiVersion: v1</div><div class="line">metadata:</div><div class="line">  labels:</div><div class="line">    app: kube-proxy</div><div class="line">  name: kube-proxy</div><div class="line">  namespace: kube-system</div><div class="line">data:</div><div class="line">  config.conf: |-</div><div class="line">    apiVersion: kubeproxy.config.k8s.io/v1alpha1</div><div class="line">    bindAddress: 0.0.0.0</div><div class="line">    clientConnection:</div><div class="line">      acceptContentTypes: <span class="string">""</span></div><div class="line">      burst: 10</div><div class="line">      contentType: application/vnd.kubernetes.protobuf</div><div class="line">      kubeconfig: /var/lib/kube-proxy/kubeconfig.conf</div><div class="line">      qps: 5</div><div class="line">    clusterCIDR: 10.244.0.0/16</div><div class="line">    configSyncPeriod: 15m0s</div><div class="line">    conntrack:</div><div class="line">      max: null</div><div class="line">      maxPerCore: 32768</div><div class="line">      min: 131072</div><div class="line">      tcpCloseWaitTimeout: 1h0m0s</div><div class="line">      tcpEstablishedTimeout: 24h0m0s</div><div class="line">    enableProfiling: <span class="literal">false</span></div><div class="line">    healthzBindAddress: 0.0.0.0:10256</div><div class="line">    hostnameOverride: <span class="string">""</span></div><div class="line">    iptables:</div><div class="line">      masqueradeAll: <span class="literal">false</span></div><div class="line">      masqueradeBit: 14</div><div class="line">      minSyncPeriod: 0s</div><div class="line">      syncPeriod: 30s</div><div class="line">    ipvs:</div><div class="line">      excludeCIDRs: null</div><div class="line">      minSyncPeriod: 0s</div><div class="line">      scheduler: <span class="string">""</span></div><div class="line">      strictARP: <span class="literal">false</span></div><div class="line">      syncPeriod: 30s</div><div class="line">    kind: KubeProxyConfiguration</div><div class="line">    metricsBindAddress: 127.0.0.1:10249</div><div class="line">    mode: <span class="string">""</span></div><div class="line">    nodePortAddresses: null</div><div class="line">    oomScoreAdj: -999</div><div class="line">    portRange: <span class="string">""</span></div><div class="line">    resourceContainer: /kube-proxy</div><div class="line">    udpIdleTimeout: 250ms</div><div class="line">    winkernel:</div><div class="line">      enableDSR: <span class="literal">false</span></div><div class="line">      networkName: <span class="string">""</span></div><div class="line">      sourceVip: <span class="string">""</span></div><div class="line">  kubeconfig.conf: |-</div><div class="line">    apiVersion: v1</div><div class="line">    kind: Config</div><div class="line">    clusters:</div><div class="line">    - cluster:</div><div class="line">        certificate-authority: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt</div><div class="line">        server: https://192.168.18.142:6443</div><div class="line">      name: default</div><div class="line">    contexts:</div><div class="line">    - context:</div><div class="line">        cluster: default</div><div class="line">        namespace: default</div><div class="line">        user: default</div><div class="line">      name: default</div><div class="line">    current-context: default</div><div class="line">    users:</div><div class="line">    - name: default</div><div class="line">      user:</div><div class="line">        tokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token</div><div class="line">---</div><div class="line">apiVersion: rbac.authorization.k8s.io/v1</div><div class="line">kind: ClusterRoleBinding</div><div class="line">metadata:</div><div class="line">  name: kube-proxy:node-proxier</div><div class="line">roleRef:</div><div class="line">  apiGroup: rbac.authorization.k8s.io</div><div class="line">  kind: ClusterRole</div><div class="line">  name: system:node-proxier</div><div class="line">subjects:</div><div class="line">- kind: ServiceAccount</div><div class="line">  name: kube-proxy</div><div class="line">  namespace: kube-system</div><div class="line">---</div><div class="line">apiVersion: v1</div><div class="line">kind: ServiceAccount</div><div class="line">metadata:</div><div class="line">  name: kube-proxy</div><div class="line">  namespace: kube-system</div><div class="line">---</div><div class="line">apiVersion: extensions/v1beta1</div><div class="line">kind: DaemonSet</div><div class="line">metadata:</div><div class="line">  labels:</div><div class="line">    k8s-app: kube-proxy</div><div class="line">  name: kube-proxy</div><div class="line">  namespace: kube-system</div><div class="line">spec:</div><div class="line">  template:</div><div class="line">    metadata:</div><div class="line">      labels:</div><div class="line">        k8s-app: kube-proxy</div><div class="line">    spec:</div><div class="line">      containers:</div><div class="line">      - <span class="built_in">command</span>:</div><div class="line">        - /usr/<span class="built_in">local</span>/bin/kube-proxy</div><div class="line">        - --config=/var/lib/kube-proxy/config.conf</div><div class="line">        - --hostname-override=$(NODE_NAME)</div><div class="line">        env:</div><div class="line">        - name: NODE_NAME</div><div class="line">          valueFrom:</div><div class="line">            fieldRef:</div><div class="line">              apiVersion: v1</div><div class="line">              fieldPath: spec.nodeName</div><div class="line">        image: k8s.gcr.io/kube-proxy:v1.14.6</div><div class="line">        name: kube-proxy</div><div class="line">        securityContext:</div><div class="line">          privileged: <span class="literal">true</span></div><div class="line">        volumeMounts:</div><div class="line">        - mountPath: /var/lib/kube-proxy</div><div class="line">          name: kube-proxy</div><div class="line">        - mountPath: /run/xtables.lock</div><div class="line">          name: xtables-lock</div><div class="line">        - mountPath: /lib/modules</div><div class="line">          name: lib-modules</div><div class="line">          readOnly: <span class="literal">true</span></div><div class="line">      hostNetwork: <span class="literal">true</span></div><div class="line">      priorityClassName: system-node-critical</div><div class="line">      serviceAccount: kube-proxy</div><div class="line">      serviceAccountName: kube-proxy</div><div class="line">      tolerations:</div><div class="line">      - key: CriticalAddonsOnly</div><div class="line">        operator: Exists</div><div class="line">      - operator: Exists</div><div class="line">      volumes:</div><div class="line">      - configMap:</div><div class="line">          defaultMode: 420</div><div class="line">          name: kube-proxy</div><div class="line">        name: kube-proxy</div><div class="line">      - hostPath:</div><div class="line">          path: /run/xtables.lock</div><div class="line">          <span class="built_in">type</span>: FileOrCreate</div><div class="line">        name: xtables-lock</div><div class="line">      - hostPath:</div><div class="line">          path: /lib/modules</div><div class="line">        name: lib-modules</div><div class="line">  updateStrategy:</div><div class="line">    rollingUpdate:</div><div class="line">      maxUnavailable: 1</div><div class="line">    <span class="built_in">type</span>: RollingUpdate</div></pre></td></tr></table></figure>
+<h4 id="2-静态Pod的方式"><a href="#2-静态Pod的方式" class="headerlink" title="2. 静态Pod的方式"></a>2. 静态Pod的方式</h4><p>2.1 master节点上签发kube-proxy的认证证书</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">cd</span> /root/k8s-1.14.6/ssl</div><div class="line">$ cat &lt;&lt;EOF &gt; apiserver-kube-proxy-csr.json</div><div class="line">&#123;</div><div class="line">    <span class="string">"CN"</span>: <span class="string">"system:kube-proxy"</span>,</div><div class="line">    <span class="string">"key"</span>: &#123;</div><div class="line">        <span class="string">"algo"</span>: <span class="string">"rsa"</span>,</div><div class="line">        <span class="string">"size"</span>: 2048</div><div class="line">    &#125;,</div><div class="line">    <span class="string">"names"</span>: [</div><div class="line">        &#123;</div><div class="line">            <span class="string">"C"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"L"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"O"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"OU"</span>: <span class="string">""</span>,</div><div class="line">            <span class="string">"ST"</span>: <span class="string">""</span></div><div class="line">        &#125;</div><div class="line">    ]</div><div class="line">&#125;</div><div class="line">EOF</div><div class="line">$ cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes apiserver-kube-proxy-csr.json |cfssljson -bare apiserver-kube-proxy</div></pre></td></tr></table></figure>
+<p>CN指定该证书的User为<code>system:kube-proxy</code>，kube-apiserver 预定义的 ClusterRoleBinding <code>system:node-proxier</code> 将User <code>system:kube-proxy</code> 与 ClusterRole <code>stem:node-proxier</code> 绑定，该 Role 授予了调用 kube-apiserver Proxy 相关 API 的权限</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">$ kubectl get clusterrolebinding system:node-proxier -o yaml</div><div class="line">apiVersion: rbac.authorization.k8s.io/v1</div><div class="line">kind: ClusterRoleBinding</div><div class="line">metadata:</div><div class="line">  annotations:</div><div class="line">    rbac.authorization.kubernetes.io/autoupdate: <span class="string">"true"</span></div><div class="line">  creationTimestamp: <span class="string">"2019-07-09T05:58:48Z"</span></div><div class="line">  labels:</div><div class="line">    kubernetes.io/bootstrapping: rbac-defaults</div><div class="line">  name: system:node-proxier</div><div class="line">  resourceVersion: <span class="string">"98"</span></div><div class="line">  selfLink: /apis/rbac.authorization.k8s.io/v1/clusterrolebindings/system%3Anode-proxier</div><div class="line">  uid: e3e61976-d2c6-11e9-9f22-fa163e67ff45</div><div class="line">roleRef:</div><div class="line">  apiGroup: rbac.authorization.k8s.io</div><div class="line">  kind: ClusterRole</div><div class="line">  name: system:node-proxier</div><div class="line">subjects:</div><div class="line">- apiGroup: rbac.authorization.k8s.io</div><div class="line">  kind: User</div><div class="line">  name: system:kube-proxy</div></pre></td></tr></table></figure>
+<p>2.2 生成kube-proxy访问apiserver的kubeconfig</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">$ cat create-kube-proxy-kubeconfig.sh</div><div class="line">KUBE_APISERVER=<span class="string">"https://192.168.18.142:6443"</span></div><div class="line">kubectl config <span class="built_in">set</span>-cluster kubernetes \</div><div class="line">    --certificate-authority=/root/k8s-1.14.6/ssl/ca.pem \</div><div class="line">    --embed-certs=<span class="literal">true</span> \</div><div class="line">    --server=<span class="variable">$&#123;KUBE_APISERVER&#125;</span> \</div><div class="line">    --kubeconfig=kube-proxy.kubeconfig</div><div class="line">kubectl config <span class="built_in">set</span>-credentials default \</div><div class="line">    --client-certificate=/root/k8s-1.14.6/ssl/apiserver-kube-proxy.pem \</div><div class="line">    --client-key=/root/k8s-1.14.6/ssl/apiserver-kube-proxy-key.pem \</div><div class="line">    --embed-certs=<span class="literal">true</span> \</div><div class="line">    --kubeconfig=kube-proxy.kubeconfig</div><div class="line">kubectl config <span class="built_in">set</span>-context default \</div><div class="line">    --cluster=kubernetes \</div><div class="line">    --user=default \</div><div class="line">    --kubeconfig=kube-proxy.kubeconfig</div><div class="line">kubectl config use-context default --kubeconfig=kube-proxy.kubeconfig</div><div class="line"></div><div class="line">$ sh create-kube-proxy-kubeconfig.sh</div></pre></td></tr></table></figure>
+<p>将生成的kube-proxy.kubeconfig文件分发到node节点192.168.18.160的/root/k8s-1.14.6/conf/kube-proxy目录下</p>
+<p>2.3 node节点上创建kube-prox的y配置文件config.conf</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">cd</span> /root/k8s-1.14.6/conf/kube-proxy</div><div class="line">$ ls</div><div class="line">config.conf  kube-proxy.kubeconfig</div><div class="line">$ cat config.conf</div><div class="line">apiVersion: kubeproxy.config.k8s.io/v1alpha1</div><div class="line">bindAddress: 0.0.0.0</div><div class="line">clientConnection:</div><div class="line">  acceptContentTypes: <span class="string">""</span></div><div class="line">  burst: 10</div><div class="line">  contentType: application/vnd.kubernetes.protobuf</div><div class="line">  kubeconfig: /var/lib/kube-proxy/kube-proxy.kubeconfig</div><div class="line">  qps: 5</div><div class="line">clusterCIDR: 10.244.0.0/16</div><div class="line">configSyncPeriod: 15m0s</div><div class="line">conntrack:</div><div class="line">  max: null</div><div class="line">  maxPerCore: 32768</div><div class="line">  min: 131072</div><div class="line">  tcpCloseWaitTimeout: 1h0m0s</div><div class="line">  tcpEstablishedTimeout: 24h0m0s</div><div class="line">enableProfiling: <span class="literal">false</span></div><div class="line">healthzBindAddress: 0.0.0.0:10256</div><div class="line">hostnameOverride: <span class="string">""</span></div><div class="line">iptables:</div><div class="line">  masqueradeAll: <span class="literal">false</span></div><div class="line">  masqueradeBit: 14</div><div class="line">  minSyncPeriod: 0s</div><div class="line">  syncPeriod: 30s</div><div class="line">ipvs:</div><div class="line">  excludeCIDRs: null</div><div class="line">  minSyncPeriod: 0s</div><div class="line">  scheduler: <span class="string">""</span></div><div class="line">  strictARP: <span class="literal">false</span></div><div class="line">  syncPeriod: 30s</div><div class="line">kind: KubeProxyConfiguration</div><div class="line">metricsBindAddress: 127.0.0.1:10249</div><div class="line">mode: <span class="string">""</span></div><div class="line">nodePortAddresses: null</div><div class="line">oomScoreAdj: -999</div><div class="line">portRange: <span class="string">""</span></div><div class="line">resourceContainer: /kube-proxy</div><div class="line">udpIdleTimeout: 250ms</div><div class="line">winkernel:</div><div class="line">  enableDSR: <span class="literal">false</span></div><div class="line">  networkName: <span class="string">""</span></div><div class="line">  sourceVip: <span class="string">""</span></div></pre></td></tr></table></figure>
+<p>2.4 计算节点上创建kube-proxy的静态pod文件kube-proxy-pod.yaml</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">cd</span> /root/k8s-1.14.6/manifests</div><div class="line">apiVersion: v1</div><div class="line">kind: Pod</div><div class="line">metadata:</div><div class="line">  labels:</div><div class="line">    tier: node</div><div class="line">    k8s-app: kube-proxy</div><div class="line">  name: kube-proxy</div><div class="line">  namespace: kube-system</div><div class="line">spec:</div><div class="line">  containers:</div><div class="line">  - <span class="built_in">command</span>:</div><div class="line">    - /usr/<span class="built_in">local</span>/bin/kube-proxy</div><div class="line">    - --config=/var/lib/kube-proxy/config.conf</div><div class="line">    - --hostname-override=$(NODE_NAME)</div><div class="line">    env:</div><div class="line">    - name: NODE_NAME</div><div class="line">      valueFrom:</div><div class="line">        fieldRef:</div><div class="line">          apiVersion: v1</div><div class="line">          fieldPath: spec.nodeName</div><div class="line">    image: k8s.gcr.io/kube-proxy:v1.14.6</div><div class="line">    name: kube-proxy</div><div class="line">    securityContext:</div><div class="line">      privileged: <span class="literal">true</span></div><div class="line">    volumeMounts:</div><div class="line">    - mountPath: /var/lib/kube-proxy</div><div class="line">      name: kube-proxy</div><div class="line">    - mountPath: /run/xtables.lock</div><div class="line">      name: xtables-lock</div><div class="line">    - mountPath: /lib/modules</div><div class="line">      name: lib-modules</div><div class="line">      readOnly: <span class="literal">true</span></div><div class="line">  hostNetwork: <span class="literal">true</span></div><div class="line">  restartPolicy: Always</div><div class="line">  priorityClassName: system-node-critical</div><div class="line">  volumes:</div><div class="line">  - hostPath:</div><div class="line">      path: /root/k8s-1.14.6/conf/kube-proxy</div><div class="line">      name: kube-proxy</div><div class="line">    name: kube-proxy</div><div class="line">  - hostPath:</div><div class="line">      path: /run/xtables.lock</div><div class="line">      <span class="built_in">type</span>: FileOrCreate</div><div class="line">    name: xtables-lock</div><div class="line">  - hostPath:</div><div class="line">      path: /lib/modules</div><div class="line">    name: lib-modules</div></pre></td></tr></table></figure>
+<p>2.5 查看kube-proxy是否正常启动</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">$ docker ps</div><div class="line">88f7d447327e        ed8adf767eeb           <span class="string">"/usr/local/bin/kube…"</span>   3 minutes ago       Up 3 minutes                            k8s_kube-proxy_kube-proxy-192.168.18.160_kube-system_6a4b4c4a6b6e6cb8c0c89cb8edd2d00c_1</div><div class="line">2f0be7471cb1        k8s.gcr.io/pause:3.1   <span class="string">"/pause"</span>                 3 minutes ago       Up 3 minutes                            k8s_POD_kube-proxy-192.168.18.160_kube-system_6a4b4c4a6b6e6cb8c0c89cb8edd2d00c_1</div><div class="line">$ docker logs 88f7d447327e</div><div class="line">W1021 06:17:23.534438       1 proxier.go:498] Failed to load kernel module ip_vs with modprobe. You can ignore this message when kube-proxy is running inside container without mounting /lib/modules</div><div class="line">W1021 06:17:23.535741       1 proxier.go:498] Failed to load kernel module ip_vs_rr with modprobe. You can ignore this message when kube-proxy is running inside container without mounting /lib/modules</div><div class="line">W1021 06:17:23.536945       1 proxier.go:498] Failed to load kernel module ip_vs_wrr with modprobe. You can ignore this message when kube-proxy is running inside container without mounting /lib/modules</div><div class="line">W1021 06:17:23.538102       1 proxier.go:498] Failed to load kernel module ip_vs_sh with modprobe. You can ignore this message when kube-proxy is running inside container without mounting /lib/modules</div><div class="line">W1021 06:17:23.543687       1 server_others.go:267] Flag proxy-mode=<span class="string">""</span> unknown, assuming iptables proxy</div><div class="line">I1021 06:17:23.553870       1 server_others.go:146] Using iptables Proxier.</div><div class="line">I1021 06:17:23.554171       1 server.go:562] Version: v1.14.6</div><div class="line">I1021 06:17:23.565879       1 conntrack.go:52] Setting nf_conntrack_max to 131072</div><div class="line">I1021 06:17:23.566114       1 config.go:202] Starting service config controller</div><div class="line">I1021 06:17:23.566145       1 controller_utils.go:1027] Waiting <span class="keyword">for</span> caches to sync <span class="keyword">for</span> service config controller</div><div class="line">I1021 06:17:23.566146       1 config.go:102] Starting endpoints config controller</div><div class="line">I1021 06:17:23.566178       1 controller_utils.go:1027] Waiting <span class="keyword">for</span> caches to sync <span class="keyword">for</span> endpoints config controller</div><div class="line">I1021 06:17:23.666289       1 controller_utils.go:1034] Caches are synced <span class="keyword">for</span> service config controller</div><div class="line">I1021 06:17:23.666289       1 controller_utils.go:1034] Caches are synced <span class="keyword">for</span> endpoints config controller</div></pre></td></tr></table></figure>
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>♪ 交个朋友吧  ♪<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/images/webchat.png">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
       
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2018" class="archive-year">2018</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/Dragonfly安装部署/" class="archive-article-date">
-  	<time datetime="2018-12-09T11:51:45.703Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-12-09</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/Dragonfly安装部署/">P2P文件与镜像分发开源解决方案Dragonfly安装部署</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -470,98 +243,125 @@
 		</ul>
 	</div>
 
-          
+      
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://fufeixiang.com/blogs/k8s1.14.6集群搭建之kube-proxy部署/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/Kubernetes集群部署/" class="archive-article-date">
-  	<time datetime="2018-08-09T15:31:05.097Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-09</time>
-</a>
+<nav id="article-nav">
+  
+    <a href="/blogs/k8s1.14.6集群搭建之kube-flannel部署/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          k8s1.14.6集群搭建之kube-flannel部署
+        
+      </div>
+    </a>
+  
+  
+    <a href="/blogs/k8s1.14.6集群搭建之node节点部署/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">k8s1.14.6集群搭建之node节点部署</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/Kubernetes集群部署/">Kubernetes集群部署</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-Daemonset方式"><span class="toc-number">1.</span> <span class="toc-text">1. Daemonset方式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-静态Pod的方式"><span class="toc-number">2.</span> <span class="toc-text">2. 静态Pod的方式</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
         </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
+        
+    </div>
+</aside>
+
+
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/Docker配置TLS安全认证/" class="archive-article-date">
-  	<time datetime="2018-08-08T15:08:35.904Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-08-08</time>
-</a>
-        </div>
-    	 
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/Docker配置TLS安全认证/">Docker配置TLS安全认证</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
   
 
-    
-    <nav id="page-nav">
-      <span class="page-number current">1</span><a class="page-number" href="/tags/Docker/page/2/">2</a><a class="extend next" rel="next" href="/tags/Docker/page/2/">Next &raquo;</a>
-    </nav>
   
 
 
@@ -585,9 +385,9 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
-		isTag: true,
+		isTag: false,
 		isCategory: false,
 		open_in_new: false,
 		toc_hide_index: true,
