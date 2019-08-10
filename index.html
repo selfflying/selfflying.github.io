@@ -58,6 +58,8 @@
 	        
 				<li><a href="/tags/Docker/">Docker相关</a></li>
 	        
+				<li><a href="/tags/go/">Golang相关</a></li>
+	        
 				<li><a href="/tags/python/">Python相关</a></li>
 	        
 			</ul>
@@ -112,6 +114,8 @@
 			
 				
 			
+				
+			
 			
 			
 			<nav class="header-nav">
@@ -126,13 +130,15 @@
 				<ul style="width: 70%">
 				
 				
-					<li style="width: 25%"><a href="/">主页</a></li>
+					<li style="width: 20%"><a href="/">主页</a></li>
 		        
-					<li style="width: 25%"><a href="/tags/Linux/">Linux相关</a></li>
+					<li style="width: 20%"><a href="/tags/Linux/">Linux相关</a></li>
 		        
-					<li style="width: 25%"><a href="/tags/Docker/">Docker相关</a></li>
+					<li style="width: 20%"><a href="/tags/Docker/">Docker相关</a></li>
 		        
-					<li style="width: 25%"><a href="/tags/python/">Python相关</a></li>
+					<li style="width: 20%"><a href="/tags/go/">Golang相关</a></li>
+		        
+					<li style="width: 20%"><a href="/tags/python/">Python相关</a></li>
 		        
 				</ul>
 			</nav>
@@ -148,6 +154,82 @@
           </div>
           <div id="js-content" class="content-ll">
             
+  
+    <article id="post-自定义json解析类型的实现" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blogs/自定义json解析类型的实现/">Golang自定义json解析类型的实现</a>
+    </h1>
+  
+
+        
+        <a href="/blogs/自定义json解析类型的实现/" class="archive-article-date">
+  	<time datetime="2019-08-10T01:13:41.063Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-08-10</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>1.json解析到Struct类型</p>
+        
+          <a class="article-more-a" href="/blogs/自定义json解析类型的实现/#more">more >></a>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">go</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/blogs/自定义json解析类型的实现/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
   
     <article id="post-nginx请求头proxy_redirect" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
@@ -847,83 +929,6 @@
 
 
   
-    <article id="post-批量自动构建镜像" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/blogs/批量自动构建镜像/">批量自动构建docker镜像的shell脚本</a>
-    </h1>
-  
-
-        
-        <a href="/blogs/批量自动构建镜像/" class="archive-article-date">
-  	<time datetime="2018-01-06T05:56:33.585Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-06</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><blockquote>
-<p>目前，由于公司多个相互隔离环境并存，各个环境都部署有容器管理平台，当有docker image更新的时候，就需要在每个环境都修改Dockerfile并执行docker build &amp; docker push到公共镜像仓库的操作，为了减少重复性的工作，我就写了一个自动构建镜像的脚本，只需要在一个环境中准备好构建镜像的Dockerfile及依赖文件，执行脚本完成构建和推送，然后打包构建镜像的文件夹并传输到另一环境，执行脚本就可以自动完成
-        
-          <a class="article-more-a" href="/blogs/批量自动构建镜像/#more">more >></a>
-        
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Docker</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/blogs/批量自动构建镜像/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
   
     <nav id="page-nav">
       <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
@@ -1026,6 +1031,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">go</a>
               </li>
             
             <div class="clearfix"></div>
