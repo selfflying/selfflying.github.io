@@ -15,7 +15,7 @@
 <meta property="og:url" content="http://fufeixiang.com/blogs/k8s1.14.6集群搭建之node节点部署/index.html">
 <meta property="og:site_name" content="fufeixiang&#39;s Blogs">
 <meta property="og:description" content="前言 在部署k8s node节点时，kubelet要与apiserver交互，在双方没有互信的情况下，如何通过master的认证鉴权？kubelet bootstrap就解决了这个问题，本文使用Bootstrap Token Authentication的认证方式，使得kubelet通过apiserver的认证、获取apiserver的CA证书，并成功注册到集群中">
-<meta property="og:updated_time" content="2019-07-16T12:55:35.292Z">
+<meta property="og:updated_time" content="2019-08-23T13:06:55.812Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="k8s1.14.6集群搭建之node节点部署">
 <meta name="twitter:description" content="前言 在部署k8s node节点时，kubelet要与apiserver交互，在双方没有互信的情况下，如何通过master的认证鉴权？kubelet bootstrap就解决了这个问题，本文使用Bootstrap Token Authentication的认证方式，使得kubelet通过apiserver的认证、获取apiserver的CA证书，并成功注册到集群中">
@@ -171,7 +171,7 @@
 
         
         <a href="/blogs/k8s1.14.6集群搭建之node节点部署/" class="archive-article-date">
-  	<time datetime="2019-07-16T10:13:37.842Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-07-16</time>
+  	<time datetime="2019-08-23T13:07:43.407Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-08-23</time>
 </a>
         
       </header>
@@ -215,7 +215,6 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">$ mkdir /etc/cni/net.d/ -pv</div><div class="line">$ cat &lt;&lt;EOF &gt; /etc/cni/net.d/10-flannel.conflist</div><div class="line">&#123;</div><div class="line">  <span class="string">"name"</span>: <span class="string">"cbr0"</span>,</div><div class="line">  <span class="string">"plugins"</span>: [</div><div class="line">    &#123;</div><div class="line">      <span class="string">"type"</span>: <span class="string">"flannel"</span>,</div><div class="line">      <span class="string">"delegate"</span>: &#123;</div><div class="line">        <span class="string">"hairpinMode"</span>: <span class="literal">true</span>,</div><div class="line">        <span class="string">"isDefaultGateway"</span>: <span class="literal">true</span></div><div class="line">      &#125;</div><div class="line">    &#125;,</div><div class="line">    &#123;</div><div class="line">      <span class="string">"type"</span>: <span class="string">"portmap"</span>,</div><div class="line">      <span class="string">"capabilities"</span>: &#123;</div><div class="line">        <span class="string">"portMappings"</span>: <span class="literal">true</span></div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">  ]</div><div class="line">&#125;</div><div class="line">EOF</div></pre></td></tr></table></figure>
 <p>2.6 启动kubelet.service</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ systemctl daemon-reload</div><div class="line">$ systemctl start kubelet.service</div></pre></td></tr></table></figure>
-
       
 
       
@@ -324,11 +323,11 @@
   
 <nav id="article-nav">
   
-    <a href="/blogs/k8s1.14.6集群搭建之kube-proxy部署/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/blogs/k8s1.14.6集群搭建之kube-flannel部署/" id="article-nav-newer" class="article-nav-link-wrap">
       <i class="icon-circle-left"></i>
       <div class="article-nav-title">
         
-          k8s1.14.6集群搭建之kube-proxy部署
+          k8s1.14.6集群搭建之kube-flannel部署
         
       </div>
     </a>
