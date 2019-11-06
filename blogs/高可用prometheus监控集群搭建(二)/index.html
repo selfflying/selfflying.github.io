@@ -6,14 +6,22 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://fufeixiang.com">
-  <title>Archives | fufeixiang&#39;s Blogs</title>
+  <title>高可用prometheus监控集群搭建(二) | fufeixiang&#39;s Blogs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="fufeixiang&#39;s Blogs">
-<meta property="og:url" content="http://fufeixiang.com/archives/page/4/index.html">
+  <meta name="description" content="Prometheus使用exporter工具来暴露主机和应用程序上的指标，目前有很多可用于各种目的的exporter(https://prometheus.io/docs/instrumenting/exporters/)">
+<meta name="keywords" content="Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="高可用prometheus监控集群搭建(二)">
+<meta property="og:url" content="http://fufeixiang.com/blogs/高可用prometheus监控集群搭建(二)/index.html">
 <meta property="og:site_name" content="fufeixiang&#39;s Blogs">
+<meta property="og:description" content="Prometheus使用exporter工具来暴露主机和应用程序上的指标，目前有很多可用于各种目的的exporter(https://prometheus.io/docs/instrumenting/exporters/)">
+<meta property="og:image" content="http://fufeixiang.com/images/prometheus-node-exporter.jpg">
+<meta property="og:image" content="http://fufeixiang.com/images/prometheus-kube-state-metrics.jpg">
+<meta property="og:updated_time" content="2019-11-06T15:19:52.917Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="fufeixiang&#39;s Blogs">
+<meta name="twitter:title" content="高可用prometheus监控集群搭建(二)">
+<meta name="twitter:description" content="Prometheus使用exporter工具来暴露主机和应用程序上的指标，目前有很多可用于各种目的的exporter(https://prometheus.io/docs/instrumenting/exporters/)">
+<meta name="twitter:image" content="http://fufeixiang.com/images/prometheus-node-exporter.jpg">
   
     <link rel="alternative" href="/atom.xml" title="fufeixiang&#39;s Blogs" type="application/atom+xml">
   
@@ -153,36 +161,82 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-高可用prometheus监控集群搭建(二)" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      高可用prometheus监控集群搭建(二)
+    </h1>
+  
+
+        
+        <a href="/blogs/高可用prometheus监控集群搭建(二)/" class="archive-article-date">
+  	<time datetime="2019-11-06T14:40:59.306Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-11-06</time>
+</a>
+        
+      </header>
     
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>Prometheus使用exporter工具来暴露主机和应用程序上的指标，目前有很多可用于各种目的的exporter(<a href="https://prometheus.io/docs/instrumenting/exporters/" target="_blank" rel="external">https://prometheus.io/docs/instrumenting/exporters/</a>)<a id="more"></a></p>
+</blockquote>
+<h4 id="Node-Exporter部署"><a href="#Node-Exporter部署" class="headerlink" title="Node Exporter部署"></a>Node Exporter部署</h4><p>Node exporter可提供用于收集各种主机指标数据（包括CPU、内存、网络和磁盘），在k8s集群中可以使用daemonset的方式部署。需要将宿主机根映射到容器中，来正确获取主机文件系统监控数据</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div></pre></td><td class="code"><pre><div class="line">$ cat node-exporter.yaml</div><div class="line">apiVersion: extensions/v1beta1</div><div class="line">kind: DaemonSet</div><div class="line">metadata:</div><div class="line">  name: node-exporter</div><div class="line">  namespace: kube-system</div><div class="line">  labels:</div><div class="line">    k8s-app: node-exporter</div><div class="line">spec:</div><div class="line">  template:</div><div class="line">    metadata:</div><div class="line">      labels:</div><div class="line">        k8s-app: node-exporter</div><div class="line">    spec:</div><div class="line">      tolerations:</div><div class="line">        - effect: NoSchedule</div><div class="line">          key: node-role.kubernetes.io/master</div><div class="line">      containers:</div><div class="line">      - image: k8s.gcr.io/prom/node-exporter:latest</div><div class="line">        imagePullPolicy: IfNotPresent</div><div class="line">        name: prometheus-node-exporter</div><div class="line">        ports:</div><div class="line">        - containerPort: 9100</div><div class="line">          hostPort: 9100</div><div class="line">          protocol: TCP</div><div class="line">          name: metrics</div><div class="line">        volumeMounts:</div><div class="line">        - mountPath: /host/proc</div><div class="line">          name: proc</div><div class="line">        - mountPath: /host/sys</div><div class="line">          name: sys</div><div class="line">        - mountPath: /host</div><div class="line">          name: rootfs</div><div class="line">        args:</div><div class="line">        - --path.procfs=/host/proc</div><div class="line">        - --path.sysfs=/host/sys</div><div class="line">        - --path.rootfs=/host</div><div class="line">      volumes:</div><div class="line">        - name: proc</div><div class="line">          hostPath:</div><div class="line">            path: /proc</div><div class="line">        - name: sys</div><div class="line">          hostPath:</div><div class="line">            path: /sys</div><div class="line">        - name: rootfs</div><div class="line">          hostPath:</div><div class="line">            path: /</div><div class="line">      hostNetwork: <span class="literal">true</span></div><div class="line">      hostPID: <span class="literal">true</span></div><div class="line">---</div><div class="line">apiVersion: v1</div><div class="line">kind: Service</div><div class="line">metadata:</div><div class="line">  annotations:</div><div class="line">    prometheus.io/scrape: <span class="string">"true"</span></div><div class="line">  labels:</div><div class="line">    k8s-app: node-exporter</div><div class="line">  name: node-exporter</div><div class="line">  namespace: kube-system</div><div class="line">spec:</div><div class="line">  ports:</div><div class="line">  - name: http</div><div class="line">    port: 9100</div><div class="line">    protocol: TCP</div><div class="line">  selector:</div><div class="line">    k8s-app: node-exporter</div><div class="line">$ kubectl apply -f node-exporter.yaml</div></pre></td></tr></table></figure>
+<p>node-exporter的service中指定了annotation: <code>prometheus.io/scrape: &quot;true&quot;</code>, job:kubernetes-service-endpoints可以自动发现，如下图所示</p>
+<p><img src="/images/prometheus-node-exporter.jpg" alt="prometheus-node-exporter"></p>
+<p>访问graph查询页面，可以看到node_开头的metrics也已经获取到</p>
+<h4 id="kube-state-metrics部署"><a href="#kube-state-metrics部署" class="headerlink" title="kube-state-metrics部署"></a>kube-state-metrics部署</h4><blockquote>
+<p>cAdvisor(kubelet)可以收集容器及systemd托管服务的CPU、内存、网络、容器数量，却不能获取到有关kubennetes资源对象指标的信息，比如：集群运行了多少个POD，分别是什么状态，pod重启了多少次，pod中的容器启动失败的原因是什么，deployment的部署是否成功，deployment的运行副本数是否和元数据中的一致</p>
+<p>kube-state-metrics通过轮询kubernetes API，提供有关资源对象指标的metrics，包括：CronJob、DaemonSet、Deployment、Job、LimitRange、Node、PersistentVolume 、PersistentVolumeClaim、Pod、Pod Disruption Budget、ReplicaSet、ReplicationController、ResourceQuota、Service、StatefulSet、Namespace、Horizontal Pod Autoscaler、Endpoint、Secret、ConfigMap、Ingress、CertificateSigningRequest</p>
+</blockquote>
+<ol>
+<li>rbac资源初始化</li>
+</ol>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div></pre></td><td class="code"><pre><div class="line"><span class="string">$</span> <span class="string">cat</span> <span class="string">kube-state-metrics-rbac.yaml</span></div><div class="line"><span class="attr">kind:</span> <span class="string">Role</span></div><div class="line"><span class="attr">metadata:</span></div><div class="line"><span class="attr">  namespace:</span> <span class="string">kube-system</span></div><div class="line"><span class="attr">  name:</span> <span class="string">kube-state-metrics-resizer</span></div><div class="line"><span class="attr">rules:</span></div><div class="line"><span class="attr">- apiGroups:</span> <span class="string">[""]</span></div><div class="line"><span class="attr">  resources:</span></div><div class="line"><span class="bullet">  -</span> <span class="string">pods</span></div><div class="line"><span class="attr">  verbs:</span> <span class="string">["get"]</span></div><div class="line"><span class="attr">- apiGroups:</span> <span class="string">["apps"]</span></div><div class="line"><span class="attr">  resources:</span></div><div class="line"><span class="bullet">  -</span> <span class="string">deployments</span></div><div class="line"><span class="attr">  resourceNames:</span> <span class="string">["kube-state-metrics"]</span></div><div class="line"><span class="attr">  verbs:</span> <span class="string">["get",</span> <span class="string">"update"</span><span class="string">]</span></div><div class="line"><span class="attr">- apiGroups:</span> <span class="string">["extensions"]</span></div><div class="line"><span class="attr">  resources:</span></div><div class="line"><span class="bullet">  -</span> <span class="string">deployments</span></div><div class="line"><span class="attr">  resourceNames:</span> <span class="string">["kube-state-metrics"]</span></div><div class="line"><span class="attr">  verbs:</span> <span class="string">["get",</span> <span class="string">"update"</span><span class="string">]</span></div><div class="line"><span class="meta">---</span></div><div class="line"><span class="attr">kind:</span> <span class="string">RoleBinding</span></div><div class="line"><span class="attr">metadata:</span></div><div class="line"><span class="attr">  name:</span> <span class="string">kube-state-metrics</span></div><div class="line"><span class="attr">  namespace:</span> <span class="string">kube-system</span></div><div class="line"><span class="attr">roleRef:</span></div><div class="line"><span class="attr">  apiGroup:</span> <span class="string">rbac.authorization.k8s.io</span></div><div class="line"><span class="attr">  kind:</span> <span class="string">Role</span></div><div class="line"><span class="attr">  name:</span> <span class="string">kube-state-metrics-resizer</span></div><div class="line"><span class="attr">subjects:</span></div><div class="line"><span class="attr">- kind:</span> <span class="string">ServiceAccount</span></div><div class="line"><span class="attr">  name:</span> <span class="string">kube-state-metrics</span></div><div class="line"><span class="attr">  namespace:</span> <span class="string">kube-system</span></div><div class="line"><span class="meta">---</span></div><div class="line"><span class="attr">kind:</span> <span class="string">ClusterRole</span></div><div class="line"><span class="attr">metadata:</span></div><div class="line"><span class="attr">  name:</span> <span class="string">kube-state-metrics</span></div><div class="line"><span class="attr">rules:</span></div><div class="line"><span class="attr">- apiGroups:</span> <span class="string">[""]</span></div><div class="line"><span class="attr">  resources:</span></div><div class="line"><span class="bullet">  -</span> <span class="string">configmaps</span></div><div class="line"><span class="bullet">  -</span> <span class="string">secrets</span></div><div class="line"><span class="bullet">  -</span> <span class="string">nodes</span></div><div class="line"><span class="bullet">  -</span> <span class="string">pods</span></div><div class="line"><span class="bullet">  -</span> <span class="string">services</span></div><div class="line"><span class="bullet">  -</span> <span class="string">resourcequotas</span></div><div class="line"><span class="bullet">  -</span> <span class="string">replicationcontrollers</span></div><div class="line"><span class="bullet">  -</span> <span class="string">limitranges</span></div><div class="line"><span class="bullet">  -</span> <span class="string">persistentvolumeclaims</span></div><div class="line"><span class="bullet">  -</span> <span class="string">persistentvolumes</span></div><div class="line"><span class="bullet">  -</span> <span class="string">namespaces</span></div><div class="line"><span class="bullet">  -</span> <span class="string">endpoints</span></div><div class="line"><span class="attr">  verbs:</span> <span class="string">["list",</span> <span class="string">"watch"</span><span class="string">]</span></div><div class="line"><span class="attr">- apiGroups:</span> <span class="string">["extensions"]</span></div><div class="line"><span class="attr">  resources:</span></div><div class="line"><span class="bullet">  -</span> <span class="string">daemonsets</span></div><div class="line"><span class="bullet">  -</span> <span class="string">deployments</span></div><div class="line"><span class="bullet">  -</span> <span class="string">replicasets</span></div><div class="line"><span class="bullet">  -</span> <span class="string">ingresses</span></div><div class="line"><span class="attr">  verbs:</span> <span class="string">["list",</span> <span class="string">"watch"</span><span class="string">]</span></div><div class="line"><span class="attr">- apiGroups:</span> <span class="string">["apps"]</span></div><div class="line"><span class="attr">  resources:</span></div><div class="line"><span class="bullet">  -</span> <span class="string">daemonsets</span></div><div class="line"><span class="bullet">  -</span> <span class="string">deployments</span></div><div class="line"><span class="bullet">  -</span> <span class="string">replicasets</span></div><div class="line"><span class="bullet">  -</span> <span class="string">statefulsets</span></div><div class="line"><span class="attr">  verbs:</span> <span class="string">["list",</span> <span class="string">"watch"</span><span class="string">]</span></div><div class="line"><span class="attr">- apiGroups:</span> <span class="string">["batch"]</span></div><div class="line"><span class="attr">  resources:</span></div><div class="line"><span class="bullet">  -</span> <span class="string">cronjobs</span></div><div class="line"><span class="bullet">  -</span> <span class="string">jobs</span></div><div class="line"><span class="attr">  verbs:</span> <span class="string">["list",</span> <span class="string">"watch"</span><span class="string">]</span></div><div class="line"><span class="attr">- apiGroups:</span> <span class="string">["autoscaling"]</span></div><div class="line"><span class="attr">  resources:</span></div><div class="line"><span class="bullet">  -</span> <span class="string">horizontalpodautoscalers</span></div><div class="line"><span class="attr">  verbs:</span> <span class="string">["list",</span> <span class="string">"watch"</span><span class="string">]</span></div><div class="line"><span class="attr">- apiGroups:</span> <span class="string">["policy"]</span></div><div class="line"><span class="attr">  resources:</span></div><div class="line"><span class="bullet">  -</span> <span class="string">poddisruptionbudgets</span></div><div class="line"><span class="attr">  verbs:</span> <span class="string">["list",</span> <span class="string">"watch"</span><span class="string">]</span></div><div class="line"><span class="attr">- apiGroups:</span> <span class="string">["certificates.k8s.io"]</span></div><div class="line"><span class="attr">  resources:</span></div><div class="line"><span class="bullet">  -</span> <span class="string">certificatesigningrequests</span></div><div class="line"><span class="attr">  verbs:</span> <span class="string">["list",</span> <span class="string">"watch"</span><span class="string">]</span></div><div class="line"><span class="meta">---</span></div><div class="line"><span class="attr">kind:</span> <span class="string">ClusterRoleBinding</span></div><div class="line"><span class="attr">metadata:</span></div><div class="line"><span class="attr">  name:</span> <span class="string">kube-state-metrics</span></div><div class="line"><span class="attr">roleRef:</span></div><div class="line"><span class="attr">  apiGroup:</span> <span class="string">rbac.authorization.k8s.io</span></div><div class="line"><span class="attr">  kind:</span> <span class="string">ClusterRole</span></div><div class="line"><span class="attr">  name:</span> <span class="string">kube-state-metrics</span></div><div class="line"><span class="attr">subjects:</span></div><div class="line"><span class="attr">- kind:</span> <span class="string">ServiceAccount</span></div><div class="line"><span class="attr">  name:</span> <span class="string">kube-state-metrics</span></div><div class="line"><span class="attr">  namespace:</span> <span class="string">kube-system</span></div><div class="line"><span class="meta">---</span></div><div class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></div><div class="line"><span class="attr">kind:</span> <span class="string">ServiceAccount</span></div><div class="line"><span class="attr">metadata:</span></div><div class="line"><span class="attr">  name:</span> <span class="string">kube-state-metrics</span></div><div class="line"><span class="attr">  namespace:</span> <span class="string">kube-system</span></div></pre></td></tr></table></figure>
+<ol>
+<li>创建deployment</li>
+</ol>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div></pre></td><td class="code"><pre><div class="line"><span class="string">$</span> <span class="string">cat</span> <span class="string">kube-state-metrics-deployment.yaml</span></div><div class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></div><div class="line"><span class="attr">metadata:</span></div><div class="line"><span class="attr">  name:</span> <span class="string">kube-state-metrics</span></div><div class="line"><span class="attr">  namespace:</span> <span class="string">kube-system</span></div><div class="line"><span class="attr">spec:</span></div><div class="line"><span class="attr">  selector:</span></div><div class="line"><span class="attr">    matchLabels:</span></div><div class="line"><span class="attr">      k8s-app:</span> <span class="string">kube-state-metrics</span></div><div class="line"><span class="attr">  replicas:</span> <span class="number">1</span></div><div class="line"><span class="attr">  template:</span></div><div class="line"><span class="attr">    metadata:</span></div><div class="line"><span class="attr">      labels:</span></div><div class="line"><span class="attr">        k8s-app:</span> <span class="string">kube-state-metrics</span></div><div class="line"><span class="attr">    spec:</span></div><div class="line"><span class="attr">      serviceAccountName:</span> <span class="string">kube-state-metrics</span></div><div class="line"><span class="attr">      containers:</span></div><div class="line"><span class="attr">      - name:</span> <span class="string">kube-state-metrics</span></div><div class="line"><span class="attr">        image:</span> <span class="string">quay.io/coreos/kube-state-metrics:v1.6.0</span></div><div class="line"><span class="attr">        ports:</span></div><div class="line"><span class="attr">        - name:</span> <span class="string">http-metrics</span></div><div class="line"><span class="attr">          containerPort:</span> <span class="number">8080</span></div><div class="line"><span class="attr">        - name:</span> <span class="string">telemetry</span></div><div class="line"><span class="attr">          containerPort:</span> <span class="number">8081</span></div><div class="line"><span class="attr">        readinessProbe:</span></div><div class="line"><span class="attr">          httpGet:</span></div><div class="line"><span class="attr">            path:</span> <span class="string">/healthz</span></div><div class="line"><span class="attr">            port:</span> <span class="number">8080</span></div><div class="line"><span class="attr">          initialDelaySeconds:</span> <span class="number">5</span></div><div class="line"><span class="attr">          timeoutSeconds:</span> <span class="number">5</span></div><div class="line"><span class="attr">      - name:</span> <span class="string">addon-resizer</span></div><div class="line"><span class="attr">        image:</span> <span class="string">k8s.gcr.io/addon-resizer:1.8.4</span></div><div class="line"><span class="attr">        resources:</span></div><div class="line"><span class="attr">          limits:</span></div><div class="line"><span class="attr">            cpu:</span> <span class="number">150</span><span class="string">m</span></div><div class="line"><span class="attr">            memory:</span> <span class="number">50</span><span class="string">Mi</span></div><div class="line"><span class="attr">          requests:</span></div><div class="line"><span class="attr">            cpu:</span> <span class="number">150</span><span class="string">m</span></div><div class="line"><span class="attr">            memory:</span> <span class="number">50</span><span class="string">Mi</span></div><div class="line"><span class="attr">        env:</span></div><div class="line"><span class="attr">          - name:</span> <span class="string">MY_POD_NAME</span></div><div class="line"><span class="attr">            valueFrom:</span></div><div class="line"><span class="attr">              fieldRef:</span></div><div class="line"><span class="attr">                fieldPath:</span> <span class="string">metadata.name</span></div><div class="line"><span class="attr">          - name:</span> <span class="string">MY_POD_NAMESPACE</span></div><div class="line"><span class="attr">            valueFrom:</span></div><div class="line"><span class="attr">              fieldRef:</span></div><div class="line"><span class="attr">                fieldPath:</span> <span class="string">metadata.namespace</span></div><div class="line"><span class="attr">        command:</span></div><div class="line"><span class="bullet">          -</span> <span class="string">/pod_nanny</span></div><div class="line"><span class="bullet">          -</span> <span class="bullet">--container=kube-state-metrics</span></div><div class="line"><span class="bullet">          -</span> <span class="bullet">--cpu=100m</span></div><div class="line"><span class="bullet">          -</span> <span class="bullet">--extra-cpu=1m</span></div><div class="line"><span class="bullet">          -</span> <span class="bullet">--memory=100Mi</span></div><div class="line"><span class="bullet">          -</span> <span class="bullet">--extra-memory=2Mi</span></div><div class="line"><span class="bullet">          -</span> <span class="bullet">--threshold=5</span></div><div class="line"><span class="bullet">          -</span> <span class="bullet">--deployment=kube-state-metrics</span></div><div class="line"><span class="meta">---</span></div><div class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></div><div class="line"><span class="attr">kind:</span> <span class="string">Service</span></div><div class="line"><span class="attr">metadata:</span></div><div class="line"><span class="attr">  name:</span> <span class="string">kube-state-metrics</span></div><div class="line"><span class="attr">  namespace:</span> <span class="string">kube-system</span></div><div class="line"><span class="attr">  labels:</span></div><div class="line"><span class="attr">    k8s-app:</span> <span class="string">kube-state-metrics</span></div><div class="line"><span class="attr">  annotations:</span></div><div class="line">    <span class="string">prometheus.io/scrape:</span> <span class="string">'true'</span></div><div class="line"><span class="attr">spec:</span></div><div class="line"><span class="attr">  ports:</span></div><div class="line"><span class="attr">  - name:</span> <span class="string">http-metrics</span></div><div class="line"><span class="attr">    port:</span> <span class="number">8080</span></div><div class="line"><span class="attr">    targetPort:</span> <span class="string">http-metrics</span></div><div class="line"><span class="attr">    protocol:</span> <span class="string">TCP</span></div><div class="line"><span class="attr">  - name:</span> <span class="string">telemetry</span></div><div class="line"><span class="attr">    port:</span> <span class="number">8081</span></div><div class="line"><span class="attr">    targetPort:</span> <span class="string">telemetry</span></div><div class="line"><span class="attr">    protocol:</span> <span class="string">TCP</span></div><div class="line"><span class="attr">  selector:</span></div><div class="line"><span class="attr">    k8s-app:</span> <span class="string">kube-state-metrics</span></div></pre></td></tr></table></figure>
+<p>kube-state-metrics的service中指定了annotation: <code>prometheus.io/scrape: &quot;true&quot;</code>, job: <code>kubernetes-service-endpoints</code>可以自动发现</p>
+<p><img src="/images/prometheus-kube-state-metrics.jpg" alt="prometheus-kube-state-metrics"></p>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>♪ 交个朋友吧  ♪<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/images/webchat.png">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
       
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2016" class="archive-year">2016</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/LVS-NAT-负载均衡的实现/" class="archive-article-date">
-  	<time datetime="2016-05-16T05:13:23.410Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-05-16</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/LVS-NAT-负载均衡的实现/">LVS NAT 负载均衡的实现</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -194,260 +248,116 @@
 		</ul>
 	</div>
 
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/如何使用openssl工具创建私有CA/" class="archive-article-date">
-  	<time datetime="2016-04-20T14:31:44.792Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-04-20</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/如何使用openssl工具创建私有CA/">如何使用openssl工具创建私有CA</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/PXE自动化安装CentOS7/" class="archive-article-date">
-  	<time datetime="2016-03-29T13:22:50.341Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-03-29</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/PXE自动化安装CentOS7/">PXE自动化安装CentOS7</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/yum客户端的配置及yum命令用法/" class="archive-article-date">
-  	<time datetime="2016-03-02T08:20:44.737Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-03-02</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/yum客户端的配置及yum命令用法/">yum客户端的配置及yum命令用法</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/如何实现rsyslog的远程日志存储/" class="archive-article-date">
-  	<time datetime="2016-01-14T03:33:24.445Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-01-14</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/如何实现rsyslog的远程日志存储/">如何实现rsyslog的远程日志存储</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
       
-        </div></section>
+
       
+
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2015" class="archive-year">2015</a>
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/逻辑卷LVM的实现/" class="archive-article-date">
-  	<time datetime="2015-11-14T13:31:23.529Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-11-14</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/逻辑卷LVM的实现/">逻辑卷LVM的实现</a>
-    </h1>
-  
+      </div>
+    </span>
+  </div>
+</div>
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://fufeixiang.com/blogs/高可用prometheus监控集群搭建(二)/" alt="微信分享二维码">
+    </div>
+</div>
 
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/boot分区文件恢复/" class="archive-article-date">
-  	<time datetime="2015-10-26T02:37:38.932Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-10-26</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/blogs/高可用prometheus监控集群搭建(一)/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">高可用prometheus监控集群搭建(一)</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/boot分区文件恢复/">/etc/fstab及/boot分区文件恢复</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#Node-Exporter部署"><span class="toc-number">1.</span> <span class="toc-text">Node Exporter部署</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#kube-state-metrics部署"><span class="toc-number">2.</span> <span class="toc-text">kube-state-metrics部署</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
         </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
+        
+    </div>
+</aside>
+
+
+
   
   
-    </div></section>
   
 
-    
-    <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/archives/page/3/">&laquo; Prev</a><a class="page-number" href="/archives/">1</a><a class="page-number" href="/archives/page/2/">2</a><a class="page-number" href="/archives/page/3/">3</a><span class="page-number current">4</span>
-    </nav>
+  
+
   
 
 
@@ -471,8 +381,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,

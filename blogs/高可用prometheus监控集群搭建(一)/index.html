@@ -6,14 +6,25 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://fufeixiang.com">
-  <title>Archives | fufeixiang&#39;s Blogs</title>
+  <title>高可用prometheus监控集群搭建(一) | fufeixiang&#39;s Blogs</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="fufeixiang&#39;s Blogs">
-<meta property="og:url" content="http://fufeixiang.com/archives/page/4/index.html">
+  <meta name="description" content="简介 Prometheus是一个开源的监控系统，通过抓取或拉取应用程序中暴露的时间序列数据来工作。时间序列数据通常由应用程序本身通过客户端库或者成为exporter的代理来作为HTTP端点暴露。目前已经存在很多exporter和客户端库，支持多种编程语言、框架和开源应用程序。">
+<meta name="keywords" content="Linux">
+<meta property="og:type" content="article">
+<meta property="og:title" content="高可用prometheus监控集群搭建(一)">
+<meta property="og:url" content="http://fufeixiang.com/blogs/高可用prometheus监控集群搭建(一)/index.html">
 <meta property="og:site_name" content="fufeixiang&#39;s Blogs">
+<meta property="og:description" content="简介 Prometheus是一个开源的监控系统，通过抓取或拉取应用程序中暴露的时间序列数据来工作。时间序列数据通常由应用程序本身通过客户端库或者成为exporter的代理来作为HTTP端点暴露。目前已经存在很多exporter和客户端库，支持多种编程语言、框架和开源应用程序。">
+<meta property="og:image" content="https://prometheus.io/assets/architecture.png">
+<meta property="og:image" content="http://fufeixiang.com/images/prometheus架构图.png">
+<meta property="og:image" content="http://fufeixiang.com/images/prometheus-targets.jpg">
+<meta property="og:image" content="http://fufeixiang.com/images/prometheus-metrics.jpg">
+<meta property="og:image" content="http://fufeixiang.com/images/prometheus-up.jpg">
+<meta property="og:updated_time" content="2019-11-06T14:45:21.173Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="fufeixiang&#39;s Blogs">
+<meta name="twitter:title" content="高可用prometheus监控集群搭建(一)">
+<meta name="twitter:description" content="简介 Prometheus是一个开源的监控系统，通过抓取或拉取应用程序中暴露的时间序列数据来工作。时间序列数据通常由应用程序本身通过客户端库或者成为exporter的代理来作为HTTP端点暴露。目前已经存在很多exporter和客户端库，支持多种编程语言、框架和开源应用程序。">
+<meta name="twitter:image" content="https://prometheus.io/assets/architecture.png">
   
     <link rel="alternative" href="/atom.xml" title="fufeixiang&#39;s Blogs" type="application/atom+xml">
   
@@ -153,36 +164,153 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-高可用prometheus监控集群搭建(一)" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      高可用prometheus监控集群搭建(一)
+    </h1>
+  
+
+        
+        <a href="/blogs/高可用prometheus监控集群搭建(一)/" class="archive-article-date">
+  	<time datetime="2019-11-06T14:40:23.243Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-11-06</time>
+</a>
+        
+      </header>
     
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><blockquote>
+<p>Prometheus是一个开源的监控系统，通过抓取或拉取应用程序中暴露的时间序列数据来工作。时间序列数据通常由应用程序本身通过客户端库或者成为exporter的代理来作为HTTP端点暴露。目前已经存在很多exporter和客户端库，支持多种编程语言、框架和开源应用程序。<a id="more"></a></p>
+</blockquote>
+<h4 id="官方架构图"><a href="#官方架构图" class="headerlink" title="官方架构图"></a>官方架构图</h4><p><img src="https://prometheus.io/assets/architecture.png" alt="架构图"></p>
+<ul>
+<li>Prometheus通过配置target，来抓取对应主机、进程、服务或应用程序的指标。一组具有相同角色的target被称为job。比如，定义kubernetes-nodes的job，来抓取集群所有主机的相关指标</li>
+<li>服务发现（target）<ul>
+<li>静态资源列表</li>
+<li>基于文件的发现，可使用自动化配置管理工具自动更新</li>
+<li>自动发现，支持基于AWS/Consul/dns/kubernetes/marathon等的服务发现</li>
+</ul>
+</li>
+<li>Prometheus将收集时间序列数据存储在本地，也可以配置remote_write存储到其它时间序列数据库，比如OpenTSDB、InfluxDB、M3DB等</li>
+<li>可视化: Prometheus内置了web UI，也可以和功能强大的开源仪表板Grafana集成，可自定义dashboard满足各种定制化需求</li>
+<li>聚合和告警: Prometheus可以查询和聚合时间序列数据，并创建规则来记录常用的查询和聚合。还可以定义警报规则，满足条件时触发警报，并推送到Alertmanager服务。Alertmanagr支持高可用的集群部署，负责管理、整合和分发警报到不通目的地，并能做到告警收敛</li>
+</ul>
+<h4 id="数据模型"><a href="#数据模型" class="headerlink" title="数据模型"></a>数据模型</h4><p>Prometheus使用一个多维时间序列数据模型，结合了时间序列名称和称为标签(label)的键/值对，这些标签提供了维度。每个时间序列由时间序列名称和标签的组合唯一标识。<br><code>&lt;time series name&gt; {&lt;label name&gt;=&lt;label value&gt;,...}</code></p>
+<blockquote>
+<p>machine_cpu_cores{beta_kubernetes_io_arch=”amd64”,beta_kubernetes_io_os=”linux”,instance=”192.168.1.51”,job=”kubernetes-cadvisor”,kubernetes_io_arch=”amd64”,kubernetes_io_hostname=”192.168.1.51”,kubernetes_io_os=”linux”}   2<br>machine_cpu_cores收集的是主机的cpu核数，taget label标识了是job kubernetes-cadvisor抓取的，instance 192.168.1.51的指标，还包括此node的其它labels；获取到的value值为2</p>
+</blockquote>
+<h4 id="集群拓扑图"><a href="#集群拓扑图" class="headerlink" title="集群拓扑图"></a>集群拓扑图</h4><h5 id="节点部署规划"><a href="#节点部署规划" class="headerlink" title="节点部署规划"></a>节点部署规划</h5><table>
+<thead>
+<tr>
+<th>IP</th>
+<th>k8srole</th>
+<th>service</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>192.168.1.50</td>
+<td>master</td>
+<td>node-exporter/alertmanager</td>
+</tr>
+<tr>
+<td>192.168.1.51</td>
+<td>node</td>
+<td>node-exporter/alertmanager/grafana/prometheus-0/prometheus-federate-0/kube-state-metrics</td>
+</tr>
+<tr>
+<td>192.168.1.52</td>
+<td>node</td>
+<td>node-exporter/alertmanager/prometheus-1/prometheus-federate-1</td>
+</tr>
+</tbody>
+</table>
+<h5 id="部署架构图"><a href="#部署架构图" class="headerlink" title="部署架构图"></a>部署架构图</h5><p>在多k8s集群模式下，每个集群部署prometheus server用于收集该集群相关指标,借助prometheus联邦模式，实现监控数据的统一收集展现及告警通知<br><img src="/images/prometheus架构图.png" alt="部署架构"></p>
+<h5 id="集群内prometheus-server部署"><a href="#集群内prometheus-server部署" class="headerlink" title="集群内prometheus server部署"></a>集群内prometheus server部署</h5><blockquote>
+<p> statefulset方式部署,并使用本地持久卷 Local Volume</p>
+</blockquote>
+<ol>
+<li>创建prometheus server数据目录</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ groupadd -g 65534 nfsnobody</div><div class="line">$ useradd -g 65534 -u 65534 -s /sbin/nologin  nfsnobody</div><div class="line">$ chown nfsnobody. /data/prometheus/</div></pre></td></tr></table></figure>
+<ol>
+<li>创建storageclass,指定卷挂载为拓扑感知模式，即pod调度后再绑定卷</li>
+</ol>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="string">$cat</span> <span class="string">storageclass.yaml</span></div><div class="line"><span class="attr">apiVersion:</span> <span class="string">storage.k8s.io/v1</span></div><div class="line"><span class="attr">kind:</span> <span class="string">StorageClass</span></div><div class="line"><span class="attr">metadata:</span></div><div class="line"><span class="attr">  name:</span> <span class="string">prometheus-lpv</span></div><div class="line"><span class="attr">provisioner:</span> <span class="string">kubernetes.io/no-provisioner</span></div><div class="line"><span class="attr">volumeBindingMode:</span> <span class="string">WaitForFirstConsumer</span></div></pre></td></tr></table></figure>
+<ol>
+<li>创建两个local volume，利用nodeAffinity绑定到指定节点</li>
+</ol>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># cat pv.yaml</span></div><div class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></div><div class="line"><span class="attr">kind:</span> <span class="string">PersistentVolume</span></div><div class="line"><span class="attr">metadata:</span></div><div class="line"><span class="attr">  name:</span> <span class="string">prometheus-lpv-0</span></div><div class="line"><span class="attr">spec:</span></div><div class="line"><span class="attr">  capacity:</span></div><div class="line"><span class="attr">    storage:</span> <span class="number">50</span><span class="string">Gi</span></div><div class="line"><span class="attr">  volumeMode:</span> <span class="string">Filesystem</span></div><div class="line"><span class="attr">  accessModes:</span></div><div class="line"><span class="bullet">  -</span> <span class="string">ReadWriteOnce</span></div><div class="line"><span class="attr">  persistentVolumeReclaimPolicy:</span> <span class="string">Retain</span></div><div class="line"><span class="attr">  storageClassName:</span> <span class="string">prometheus-lpv</span></div><div class="line"><span class="attr">  local:</span></div><div class="line"><span class="attr">    path:</span> <span class="string">/data/prometheus</span></div><div class="line"><span class="attr">  nodeAffinity:</span></div><div class="line"><span class="attr">    required:</span></div><div class="line"><span class="attr">      nodeSelectorTerms:</span></div><div class="line"><span class="attr">      - matchExpressions:</span></div><div class="line"><span class="attr">        - key:</span> <span class="string">kubernetes.io/hostname</span></div><div class="line"><span class="attr">          operator:</span> <span class="string">In</span></div><div class="line"><span class="attr">          values:</span></div><div class="line"><span class="bullet">          -</span> <span class="number">192.168</span><span class="number">.1</span><span class="number">.51</span></div><div class="line"><span class="meta">---</span></div><div class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></div><div class="line"><span class="attr">kind:</span> <span class="string">PersistentVolume</span></div><div class="line"><span class="attr">metadata:</span></div><div class="line"><span class="attr">  name:</span> <span class="string">prometheus-lpv-1</span></div><div class="line"><span class="attr">spec:</span></div><div class="line"><span class="attr">  capacity:</span></div><div class="line"><span class="attr">    storage:</span> <span class="number">50</span><span class="string">Gi</span></div><div class="line"><span class="attr">  volumeMode:</span> <span class="string">Filesystem</span></div><div class="line"><span class="attr">  accessModes:</span></div><div class="line"><span class="bullet">  -</span> <span class="string">ReadWriteOnce</span></div><div class="line"><span class="attr">  persistentVolumeReclaimPolicy:</span> <span class="string">Retain</span></div><div class="line"><span class="attr">  storageClassName:</span> <span class="string">prometheus-lpv</span></div><div class="line"><span class="attr">  local:</span></div><div class="line"><span class="attr">    path:</span> <span class="string">/data/prometheus</span></div><div class="line"><span class="attr">  nodeAffinity:</span></div><div class="line"><span class="attr">    required:</span></div><div class="line"><span class="attr">      nodeSelectorTerms:</span></div><div class="line"><span class="attr">      - matchExpressions:</span></div><div class="line"><span class="attr">        - key:</span> <span class="string">kubernetes.io/hostname</span></div><div class="line"><span class="attr">          operator:</span> <span class="string">In</span></div><div class="line"><span class="attr">          values:</span></div><div class="line"><span class="bullet">          -</span> <span class="number">192.168</span><span class="number">.1</span><span class="number">.52</span></div></pre></td></tr></table></figure>
+<ol>
+<li>初始化rabc</li>
+</ol>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line"><span class="string">$cat</span> <span class="string">rbac-setup.yaml</span></div><div class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></div><div class="line"><span class="attr">kind:</span> <span class="string">ClusterRole</span></div><div class="line"><span class="attr">metadata:</span></div><div class="line"><span class="attr">  name:</span> <span class="string">prometheus</span></div><div class="line"><span class="attr">rules:</span></div><div class="line"><span class="attr">- apiGroups:</span> <span class="string">[""]</span></div><div class="line"><span class="attr">  resources:</span></div><div class="line"><span class="bullet">  -</span> <span class="string">nodes</span></div><div class="line"><span class="bullet">  -</span> <span class="string">nodes/proxy</span></div><div class="line"><span class="bullet">  -</span> <span class="string">services</span></div><div class="line"><span class="bullet">  -</span> <span class="string">endpoints</span></div><div class="line"><span class="bullet">  -</span> <span class="string">pods</span></div><div class="line"><span class="attr">  verbs:</span> <span class="string">["get",</span> <span class="string">"list"</span><span class="string">,</span> <span class="string">"watch"</span><span class="string">]</span></div><div class="line"><span class="attr">- apiGroups:</span></div><div class="line"><span class="bullet">  -</span> <span class="string">extensions</span></div><div class="line"><span class="attr">  resources:</span></div><div class="line"><span class="bullet">  -</span> <span class="string">ingresses</span></div><div class="line"><span class="attr">  verbs:</span> <span class="string">["get",</span> <span class="string">"list"</span><span class="string">,</span> <span class="string">"watch"</span><span class="string">]</span></div><div class="line"><span class="attr">- nonResourceURLs:</span> <span class="string">["/metrics"]</span></div><div class="line"><span class="attr">  verbs:</span> <span class="string">["get"]</span></div><div class="line"><span class="meta">---</span></div><div class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></div><div class="line"><span class="attr">kind:</span> <span class="string">ServiceAccount</span></div><div class="line"><span class="attr">metadata:</span></div><div class="line"><span class="attr">  name:</span> <span class="string">prometheus</span></div><div class="line"><span class="attr">  namespace:</span> <span class="string">kube-system</span></div><div class="line"><span class="meta">---</span></div><div class="line"><span class="attr">apiVersion:</span> <span class="string">rbac.authorization.k8s.io/v1</span></div><div class="line"><span class="attr">kind:</span> <span class="string">ClusterRoleBinding</span></div><div class="line"><span class="attr">metadata:</span></div><div class="line"><span class="attr">  name:</span> <span class="string">prometheus</span></div><div class="line"><span class="attr">roleRef:</span></div><div class="line"><span class="attr">  apiGroup:</span> <span class="string">rbac.authorization.k8s.io</span></div><div class="line"><span class="attr">  kind:</span> <span class="string">ClusterRole</span></div><div class="line"><span class="attr">  name:</span> <span class="string">prometheus</span></div><div class="line"><span class="attr">subjects:</span></div><div class="line"><span class="attr">- kind:</span> <span class="string">ServiceAccount</span></div><div class="line"><span class="attr">  name:</span> <span class="string">prometheus</span></div><div class="line"><span class="attr">  namespace:</span> <span class="string">kube-system</span></div></pre></td></tr></table></figure>
+<ol>
+<li>创建configmap(prometheus.yml)</li>
+</ol>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div></pre></td><td class="code"><pre><div class="line"><span class="string">$cat</span> <span class="string">prometheus-configmap.yaml</span></div><div class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></div><div class="line"><span class="attr">kind:</span> <span class="string">ConfigMap</span></div><div class="line"><span class="attr">metadata:</span></div><div class="line"><span class="attr">  name:</span> <span class="string">prometheus-config</span></div><div class="line"><span class="attr">  namespace:</span> <span class="string">kube-system</span></div><div class="line"><span class="attr">data:</span></div><div class="line">  <span class="string">prometheus.yml:</span> <span class="string">|</span></div><div class="line"><span class="attr">    global:</span></div><div class="line"><span class="attr">      scrape_interval:</span>     <span class="number">30</span><span class="string">s</span></div><div class="line"><span class="attr">      evaluation_interval:</span> <span class="number">30</span><span class="string">s</span></div><div class="line"><span class="attr">      external_labels:</span></div><div class="line"><span class="attr">        cluster:</span> <span class="string">"01"</span></div><div class="line"><span class="attr">    scrape_configs:</span></div><div class="line"><span class="attr">    - job_name:</span> <span class="string">'prometheus'</span></div><div class="line"><span class="attr">      static_configs:</span></div><div class="line"><span class="attr">        - targets:</span></div><div class="line"><span class="bullet">            -</span> <span class="string">prometheus-0.prometheus:9090</span></div><div class="line"><span class="bullet">            -</span> <span class="string">prometheus-1.prometheus:9090</span></div><div class="line"><span class="attr">    - job_name:</span> <span class="string">'kubernetes-apiservers'</span></div><div class="line"><span class="attr">      kubernetes_sd_configs:</span></div><div class="line"><span class="attr">      - role:</span> <span class="string">endpoints</span></div><div class="line"><span class="attr">      scheme:</span> <span class="string">https</span></div><div class="line"><span class="attr">      tls_config:</span></div><div class="line"><span class="attr">        ca_file:</span> <span class="string">/var/run/secrets/kubernetes.io/serviceaccount/ca.crt</span></div><div class="line"><span class="attr">      bearer_token_file:</span> <span class="string">/var/run/secrets/kubernetes.io/serviceaccount/token</span></div><div class="line"><span class="attr">      relabel_configs:</span></div><div class="line"><span class="attr">      - source_labels:</span> <span class="string">[__meta_kubernetes_namespace,</span> <span class="string">__meta_kubernetes_service_name,</span> <span class="string">__meta_kubernetes_endpoint_port_name]</span></div><div class="line"><span class="attr">        action:</span> <span class="string">keep</span></div><div class="line"><span class="attr">        regex:</span> <span class="string">default;kubernetes;https</span></div><div class="line"><span class="attr">    - job_name:</span> <span class="string">'kubernetes-nodes'</span></div><div class="line"><span class="attr">      kubernetes_sd_configs:</span></div><div class="line"><span class="attr">      - role:</span> <span class="string">node</span></div><div class="line"><span class="attr">      scheme:</span> <span class="string">https</span></div><div class="line"><span class="attr">      tls_config:</span></div><div class="line"><span class="attr">        ca_file:</span> <span class="string">/var/run/secrets/kubernetes.io/serviceaccount/ca.crt</span></div><div class="line"><span class="attr">      bearer_token_file:</span> <span class="string">/var/run/secrets/kubernetes.io/serviceaccount/token</span></div><div class="line"><span class="attr">      relabel_configs:</span></div><div class="line"><span class="attr">      - action:</span> <span class="string">labelmap</span></div><div class="line"><span class="attr">        regex:</span> <span class="string">__meta_kubernetes_node_label_(.+)</span></div><div class="line"><span class="attr">      - target_label:</span> <span class="string">__address__</span></div><div class="line"><span class="attr">        replacement:</span> <span class="string">kubernetes.default.svc:443</span></div><div class="line"><span class="attr">      - source_labels:</span> <span class="string">[__meta_kubernetes_node_name]</span></div><div class="line"><span class="attr">        regex:</span> <span class="string">(.+)</span></div><div class="line"><span class="attr">        target_label:</span> <span class="string">__metrics_path__</span></div><div class="line"><span class="attr">        replacement:</span> <span class="string">/api/v1/nodes/$&#123;1&#125;/proxy/metrics</span></div><div class="line"><span class="attr">    - job_name:</span> <span class="string">'kubernetes-cadvisor'</span></div><div class="line"><span class="attr">      kubernetes_sd_configs:</span></div><div class="line"><span class="attr">      - role:</span> <span class="string">node</span></div><div class="line"><span class="attr">      scheme:</span> <span class="string">https</span></div><div class="line"><span class="attr">      tls_config:</span></div><div class="line"><span class="attr">        ca_file:</span> <span class="string">/var/run/secrets/kubernetes.io/serviceaccount/ca.crt</span></div><div class="line"><span class="attr">      bearer_token_file:</span> <span class="string">/var/run/secrets/kubernetes.io/serviceaccount/token</span></div><div class="line"><span class="attr">      relabel_configs:</span></div><div class="line"><span class="attr">      - action:</span> <span class="string">labelmap</span></div><div class="line"><span class="attr">        regex:</span> <span class="string">__meta_kubernetes_node_label_(.+)</span></div><div class="line"><span class="attr">      - target_label:</span> <span class="string">__address__</span></div><div class="line"><span class="attr">        replacement:</span> <span class="string">kubernetes.default.svc:443</span></div><div class="line"><span class="attr">      - source_labels:</span> <span class="string">[__meta_kubernetes_node_name]</span></div><div class="line"><span class="attr">        regex:</span> <span class="string">(.+)</span></div><div class="line"><span class="attr">        target_label:</span> <span class="string">__metrics_path__</span></div><div class="line"><span class="attr">        replacement:</span> <span class="string">/api/v1/nodes/$&#123;1&#125;/proxy/metrics/cadvisor</span></div><div class="line"><span class="attr">      metric_relabel_configs:</span></div><div class="line"><span class="attr">      - action:</span> <span class="string">replace</span></div><div class="line"><span class="attr">        source_labels:</span> <span class="string">[id]</span></div><div class="line"><span class="attr">        regex:</span> <span class="string">'^/machine\.slice/machine-rkt\\x2d([^\\]+)\\.+/([^/]+)\.service$'</span></div><div class="line"><span class="attr">        target_label:</span> <span class="string">rkt_container_name</span></div><div class="line"><span class="attr">        replacement:</span> <span class="string">'$&#123;2&#125;-$&#123;1&#125;'</span></div><div class="line"><span class="attr">      - action:</span> <span class="string">replace</span></div><div class="line"><span class="attr">        source_labels:</span> <span class="string">[id]</span></div><div class="line"><span class="attr">        regex:</span> <span class="string">'^/system\.slice/(.+)\.service$'</span></div><div class="line"><span class="attr">        target_label:</span> <span class="string">systemd_service_name</span></div><div class="line"><span class="attr">        replacement:</span> <span class="string">'$&#123;1&#125;'</span></div><div class="line"><span class="attr">    - job_name:</span> <span class="string">'kubernetes-pods'</span></div><div class="line"><span class="attr">      kubernetes_sd_configs:</span></div><div class="line"><span class="attr">      - role:</span> <span class="string">pod</span></div><div class="line"><span class="attr">      relabel_configs:</span></div><div class="line"><span class="attr">      - source_labels:</span> <span class="string">[__meta_kubernetes_pod_annotation_prometheus_io_scrape]</span></div><div class="line"><span class="attr">        action:</span> <span class="string">keep</span></div><div class="line"><span class="attr">        regex:</span> <span class="literal">true</span></div><div class="line"><span class="attr">      - source_labels:</span> <span class="string">[__meta_kubernetes_pod_annotation_prometheus_io_path]</span></div><div class="line"><span class="attr">        action:</span> <span class="string">replace</span></div><div class="line"><span class="attr">        target_label:</span> <span class="string">__metrics_path__</span></div><div class="line"><span class="attr">        regex:</span> <span class="string">(.+)</span></div><div class="line"><span class="attr">      - source_labels:</span> <span class="string">[__address__,</span> <span class="string">__meta_kubernetes_pod_annotation_prometheus_io_port]</span></div><div class="line"><span class="attr">        action:</span> <span class="string">replace</span></div><div class="line"><span class="attr">        regex:</span> <span class="string">([^:]+)(?::\d+)?;(\d+)</span></div><div class="line"><span class="attr">        replacement:</span> <span class="string">$1:$2</span></div><div class="line"><span class="attr">        target_label:</span> <span class="string">__address__</span></div><div class="line"><span class="attr">      - action:</span> <span class="string">labelmap</span></div><div class="line"><span class="attr">        regex:</span> <span class="string">__meta_kubernetes_pod_label_(.+)</span></div><div class="line"><span class="attr">      - source_labels:</span> <span class="string">[__meta_kubernetes_namespace]</span></div><div class="line"><span class="attr">        action:</span> <span class="string">replace</span></div><div class="line"><span class="attr">        target_label:</span> <span class="string">kubernetes_namespace</span></div><div class="line"><span class="attr">      - source_labels:</span> <span class="string">[__meta_kubernetes_pod_name]</span></div><div class="line"><span class="attr">        action:</span> <span class="string">replace</span></div><div class="line"><span class="attr">        target_label:</span> <span class="string">kubernetes_pod_name</span></div><div class="line"><span class="attr">    - job_name:</span> <span class="string">'kubernetes-service-endpoints'</span></div><div class="line"><span class="attr">      kubernetes_sd_configs:</span></div><div class="line"><span class="attr">      - role:</span> <span class="string">endpoints</span></div><div class="line"><span class="attr">      relabel_configs:</span></div><div class="line"><span class="attr">      - source_labels:</span> <span class="string">[__meta_kubernetes_service_annotation_prometheus_io_scrape]</span></div><div class="line"><span class="attr">        action:</span> <span class="string">keep</span></div><div class="line"><span class="attr">        regex:</span> <span class="literal">true</span></div><div class="line"><span class="attr">      - source_labels:</span> <span class="string">[__meta_kubernetes_service_annotation_prometheus_io_scheme]</span></div><div class="line"><span class="attr">        action:</span> <span class="string">replace</span></div><div class="line"><span class="attr">        target_label:</span> <span class="string">__scheme__</span></div><div class="line"><span class="attr">        regex:</span> <span class="string">(https?)</span></div><div class="line"><span class="attr">      - source_labels:</span> <span class="string">[__meta_kubernetes_service_annotation_prometheus_io_path]</span></div><div class="line"><span class="attr">        action:</span> <span class="string">replace</span></div><div class="line"><span class="attr">        target_label:</span> <span class="string">__metrics_path__</span></div><div class="line"><span class="attr">        regex:</span> <span class="string">(.+)</span></div><div class="line"><span class="attr">      - source_labels:</span> <span class="string">[__address__,</span> <span class="string">__meta_kubernetes_service_annotation_prometheus_io_port]</span></div><div class="line"><span class="attr">        action:</span> <span class="string">replace</span></div><div class="line"><span class="attr">        target_label:</span> <span class="string">__address__</span></div><div class="line"><span class="attr">        regex:</span> <span class="string">([^:]+)(?::\d+)?;(\d+)</span></div><div class="line"><span class="attr">        replacement:</span> <span class="string">$1:$2</span></div><div class="line"><span class="attr">      - action:</span> <span class="string">labelmap</span></div><div class="line"><span class="attr">        regex:</span> <span class="string">__meta_kubernetes_service_label_(.+)</span></div><div class="line"><span class="attr">      - source_labels:</span> <span class="string">[__meta_kubernetes_namespace]</span></div><div class="line"><span class="attr">        action:</span> <span class="string">replace</span></div><div class="line"><span class="attr">        target_label:</span> <span class="string">kubernetes_namespace</span></div><div class="line"><span class="attr">      - source_labels:</span> <span class="string">[__meta_kubernetes_service_name]</span></div><div class="line"><span class="attr">        action:</span> <span class="string">replace</span></div><div class="line"><span class="attr">        target_label:</span> <span class="string">kubernetes_name</span></div><div class="line"><span class="attr">      - source_labels:</span> <span class="string">[__address__]</span></div><div class="line"><span class="attr">        action:</span> <span class="string">replace</span></div><div class="line"><span class="attr">        target_label:</span> <span class="string">instance</span></div><div class="line"><span class="attr">        regex:</span> <span class="string">(.+):(.+)</span></div><div class="line"><span class="attr">        replacement:</span> <span class="string">$1</span></div></pre></td></tr></table></figure>
+<blockquote>
+<p>statefulset创建后，pod的命名方式为&lt;statefulset name&gt;-0、&lt;statefulset name&gt;-1…<br>对应生成的dns域名为，podname.stateflusetname.namespace.svc.cluster.local</p>
+</blockquote>
+<p>job<code>prometheus</code>用来获取prometheus本身的监控指标，本例中prometheus server为statefulset方式部署，指定targets为prometheus-0.prometheus:9090、prometheus-1.prometheus:9090<br>external_labels用于外部系统标签，在使用remote_write或者federate时，可以为该集群指标添加标签</p>
+<ol>
+<li>创建headless service</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">$cat service-statefulset.yaml</div><div class="line">apiVersion: v1</div><div class="line">kind: Service</div><div class="line">metadata:</div><div class="line">  name: prometheus</div><div class="line">  namespace: kube-system</div><div class="line">spec:</div><div class="line">  ports:</div><div class="line">    - name: prometheus</div><div class="line">      port: 9090</div><div class="line">      targetPort: 9090</div><div class="line">  selector:</div><div class="line">    k8s-app: prometheus</div><div class="line">  clusterIP: None</div></pre></td></tr></table></figure>
+<ol>
+<li>创建prometheus statefulset</li>
+</ol>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div></pre></td><td class="code"><pre><div class="line"><span class="string">$cat</span> <span class="string">prometheus-statefulset.yaml</span></div><div class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></div><div class="line"><span class="attr">kind:</span> <span class="string">StatefulSet</span></div><div class="line"><span class="attr">metadata:</span></div><div class="line"><span class="attr">  name:</span> <span class="string">prometheus</span></div><div class="line"><span class="attr">  namespace:</span> <span class="string">kube-system</span></div><div class="line"><span class="attr">  labels:</span></div><div class="line"><span class="attr">    k8s-app:</span> <span class="string">prometheus</span></div><div class="line">    <span class="string">kubernetes.io/cluster-service:</span> <span class="string">"true"</span></div><div class="line"><span class="attr">spec:</span></div><div class="line"><span class="attr">  serviceName:</span> <span class="string">"prometheus"</span></div><div class="line"><span class="attr">  podManagementPolicy:</span> <span class="string">"Parallel"</span></div><div class="line"><span class="attr">  replicas:</span> <span class="number">2</span></div><div class="line"><span class="attr">  selector:</span></div><div class="line"><span class="attr">    matchLabels:</span></div><div class="line"><span class="attr">      k8s-app:</span> <span class="string">prometheus</span></div><div class="line"><span class="attr">  template:</span></div><div class="line"><span class="attr">    metadata:</span></div><div class="line"><span class="attr">      labels:</span></div><div class="line"><span class="attr">        k8s-app:</span> <span class="string">prometheus</span></div><div class="line"><span class="attr">      annotations:</span></div><div class="line">        <span class="string">scheduler.alpha.kubernetes.io/critical-pod:</span> <span class="string">''</span></div><div class="line"><span class="attr">    spec:</span></div><div class="line"><span class="attr">      affinity:</span></div><div class="line"><span class="attr">        podAntiAffinity:</span></div><div class="line"><span class="attr">          requiredDuringSchedulingIgnoredDuringExecution:</span></div><div class="line"><span class="attr">          - labelSelector:</span></div><div class="line"><span class="attr">              matchExpressions:</span></div><div class="line"><span class="attr">              - key:</span> <span class="string">k8s-app</span></div><div class="line"><span class="attr">                operator:</span> <span class="string">In</span></div><div class="line"><span class="attr">                values:</span></div><div class="line"><span class="bullet">                -</span> <span class="string">prometheus</span></div><div class="line"><span class="attr">            topologyKey:</span> <span class="string">"kubernetes.io/hostname"</span></div><div class="line"><span class="attr">      priorityClassName:</span> <span class="string">system-cluster-critical</span></div><div class="line"><span class="attr">      hostNetwork:</span> <span class="literal">true</span></div><div class="line"><span class="attr">      dnsPolicy:</span> <span class="string">ClusterFirstWithHostNet</span></div><div class="line"><span class="attr">      containers:</span></div><div class="line"><span class="attr">      - name:</span> <span class="string">prometheus-server-configmap-reload</span></div><div class="line"><span class="attr">        image:</span> <span class="string">"jimmidyson/configmap-reload:v0.1"</span></div><div class="line"><span class="attr">        imagePullPolicy:</span> <span class="string">"IfNotPresent"</span></div><div class="line"><span class="attr">        args:</span></div><div class="line"><span class="bullet">          -</span> <span class="bullet">--volume-dir=/etc/config</span></div><div class="line"><span class="bullet">          -</span> <span class="bullet">--webhook-url=http://localhost:9090/-/reload</span></div><div class="line"><span class="attr">        volumeMounts:</span></div><div class="line"><span class="attr">          - name:</span> <span class="string">config-volume</span></div><div class="line"><span class="attr">            mountPath:</span> <span class="string">/etc/config</span></div><div class="line"><span class="attr">            readOnly:</span> <span class="literal">true</span></div><div class="line"><span class="attr">        resources:</span></div><div class="line"><span class="attr">          limits:</span></div><div class="line"><span class="attr">            cpu:</span> <span class="number">10</span><span class="string">m</span></div><div class="line"><span class="attr">            memory:</span> <span class="number">10</span><span class="string">Mi</span></div><div class="line"><span class="attr">          requests:</span></div><div class="line"><span class="attr">            cpu:</span> <span class="number">10</span><span class="string">m</span></div><div class="line"><span class="attr">            memory:</span> <span class="number">10</span><span class="string">Mi</span></div><div class="line"><span class="attr">      - image:</span> <span class="string">prom/prometheus:v2.11.0</span></div><div class="line"><span class="attr">        imagePullPolicy:</span> <span class="string">IfNotPresent</span></div><div class="line"><span class="attr">        name:</span> <span class="string">prometheus</span></div><div class="line"><span class="attr">        command:</span></div><div class="line"><span class="bullet">          -</span> <span class="string">"/bin/prometheus"</span></div><div class="line"><span class="attr">        args:</span></div><div class="line"><span class="bullet">          -</span> <span class="string">"--config.file=/etc/prometheus/prometheus.yml"</span></div><div class="line"><span class="bullet">          -</span> <span class="string">"--storage.tsdb.path=/prometheus"</span></div><div class="line"><span class="bullet">          -</span> <span class="string">"--storage.tsdb.retention=24h"</span></div><div class="line"><span class="bullet">          -</span> <span class="string">"--web.console.libraries=/etc/prometheus/console_libraries"</span></div><div class="line"><span class="bullet">          -</span> <span class="string">"--web.console.templates=/etc/prometheus/consoles"</span></div><div class="line"><span class="bullet">          -</span> <span class="string">"--web.enable-lifecycle"</span></div><div class="line"><span class="attr">        ports:</span></div><div class="line"><span class="attr">          - containerPort:</span> <span class="number">9090</span></div><div class="line"><span class="attr">            protocol:</span> <span class="string">TCP</span></div><div class="line"><span class="attr">        volumeMounts:</span></div><div class="line"><span class="attr">          - mountPath:</span> <span class="string">"/prometheus"</span></div><div class="line"><span class="attr">            name:</span> <span class="string">prometheus-data</span></div><div class="line"><span class="attr">          - mountPath:</span> <span class="string">"/etc/prometheus"</span></div><div class="line"><span class="attr">            name:</span> <span class="string">config-volume</span></div><div class="line"><span class="attr">        readinessProbe:</span></div><div class="line"><span class="attr">          httpGet:</span></div><div class="line"><span class="attr">            path:</span> <span class="string">/-/ready</span></div><div class="line"><span class="attr">            port:</span> <span class="number">9090</span></div><div class="line"><span class="attr">          initialDelaySeconds:</span> <span class="number">30</span></div><div class="line"><span class="attr">          timeoutSeconds:</span> <span class="number">30</span></div><div class="line"><span class="attr">        livenessProbe:</span></div><div class="line"><span class="attr">          httpGet:</span></div><div class="line"><span class="attr">            path:</span> <span class="string">/-/healthy</span></div><div class="line"><span class="attr">            port:</span> <span class="number">9090</span></div><div class="line"><span class="attr">          initialDelaySeconds:</span> <span class="number">30</span></div><div class="line"><span class="attr">          timeoutSeconds:</span> <span class="number">30</span></div><div class="line"><span class="attr">        resources:</span></div><div class="line"><span class="attr">          requests:</span></div><div class="line"><span class="attr">            cpu:</span> <span class="number">100</span><span class="string">m</span></div><div class="line"><span class="attr">            memory:</span> <span class="number">100</span><span class="string">Mi</span></div><div class="line"><span class="attr">          limits:</span></div><div class="line"><span class="attr">            cpu:</span> <span class="number">1000</span><span class="string">m</span></div><div class="line"><span class="attr">            memory:</span> <span class="number">2500</span><span class="string">Mi</span></div><div class="line"><span class="attr">      serviceAccountName:</span> <span class="string">prometheus</span></div><div class="line"><span class="attr">      volumes:</span></div><div class="line"><span class="attr">        - name:</span> <span class="string">config-volume</span></div><div class="line"><span class="attr">          configMap:</span></div><div class="line"><span class="attr">            name:</span> <span class="string">prometheus-config</span></div><div class="line"><span class="attr">  volumeClaimTemplates:</span></div><div class="line"><span class="attr">    - metadata:</span></div><div class="line"><span class="attr">        name:</span> <span class="string">prometheus-data</span></div><div class="line"><span class="attr">      spec:</span></div><div class="line"><span class="attr">        accessModes:</span> <span class="string">[</span> <span class="string">"ReadWriteOnce"</span> <span class="string">]</span></div><div class="line"><span class="attr">        storageClassName:</span> <span class="string">"prometheus-lpv"</span></div><div class="line"><span class="attr">        resources:</span></div><div class="line"><span class="attr">          requests:</span></div><div class="line"><span class="attr">            storage:</span> <span class="number">20</span><span class="string">Gi</span></div></pre></td></tr></table></figure>
+<p>volumeClaimTemplates指定storageclass,在pod创建时会生成PVC，为pod分配prometheus-lpv的pv。只要PVC不被删除，pod均会被调度到已绑定的pv节点上。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ kubectl get pv</div><div class="line">prometheus-lpv-0    50Gi       RWO            Retain           Bound    kube-system/prometheus-data-prometheus-1       prometheus-lpv            13d</div><div class="line">prometheus-lpv-1    50Gi       RWO            Retain           Bound    kube-system/prometheus-data-prometheus-0       prometheus-lpv            13d</div><div class="line">$ kubectl get pvc -n kube-system</div><div class="line">prometheus-data-prometheus-0       Bound    prometheus-lpv-1    50Gi       RWO            prometheus-lpv   13d</div><div class="line">prometheus-data-prometheus-1       Bound    prometheus-lpv-0    50Gi       RWO            prometheus-lpv   13d</div></pre></td></tr></table></figure>
+<ol>
+<li><p>访问prometheus web UI</p>
+<p> prometheus.yml中指定的job，相应target已经抓取到；可通过graph查询metrics</p>
+</li>
+</ol>
+<p><img src="/images/prometheus-targets.jpg" alt="prometheus-targets"></p>
+<p><img src="/images/prometheus-metrics.jpg" alt="prometheus-metrics"></p>
+<p><img src="/images/prometheus-up.jpg" alt="prometheus-up"></p>
+<p>​    按照目前配置，prometheus、apiserver、容器指标数据都能获取到，但是主机及k8s相关资源指标数据还没有，还需要部署node-exporter及kube-state-metrics</p>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>♪ 交个朋友吧  ♪<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                    <div class="reward-box-item">
+                      <img class="reward-img" src="/images/webchat.png">
+                      <span class="reward-type">微信</span>
+                    </div>
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
       
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2016" class="archive-year">2016</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/LVS-NAT-负载均衡的实现/" class="archive-article-date">
-  	<time datetime="2016-05-16T05:13:23.410Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-05-16</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/LVS-NAT-负载均衡的实现/">LVS NAT 负载均衡的实现</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -194,260 +322,125 @@
 		</ul>
 	</div>
 
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/如何使用openssl工具创建私有CA/" class="archive-article-date">
-  	<time datetime="2016-04-20T14:31:44.792Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-04-20</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/如何使用openssl工具创建私有CA/">如何使用openssl工具创建私有CA</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/PXE自动化安装CentOS7/" class="archive-article-date">
-  	<time datetime="2016-03-29T13:22:50.341Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-03-29</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/PXE自动化安装CentOS7/">PXE自动化安装CentOS7</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/yum客户端的配置及yum命令用法/" class="archive-article-date">
-  	<time datetime="2016-03-02T08:20:44.737Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-03-02</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/yum客户端的配置及yum命令用法/">yum客户端的配置及yum命令用法</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/如何实现rsyslog的远程日志存储/" class="archive-article-date">
-  	<time datetime="2016-01-14T03:33:24.445Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-01-14</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/如何实现rsyslog的远程日志存储/">如何实现rsyslog的远程日志存储</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
       
-        </div></section>
+
       
+
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2015" class="archive-year">2015</a>
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/逻辑卷LVM的实现/" class="archive-article-date">
-  	<time datetime="2015-11-14T13:31:23.529Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-11-14</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/逻辑卷LVM的实现/">逻辑卷LVM的实现</a>
-    </h1>
-  
+      </div>
+    </span>
+  </div>
+</div>
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://fufeixiang.com/blogs/高可用prometheus监控集群搭建(一)/" alt="微信分享二维码">
+    </div>
+</div>
 
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/blogs/boot分区文件恢复/" class="archive-article-date">
-  	<time datetime="2015-10-26T02:37:38.932Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2015-10-26</time>
-</a>
+<nav id="article-nav">
+  
+    <a href="/blogs/高可用prometheus监控集群搭建(二)/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          高可用prometheus监控集群搭建(二)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/blogs/k8s1.14.6集群搭建之kube-proxy部署/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">k8s1.14.6集群搭建之kube-proxy部署</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/blogs/boot分区文件恢复/">/etc/fstab及/boot分区文件恢复</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#简介"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#官方架构图"><span class="toc-number">2.</span> <span class="toc-text">官方架构图</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#数据模型"><span class="toc-number">3.</span> <span class="toc-text">数据模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#集群拓扑图"><span class="toc-number">4.</span> <span class="toc-text">集群拓扑图</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#节点部署规划"><span class="toc-number">4.1.</span> <span class="toc-text">节点部署规划</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#部署架构图"><span class="toc-number">4.2.</span> <span class="toc-text">部署架构图</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#集群内prometheus-server部署"><span class="toc-number">4.3.</span> <span class="toc-text">集群内prometheus server部署</span></a></li></ol></li></ol>
+                    </div>
+                </span>
+            </div>
         </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
+        
+    </div>
+</aside>
+
+
+
   
   
-    </div></section>
   
 
-    
-    <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/archives/page/3/">&laquo; Prev</a><a class="page-number" href="/archives/">1</a><a class="page-number" href="/archives/page/2/">2</a><a class="page-number" href="/archives/page/3/">3</a><span class="page-number current">4</span>
-    </nav>
+  
+
   
 
 
@@ -471,8 +464,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
