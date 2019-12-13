@@ -155,6 +155,161 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-Keepalived+nginx-LB高可用集群实现" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blogs/Keepalived+nginx-LB高可用集群实现/">Keepalived+nginx LB高可用集群实现</a>
+    </h1>
+  
+
+        
+        <a href="/blogs/Keepalived+nginx-LB高可用集群实现/" class="archive-article-date">
+  	<time datetime="2016-07-20T15:32:22.390Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-07-20</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="keepalived简介"><a href="#keepalived简介" class="headerlink" title="keepalived简介"></a>keepalived简介</h3><p>keepalived是一款解决负载均衡(调度器)的高可用问题的软件，可以实现负载均衡器的故障转移(failover)，原生设计的目的为了高可用ipvs服务，后来增加了脚本调用接口，使其一定程度上具有了管控服务进程的功能，基于此接口也可以支持nginx、haproxy负载均衡的高可用。keepalived是VRRP协议的软件实现，也基于VRRP协议完成地址流动，那什么是VRRP协议呢？
+        
+          <a class="article-more-a" href="/blogs/Keepalived+nginx-LB高可用集群实现/#more">more >></a>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/blogs/Keepalived+nginx-LB高可用集群实现/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-LVS-DR-负载均衡实现" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/blogs/LVS-DR-负载均衡实现/">LVS DR 负载均衡实现</a>
+    </h1>
+  
+
+        
+        <a href="/blogs/LVS-DR-负载均衡实现/" class="archive-article-date">
+  	<time datetime="2016-06-03T05:02:36.403Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-06-03</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>上篇关于<a href="http://fufeixiang.com/blogs/LVS-NAT-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%9A%84%E5%AE%9E%E7%8E%B0/">LVS-nat 模式的负载均衡实现</a>博客中已经简单介绍了有关LVS集群的概念、四种IP负载均衡技术以及十种调度算法，本文将详细介绍LVS-DR(直接路由)模式的实现</p>
+</blockquote>
+<p>​        LVS-DR：Direct Routing, LVS默认模式, 通过为请求报文重新封装一个MAC首部进行转发，源MAC是DIP所在的接口的MAC，目标MAC是某挑选出的RS的RIP所在接口的MAC地址；源IP/PORT，以及目标IP/PORT均保持不变。请求报文同样要经由 Director，但与nat不同的是DR模式下的响应报文不经由 Director，而由RS直接发往Client
+        
+          <a class="article-more-a" href="/blogs/LVS-DR-负载均衡实现/#more">more >></a>
+        
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">Linux</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/blogs/LVS-DR-负载均衡实现/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-LVS-NAT-负载均衡的实现" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -788,11 +943,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
+                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color1">Linux</a>
+                <a href="javascript:void(0)" class="js-tag color2">Docker</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -801,10 +956,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">go</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">Linux,Docker</a>
               </li>
             
             <div class="clearfix"></div>
